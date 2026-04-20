@@ -28,30 +28,38 @@ public class WastesController : ControllerBase
         var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (!Guid.TryParse(userIdString, out var userId)) return Unauthorized();
 
+        string? photoPath = null;
+
+        if (form.Photo != null && form.Photo.Length > 0)
+        {
+            var extension = Path.GetExtension(form.Photo.FileName);
+            if (string.IsNullOrEmpty(extension)) extension = ".jpg";
+
+            var dateFolder = form.Date.ToString("yyyy-MM-dd");
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "uploads", "wastes", dateFolder);
+            if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
+
+            var fileName = $"{Guid.NewGuid()}{extension}";
+            var filePath = Path.Combine(uploadsFolder, fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await form.Photo.CopyToAsync(stream);
+            }
+
+            // Store as relative URL accessible from /uploads/
+            photoPath = $"/uploads/wastes/{dateFolder}/{fileName}";
+        }
+
         var dto = new CreateWasteDto
         {
             BranchId = form.BranchId,
             ProductId = form.ProductId,
             Quantity = form.Quantity,
             Notes = form.Notes,
-            Date = form.Date
+            Date = form.Date,
+            PhotoPath = photoPath
         };
-
-        // Simplified file handling for MVP
-        if (form.Photo != null && form.Photo.Length > 0)
-        {
-            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "uploads", "wastes", form.Date.ToString("yyyyMMdd"));
-            if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
-            
-            var fileName = $"{Guid.NewGuid()}.jpg";
-            var filePath = Path.Combine(uploadsFolder, fileName);
-            
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await form.Photo.CopyToAsync(stream);
-            }
-            // Add relative path logic if dto had it
-        }
 
         var result = await _wasteService.CreateWasteAsync(dto, userId);
         if (!result.Success) return BadRequest(result);

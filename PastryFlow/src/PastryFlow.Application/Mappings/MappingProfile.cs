@@ -2,6 +2,7 @@ using AutoMapper;
 using PastryFlow.Application.DTOs.Branch;
 using PastryFlow.Application.DTOs.Category;
 using PastryFlow.Application.DTOs.Demand;
+using PastryFlow.Application.DTOs.Notification;
 using PastryFlow.Application.DTOs.Product;
 using PastryFlow.Application.DTOs.Waste;
 using PastryFlow.Domain.Entities;
@@ -28,6 +29,9 @@ public class MappingProfile : Profile
             
         CreateMap<Waste, WasteDto>()
             .ForMember(d => d.BranchName, o => o.MapFrom(s => s.Branch.Name))
-            .ForMember(d => d.ProductName, o => o.MapFrom(s => s.Product.Name));
+            .ForMember(d => d.ProductName, o => o.MapFrom(s => s.Product.Name))
+            .ForMember(d => d.UnitName, o => o.MapFrom(s => s.Product.Unit.ToString()));
+
+        CreateMap<Notification, NotificationDto>();
     }
 }

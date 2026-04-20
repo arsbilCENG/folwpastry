@@ -33,17 +33,28 @@ public class DemandsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetDemands([FromQuery] Guid? branchId, [FromQuery] string? status, [FromQuery] string? date)
+    public async Task<IActionResult> GetDemands(
+        [FromQuery] Guid? branchId,
+        [FromQuery] Guid? productionBranchId,
+        [FromQuery] string? status,
+        [FromQuery] string? date)
     {
         DemandStatus? dStatus = null;
-        if (Enum.TryParse<DemandStatus>(status, out var parsedStatus))
+        if (Enum.TryParse<DemandStatus>(status, true, out var parsedStatus))
             dStatus = parsedStatus;
 
         DateOnly? dDate = null;
         if (DateOnly.TryParse(date, out var parsedDate))
             dDate = parsedDate;
 
-        var result = await _demandService.GetDemandsAsync(branchId, dStatus, dDate);
+        var result = await _demandService.GetDemandsAsync(branchId, productionBranchId, dStatus, dDate);
+        return Ok(result);
+    }
+
+    [HttpGet("last")]
+    public async Task<IActionResult> GetLastDemand([FromQuery] Guid salesBranchId, [FromQuery] Guid productionBranchId)
+    {
+        var result = await _demandService.GetLastDemandAsync(salesBranchId, productionBranchId);
         return Ok(result);
     }
 
@@ -55,13 +66,34 @@ public class DemandsController : ControllerBase
         return Ok(result);
     }
 
+    [HttpPatch("{id}/review")]
+    public async Task<IActionResult> ReviewDemand(Guid id, ReviewDemandDto dto)
+    {
+        var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (!Guid.TryParse(userIdString, out var userId)) return Unauthorized();
+
+        if (dto.ReviewedByUserId == Guid.Empty)
+            dto.ReviewedByUserId = userId;
+
+        var result = await _demandService.ReviewDemandAsync(id, dto);
+        if (!result.Success) return BadRequest(result);
+        return Ok(result);
+    }
+
+    [HttpPatch("{id}/deliver")]
+    public async Task<IActionResult> DeliverDemand(Guid id, DeliverDemandDto dto)
+    {
+        var result = await _demandService.DeliverDemandAsync(id, dto);
+        if (!result.Success) return BadRequest(result);
+        return Ok(result);
+    }
+
     [HttpPatch("{id}/receive")]
     public async Task<IActionResult> ReceiveDemand(Guid id, ReceiveDemandDto dto)
     {
         var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (!Guid.TryParse(userIdString, out var userId)) return Unauthorized();
 
-        // Ensure the token user is the one receiving it, or trust the DTO
         if (dto.ReceivedByUserId == Guid.Empty)
             dto.ReceivedByUserId = userId;
 

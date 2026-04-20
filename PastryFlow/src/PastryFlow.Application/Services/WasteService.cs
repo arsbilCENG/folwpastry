@@ -47,6 +47,7 @@ public class WasteService : IWasteService
             WasteType = WasteType.DuringDay,
             Notes = dto.Notes,
             Date = dto.Date,
+            PhotoPath = dto.PhotoPath,
             CreatedByUserId = createdByUserId
         };
 

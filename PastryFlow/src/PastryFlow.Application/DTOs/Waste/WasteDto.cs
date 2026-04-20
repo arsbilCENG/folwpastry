@@ -10,6 +10,7 @@ public class WasteDto
     public string BranchName { get; set; } = string.Empty;
     public Guid ProductId { get; set; }
     public string ProductName { get; set; } = string.Empty;
+    public string UnitName { get; set; } = string.Empty;
     public decimal Quantity { get; set; }
     public WasteType WasteType { get; set; }
     public string WasteTypeName => WasteType.ToString();

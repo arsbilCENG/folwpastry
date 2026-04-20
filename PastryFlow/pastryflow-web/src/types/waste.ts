@@ -4,6 +4,7 @@ export interface Waste {
   branchName: string;
   productId: string;
   productName: string;
+  unitName: string;
   quantity: number;
   wasteType: number;
   wasteTypeName: string;

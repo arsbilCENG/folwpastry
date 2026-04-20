@@ -16,11 +16,13 @@ public class DemandService : IDemandService
 {
     private readonly IPastryFlowDbContext _context;
     private readonly IMapper _mapper;
+    private readonly INotificationService _notificationService;
 
-    public DemandService(IPastryFlowDbContext context, IMapper mapper)
+    public DemandService(IPastryFlowDbContext context, IMapper mapper, INotificationService notificationService)
     {
         _context = context;
         _mapper = mapper;
+        _notificationService = notificationService;
     }
 
     public async Task<ApiResponse<DemandDto>> CreateDemandAsync(Guid userId, CreateDemandDto dto)
@@ -55,7 +57,7 @@ public class DemandService : IDemandService
         return await GetDemandByIdAsync(demand.Id);
     }
 
-    public async Task<ApiResponse<List<DemandDto>>> GetDemandsAsync(Guid? branchId = null, DemandStatus? status = null, DateOnly? date = null)
+    public async Task<ApiResponse<List<DemandDto>>> GetDemandsAsync(Guid? branchId = null, Guid? productionBranchId = null, DemandStatus? status = null, DateOnly? date = null)
     {
         var query = _context.Demands
             .Include(d => d.SalesBranch)
@@ -64,9 +66,14 @@ public class DemandService : IDemandService
             .ThenInclude(i => i.Product)
             .AsQueryable();
 
-        if (branchId.HasValue)
+        if (branchId.HasValue && !productionBranchId.HasValue)
         {
             query = query.Where(d => d.SalesBranchId == branchId.Value || d.ProductionBranchId == branchId.Value);
+        }
+
+        if (productionBranchId.HasValue)
+        {
+            query = query.Where(d => d.ProductionBranchId == productionBranchId.Value);
         }
 
         if (status.HasValue)
@@ -76,7 +83,6 @@ public class DemandService : IDemandService
 
         if (date.HasValue)
         {
-            // Assuming CreatedAt is UTC, comparing date part
             query = query.Where(d => DateOnly.FromDateTime(d.CreatedAt.Date) == date.Value);
         }
 
@@ -97,6 +103,130 @@ public class DemandService : IDemandService
             return ApiResponse<DemandDto>.Fail("Talep bulunamadı.");
 
         return ApiResponse<DemandDto>.Ok(_mapper.Map<DemandDto>(demand));
+    }
+
+    public async Task<ApiResponse<DemandDto>> ReviewDemandAsync(Guid id, ReviewDemandDto dto)
+    {
+        var demand = await _context.Demands
+            .Include(d => d.Items)
+            .Include(d => d.SalesBranch)
+            .FirstOrDefaultAsync(d => d.Id == id);
+
+        if (demand == null)
+            return ApiResponse<DemandDto>.Fail("Talep bulunamadı.");
+
+        if (demand.Status != DemandStatus.Pending)
+            return ApiResponse<DemandDto>.Fail("Sadece bekleyen talepler incelenebilir.");
+
+        var reviewedAt = DateTime.UtcNow;
+
+        foreach (var reviewItem in dto.Items)
+        {
+            var demandItem = demand.Items.FirstOrDefault(i => i.Id == reviewItem.DemandItemId);
+            if (demandItem == null) continue;
+
+            if (reviewItem.Status == "Approved")
+            {
+                demandItem.Status = DemandItemStatus.Approved;
+                demandItem.ApprovedQuantity = reviewItem.ApprovedQuantity ?? demandItem.RequestedQuantity;
+                // If quantity is reduced, keep the reason (if provided)
+                demandItem.RejectionReason = demandItem.ApprovedQuantity < demandItem.RequestedQuantity 
+                    ? reviewItem.RejectionReason 
+                    : null;
+            }
+            else if (reviewItem.Status == "Rejected")
+            {
+                demandItem.Status = DemandItemStatus.Rejected;
+                demandItem.ApprovedQuantity = null;
+                demandItem.RejectionReason = reviewItem.RejectionReason;
+            }
+
+            demandItem.ReviewedByUserId = dto.ReviewedByUserId;
+            demandItem.ReviewedAt = reviewedAt;
+        }
+
+        // Calculate overall demand status
+        bool allFullApproved = demand.Items.All(i => i.Status == DemandItemStatus.Approved && i.ApprovedQuantity == i.RequestedQuantity);
+        bool allRejected = demand.Items.All(i => i.Status == DemandItemStatus.Rejected);
+
+        demand.Status = allFullApproved ? DemandStatus.Approved :
+                        allRejected ? DemandStatus.Rejected :
+                        DemandStatus.PartiallyApproved;
+
+        demand.ReviewedByUserId = dto.ReviewedByUserId;
+        demand.ReviewedAt = reviewedAt;
+
+        await _context.SaveChangesAsync();
+
+        // Create notification for sales branch
+        var statusText = demand.Status == DemandStatus.Approved ? "onaylandı" :
+                         demand.Status == DemandStatus.Rejected ? "reddedildi" :
+                         "kısmen onaylandı";
+        await _notificationService.CreateAsync(
+            userId: null,
+            branchId: demand.SalesBranchId,
+            title: "Talep Güncellendi",
+            message: $"Talebiniz {demand.DemandNumber} {statusText}.",
+            relatedEntityType: "Demand",
+            relatedEntityId: demand.Id
+        );
+
+        // If any rejected, notify admin
+        var rejectedCount = demand.Items.Count(i => i.Status == DemandItemStatus.Rejected);
+        if (rejectedCount > 0)
+        {
+            await _notificationService.CreateAsync(
+                userId: null,
+                branchId: null,
+                title: "Talep Kalemler Reddedildi",
+                message: $"{demand.SalesBranch.Name} talebi {demand.DemandNumber}: {rejectedCount} kalem reddedildi.",
+                relatedEntityType: "Demand",
+                relatedEntityId: demand.Id
+            );
+        }
+
+        return await GetDemandByIdAsync(demand.Id);
+    }
+
+    public async Task<ApiResponse<DemandDto>> DeliverDemandAsync(Guid id, DeliverDemandDto dto)
+    {
+        var demand = await _context.Demands
+            .FirstOrDefaultAsync(d => d.Id == id);
+
+        if (demand == null)
+            return ApiResponse<DemandDto>.Fail("Talep bulunamadı.");
+
+        if (demand.Status != DemandStatus.Approved && demand.Status != DemandStatus.PartiallyApproved)
+            return ApiResponse<DemandDto>.Fail("Sadece onaylanmış talepler şoföre teslim edilebilir.");
+
+        demand.Status = DemandStatus.Delivered;
+        demand.DeliveredAt = DateTime.UtcNow;
+        demand.DriverUserId = dto.DriverUserId;
+
+        await _context.SaveChangesAsync();
+
+        return await GetDemandByIdAsync(demand.Id);
+    }
+
+    public async Task<ApiResponse<DemandDto?>> GetLastDemandAsync(Guid salesBranchId, Guid productionBranchId)
+    {
+        // Get yesterday's date
+        var yesterday = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-1));
+
+        var demand = await _context.Demands
+            .Include(d => d.SalesBranch)
+            .Include(d => d.ProductionBranch)
+            .Include(d => d.Items)
+            .ThenInclude(i => i.Product)
+            .Where(d => d.SalesBranchId == salesBranchId && d.ProductionBranchId == productionBranchId
+                        && DateOnly.FromDateTime(d.CreatedAt.Date) == yesterday)
+            .OrderByDescending(d => d.CreatedAt)
+            .FirstOrDefaultAsync();
+
+        if (demand == null)
+            return ApiResponse<DemandDto?>.Ok(null);
+
+        return ApiResponse<DemandDto?>.Ok(_mapper.Map<DemandDto>(demand));
     }
 
     public async Task<ApiResponse<DemandDto>> ReceiveDemandAsync(Guid id, ReceiveDemandDto dto)
@@ -121,10 +251,8 @@ public class DemandService : IDemandService
 
         foreach (var item in demand.Items)
         {
-            // Add to DailyStockSummary
-            var approvedQty = item.ApprovedQuantity ?? item.RequestedQuantity; // If not explicitly approved but Delivered (e.g. auto approved)
+            var approvedQty = item.ApprovedQuantity ?? item.RequestedQuantity;
             
-            // Only add if it was approved
             if (item.Status == DemandItemStatus.Rejected)
                 continue;
 
@@ -133,7 +261,6 @@ public class DemandService : IDemandService
 
             if (summary == null)
             {
-                // Find carry over from previous day
                 var previousSummary = await _context.DailyStockSummaries
                     .Where(s => s.BranchId == demand.SalesBranchId && s.ProductId == item.ProductId && s.Date < today && s.IsClosed)
                     .OrderByDescending(s => s.Date)

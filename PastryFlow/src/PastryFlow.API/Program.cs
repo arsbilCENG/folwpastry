@@ -13,11 +13,7 @@ using PastryFlow.Infrastructure.Data;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers()
-    .AddJsonOptions(options =>
-    {
-        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-    });
+builder.Services.AddControllers();
 
 // DbContext
 builder.Services.AddDbContext<PastryFlowDbContext>(options =>
@@ -35,6 +31,7 @@ builder.Services.AddScoped<IDemandService, DemandService>();
 builder.Services.AddScoped<IStockService, StockService>();
 builder.Services.AddScoped<IDayClosingService, DayClosingService>();
 builder.Services.AddScoped<IWasteService, WasteService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 
 // JWT Authentication
 var jwtSecret = builder.Configuration["Jwt:Secret"] ?? throw new InvalidOperationException("Jwt:Secret is missing");
@@ -81,12 +78,42 @@ using (var scope = app.Services.CreateScope())
     var context = scope.ServiceProvider.GetRequiredService<PastryFlowDbContext>();
     try
     {
+        // Sprint 2 one-time fixup: move products from EKMEK to FIRIN BEFORE migration
+        // to avoid Foreign Key violation during Migration's SeedData deletion.
+        var ekmekId = "22222222-2222-2222-2222-222222222202";
+        var firinId = "22222222-2222-2222-2222-222222222207";
+        
+        // Use raw SQL to ensure it runs independently of the current model state
+        context.Database.ExecuteSqlRaw($@"
+            UPDATE ""Products"" 
+            SET ""CategoryId"" = '{firinId}' 
+            WHERE ""CategoryId"" = '{ekmekId}'");
+        
+        Console.WriteLine("[Sprint2] Pre-migration fixup: Products moved from EKMEK to FIRIN.");
+
         context.Database.Migrate();
+
+        // One-time deletion of EKMEK category if it still exists (after products moved)
+        context.Database.ExecuteSqlRaw($@"
+            DELETE FROM ""Categories"" 
+            WHERE ""Id"" = '{ekmekId}'");
+
+        // Fix category SortOrders if they have old values
+        var categories = context.Categories.ToList();
+        var sortMap = new Dictionary<string, int> {
+            { "KEK", 1 }, { "MAYALILAR", 2 }, { "KURABİYE", 3 },
+            { "PASTALAR", 4 }, { "İÇECEK", 5 }, { "FIRIN", 6 }, { "HAMMADDE", 7 }
+        };
+        foreach (var cat in categories)
+        {
+            if (sortMap.TryGetValue(cat.Name, out var expectedOrder) && cat.SortOrder != expectedOrder)
+                cat.SortOrder = expectedOrder;
+        }
+        context.SaveChanges();
     }
     catch (Exception ex)
     {
-        // Log Error
-        Console.WriteLine($"Migration Error: {ex.Message}");
+        Console.WriteLine($"Migration/Fixup Error: {ex.Message}");
     }
 }
 
@@ -100,11 +127,10 @@ app.UseStaticFiles(new StaticFileOptions
     RequestPath = "/uploads"
 });
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+// Swagger available in all environments for testing
+app.UseSwagger();
+app.UseSwaggerUI();
+
 
 app.UseRouting();
 app.UseCors("AllowAll");

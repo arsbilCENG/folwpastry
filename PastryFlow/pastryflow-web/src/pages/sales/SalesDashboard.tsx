@@ -28,7 +28,7 @@ const SalesDashboard: React.FC = () => {
         
         const [stockRes, demandRes, wasteRes, closingRes] = await Promise.all([
           stockApi.getCurrentStock(user.branchId, today),
-          demandApi.getDemands({ branchId: user.branchId, status: 1, date: today }), // 1 is Pending
+          demandApi.getDemands({ branchId: user.branchId, status: 'Pending', date: today }), // 'Pending' or 1 as string
           wasteApi.getWastes(user.branchId, today),
           dayClosingApi.getSummary(user.branchId, today)
         ]);

@@ -10,5 +10,5 @@ public class CreateWasteDto
     public decimal Quantity { get; set; }
     public string? Notes { get; set; }
     public DateOnly Date { get; set; }
-    // Note: Photo upload is handled separately or mapped via IFormFile in the controller
+    public string? PhotoPath { get; set; }
 }

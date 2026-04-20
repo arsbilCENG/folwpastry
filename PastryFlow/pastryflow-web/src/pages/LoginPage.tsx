@@ -8,16 +8,28 @@ import { authApi } from '../api/authApi';
 const { Title } = Typography;
 const { Content } = Layout;
 
+const getRoleRoute = (role: string): string => {
+  switch (role) {
+    case 'Production':
+      return '/production/dashboard';
+    case 'Admin':
+    case 'Sales':
+    case 'Driver':
+    default:
+      return '/sales/dashboard';
+  }
+};
+
 const LoginPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { login, isAuthenticated } = useAuth();
+  const { login, isAuthenticated, user } = useAuth();
 
   useEffect(() => {
-    if (isAuthenticated) {
-      navigate('/sales/dashboard', { replace: true });
+    if (isAuthenticated && user) {
+      navigate(getRoleRoute(user.role), { replace: true });
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, user, navigate]);
 
   const onFinish = async (values: any) => {
     setLoading(true);
@@ -26,7 +38,8 @@ const LoginPage: React.FC = () => {
       if (res.success && res.data) {
         message.success('Giriş başarılı');
         login(res.data);
-        setTimeout(() => navigate('/sales/dashboard', { replace: true }), 100);
+        const route = getRoleRoute(res.data.user.role);
+        setTimeout(() => navigate(route, { replace: true }), 100);
       } else {
         message.error(res.message || 'Giriş başarısız');
       }

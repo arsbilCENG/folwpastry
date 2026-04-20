@@ -42,7 +42,6 @@ public static class SeedData
 
         var catIds = new Dictionary<string, Guid> {
             { "KEK", Guid.Parse("22222222-2222-2222-2222-222222222201") },
-            { "EKMEK", Guid.Parse("22222222-2222-2222-2222-222222222202") },
             { "MAYALILAR", Guid.Parse("22222222-2222-2222-2222-222222222203") },
             { "KURABİYE", Guid.Parse("22222222-2222-2222-2222-222222222204") },
             { "PASTALAR", Guid.Parse("22222222-2222-2222-2222-222222222205") },
@@ -53,13 +52,12 @@ public static class SeedData
 
         modelBuilder.Entity<Category>().HasData(
             new Category { Id = catIds["KEK"], Name = "KEK", SortOrder = 1 },
-            new Category { Id = catIds["EKMEK"], Name = "EKMEK", SortOrder = 2 },
-            new Category { Id = catIds["MAYALILAR"], Name = "MAYALILAR", SortOrder = 3 },
-            new Category { Id = catIds["KURABİYE"], Name = "KURABİYE", SortOrder = 4 },
-            new Category { Id = catIds["PASTALAR"], Name = "PASTALAR", SortOrder = 5 },
-            new Category { Id = catIds["İÇECEK"], Name = "İÇECEK", SortOrder = 6 },
-            new Category { Id = catIds["FIRIN"], Name = "FIRIN", SortOrder = 7 },
-            new Category { Id = catIds["HAMMADDE"], Name = "HAMMADDE", SortOrder = 8 }
+            new Category { Id = catIds["MAYALILAR"], Name = "MAYALILAR", SortOrder = 2 },
+            new Category { Id = catIds["KURABİYE"], Name = "KURABİYE", SortOrder = 3 },
+            new Category { Id = catIds["PASTALAR"], Name = "PASTALAR", SortOrder = 4 },
+            new Category { Id = catIds["İÇECEK"], Name = "İÇECEK", SortOrder = 5 },
+            new Category { Id = catIds["FIRIN"], Name = "FIRIN", SortOrder = 6 },
+            new Category { Id = catIds["HAMMADDE"], Name = "HAMMADDE", SortOrder = 7 }
         );
 
         var products = new List<Product>();
@@ -77,9 +75,9 @@ public static class SeedData
         var kekNames = new[] { "KEK DİLİM", "KEK KALIP BÜYÜK", "KEK KALIP KÜÇÜK", "KEK KALIP ORTA", "KEK MUFİN" };
         foreach (var n in kekNames) AddProduct(n, UnitType.Adet, p1BranchId, catIds["KEK"], ProductType.FinishedProduct);
 
-        // EKMEK
+        // EKMEK (Edirne Mutfak bread products go into FIRIN category)
         var ekmekNames = new[] { "EKŞİ MAYA (3'LÜ)", "EKŞİ MAYA (2'Lİ)", "ÇAVDAR", "TAHILLI", "MISIR", "TEKLİ BEYAZ", "ÇİFTLİ BEYAZ", "KEPEK", "TAMBUĞDAY", "PİDE", "SANDVİÇ", "SİYEZ" };
-        foreach (var n in ekmekNames) AddProduct(n, UnitType.Adet, p2BranchId, catIds["EKMEK"], ProductType.FinishedProduct);
+        foreach (var n in ekmekNames) AddProduct(n, UnitType.Adet, p2BranchId, catIds["FIRIN"], ProductType.FinishedProduct);
 
         // MAYALILAR
         var mayaliNames = new[] { "BÖREK", "KAFKAS BÖREĞİ", "AÇMA", "İÇLİ SİMİT", "PİZZA", "POĞAÇA", "POĞAÇA İRAN", "POĞAÇA SAKALLI", "SİMİT", "SU BÖREĞİ", "İÇLİ SANDVİÇ" };

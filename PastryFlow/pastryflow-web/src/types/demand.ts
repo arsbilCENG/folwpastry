@@ -2,6 +2,7 @@ export interface DemandItem {
   id: string;
   productId: string;
   productName: string;
+  categoryName?: string;
   unit: number;
   unitName: string;
   requestedQuantity: number;
@@ -40,4 +41,20 @@ export interface CreateDemandDto {
   productionBranchId: string;
   notes?: string;
   items: CreateDemandItemDto[];
+}
+
+export interface ReviewDemandItemDto {
+  demandItemId: string;
+  status: 'Approved' | 'Rejected';
+  approvedQuantity?: number;
+  rejectionReason?: string;
+}
+
+export interface ReviewDemandDto {
+  reviewedByUserId: string;
+  items: ReviewDemandItemDto[];
+}
+
+export interface DeliverDemandDto {
+  driverUserId?: string;
 }

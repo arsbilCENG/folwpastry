@@ -4,7 +4,7 @@ EXPOSE 8080
 
 # Npgsql için gerekli kütüphane
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends libkrb5-3 && \
+    apt-get install -y --no-install-recommends libgssapi-krb5-2 && \
     rm -rf /var/lib/apt/lists/*
 
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build

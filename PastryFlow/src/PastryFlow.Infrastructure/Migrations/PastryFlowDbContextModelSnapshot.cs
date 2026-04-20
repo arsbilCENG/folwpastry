@@ -58,7 +58,7 @@ namespace PastryFlow.Infrastructure.Migrations
                             Id = new Guid("11111111-1111-1111-1111-111111111101"),
                             BranchType = 1,
                             City = 1,
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 17, DateTimeKind.Utc).AddTicks(614),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 396, DateTimeKind.Utc).AddTicks(9777),
                             IsActive = true,
                             Name = "Kırklareli Mutfak"
                         },
@@ -67,7 +67,7 @@ namespace PastryFlow.Infrastructure.Migrations
                             Id = new Guid("11111111-1111-1111-1111-111111111102"),
                             BranchType = 1,
                             City = 2,
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 17, DateTimeKind.Utc).AddTicks(3021),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 397, DateTimeKind.Utc).AddTicks(6699),
                             IsActive = true,
                             Name = "Edirne Mutfak"
                         },
@@ -76,7 +76,7 @@ namespace PastryFlow.Infrastructure.Migrations
                             Id = new Guid("11111111-1111-1111-1111-111111111103"),
                             BranchType = 1,
                             City = 3,
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 17, DateTimeKind.Utc).AddTicks(3025),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 397, DateTimeKind.Utc).AddTicks(6703),
                             IsActive = true,
                             Name = "Lüleburgaz Mutfak"
                         },
@@ -85,7 +85,7 @@ namespace PastryFlow.Infrastructure.Migrations
                             Id = new Guid("11111111-1111-1111-1111-111111111104"),
                             BranchType = 2,
                             City = 1,
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 17, DateTimeKind.Utc).AddTicks(3027),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 397, DateTimeKind.Utc).AddTicks(6712),
                             IsActive = true,
                             Name = "Kırklareli Tezgah"
                         },
@@ -94,7 +94,7 @@ namespace PastryFlow.Infrastructure.Migrations
                             Id = new Guid("11111111-1111-1111-1111-111111111105"),
                             BranchType = 2,
                             City = 2,
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 17, DateTimeKind.Utc).AddTicks(3029),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 397, DateTimeKind.Utc).AddTicks(6714),
                             IsActive = true,
                             Name = "Edirne Tezgah"
                         },
@@ -103,7 +103,7 @@ namespace PastryFlow.Infrastructure.Migrations
                             Id = new Guid("11111111-1111-1111-1111-111111111106"),
                             BranchType = 2,
                             City = 3,
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 17, DateTimeKind.Utc).AddTicks(3031),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 397, DateTimeKind.Utc).AddTicks(6716),
                             IsActive = true,
                             Name = "Lüleburgaz Tezgah"
                         });
@@ -140,66 +140,58 @@ namespace PastryFlow.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("22222222-2222-2222-2222-222222222201"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 20, DateTimeKind.Utc).AddTicks(3917),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 400, DateTimeKind.Utc).AddTicks(1744),
                             IsActive = true,
                             Name = "KEK",
                             SortOrder = 1
                         },
                         new
                         {
-                            Id = new Guid("22222222-2222-2222-2222-222222222202"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 20, DateTimeKind.Utc).AddTicks(9664),
+                            Id = new Guid("22222222-2222-2222-2222-222222222203"),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 400, DateTimeKind.Utc).AddTicks(6892),
                             IsActive = true,
-                            Name = "EKMEK",
+                            Name = "MAYALILAR",
                             SortOrder = 2
                         },
                         new
                         {
-                            Id = new Guid("22222222-2222-2222-2222-222222222203"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 20, DateTimeKind.Utc).AddTicks(9682),
+                            Id = new Guid("22222222-2222-2222-2222-222222222204"),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 400, DateTimeKind.Utc).AddTicks(6904),
                             IsActive = true,
-                            Name = "MAYALILAR",
+                            Name = "KURABİYE",
                             SortOrder = 3
                         },
                         new
                         {
-                            Id = new Guid("22222222-2222-2222-2222-222222222204"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 20, DateTimeKind.Utc).AddTicks(9685),
+                            Id = new Guid("22222222-2222-2222-2222-222222222205"),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 400, DateTimeKind.Utc).AddTicks(6987),
                             IsActive = true,
-                            Name = "KURABİYE",
+                            Name = "PASTALAR",
                             SortOrder = 4
                         },
                         new
                         {
-                            Id = new Guid("22222222-2222-2222-2222-222222222205"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 20, DateTimeKind.Utc).AddTicks(9722),
+                            Id = new Guid("22222222-2222-2222-2222-222222222206"),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 400, DateTimeKind.Utc).AddTicks(6990),
                             IsActive = true,
-                            Name = "PASTALAR",
+                            Name = "İÇECEK",
                             SortOrder = 5
                         },
                         new
                         {
-                            Id = new Guid("22222222-2222-2222-2222-222222222206"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 20, DateTimeKind.Utc).AddTicks(9725),
+                            Id = new Guid("22222222-2222-2222-2222-222222222207"),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 400, DateTimeKind.Utc).AddTicks(6998),
                             IsActive = true,
-                            Name = "İÇECEK",
+                            Name = "FIRIN",
                             SortOrder = 6
                         },
                         new
                         {
-                            Id = new Guid("22222222-2222-2222-2222-222222222207"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 20, DateTimeKind.Utc).AddTicks(9728),
-                            IsActive = true,
-                            Name = "FIRIN",
-                            SortOrder = 7
-                        },
-                        new
-                        {
                             Id = new Guid("22222222-2222-2222-2222-222222222208"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 20, DateTimeKind.Utc).AddTicks(9730),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 400, DateTimeKind.Utc).AddTicks(7001),
                             IsActive = true,
                             Name = "HAMMADDE",
-                            SortOrder = 8
+                            SortOrder = 7
                         });
                 });
 
@@ -481,7 +473,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000001"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222201"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(3729),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(622),
                             IsActive = true,
                             Name = "KEK DİLİM",
                             ProductType = 2,
@@ -492,7 +484,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000002"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222201"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(6989),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3508),
                             IsActive = true,
                             Name = "KEK KALIP BÜYÜK",
                             ProductType = 2,
@@ -503,7 +495,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000003"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222201"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7002),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3520),
                             IsActive = true,
                             Name = "KEK KALIP KÜÇÜK",
                             ProductType = 2,
@@ -514,7 +506,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000004"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222201"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7007),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3524),
                             IsActive = true,
                             Name = "KEK KALIP ORTA",
                             ProductType = 2,
@@ -525,7 +517,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000005"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222201"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7012),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3528),
                             IsActive = true,
                             Name = "KEK MUFİN",
                             ProductType = 2,
@@ -535,8 +527,8 @@ namespace PastryFlow.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000006"),
-                            CategoryId = new Guid("22222222-2222-2222-2222-222222222202"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7024),
+                            CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3545),
                             IsActive = true,
                             Name = "EKŞİ MAYA (3'LÜ)",
                             ProductType = 2,
@@ -546,8 +538,8 @@ namespace PastryFlow.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000007"),
-                            CategoryId = new Guid("22222222-2222-2222-2222-222222222202"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7119),
+                            CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3555),
                             IsActive = true,
                             Name = "EKŞİ MAYA (2'Lİ)",
                             ProductType = 2,
@@ -557,8 +549,8 @@ namespace PastryFlow.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000008"),
-                            CategoryId = new Guid("22222222-2222-2222-2222-222222222202"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7137),
+                            CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3558),
                             IsActive = true,
                             Name = "ÇAVDAR",
                             ProductType = 2,
@@ -568,8 +560,8 @@ namespace PastryFlow.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000009"),
-                            CategoryId = new Guid("22222222-2222-2222-2222-222222222202"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7142),
+                            CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3566),
                             IsActive = true,
                             Name = "TAHILLI",
                             ProductType = 2,
@@ -579,8 +571,8 @@ namespace PastryFlow.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000010"),
-                            CategoryId = new Guid("22222222-2222-2222-2222-222222222202"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7151),
+                            CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3571),
                             IsActive = true,
                             Name = "MISIR",
                             ProductType = 2,
@@ -590,8 +582,8 @@ namespace PastryFlow.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000011"),
-                            CategoryId = new Guid("22222222-2222-2222-2222-222222222202"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7155),
+                            CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3574),
                             IsActive = true,
                             Name = "TEKLİ BEYAZ",
                             ProductType = 2,
@@ -601,8 +593,8 @@ namespace PastryFlow.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000012"),
-                            CategoryId = new Guid("22222222-2222-2222-2222-222222222202"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7159),
+                            CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3577),
                             IsActive = true,
                             Name = "ÇİFTLİ BEYAZ",
                             ProductType = 2,
@@ -612,8 +604,8 @@ namespace PastryFlow.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000013"),
-                            CategoryId = new Guid("22222222-2222-2222-2222-222222222202"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7164),
+                            CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3580),
                             IsActive = true,
                             Name = "KEPEK",
                             ProductType = 2,
@@ -623,8 +615,8 @@ namespace PastryFlow.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000014"),
-                            CategoryId = new Guid("22222222-2222-2222-2222-222222222202"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7168),
+                            CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3583),
                             IsActive = true,
                             Name = "TAMBUĞDAY",
                             ProductType = 2,
@@ -634,8 +626,8 @@ namespace PastryFlow.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000015"),
-                            CategoryId = new Guid("22222222-2222-2222-2222-222222222202"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7172),
+                            CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3589),
                             IsActive = true,
                             Name = "PİDE",
                             ProductType = 2,
@@ -645,8 +637,8 @@ namespace PastryFlow.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000016"),
-                            CategoryId = new Guid("22222222-2222-2222-2222-222222222202"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7176),
+                            CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3592),
                             IsActive = true,
                             Name = "SANDVİÇ",
                             ProductType = 2,
@@ -656,8 +648,8 @@ namespace PastryFlow.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000017"),
-                            CategoryId = new Guid("22222222-2222-2222-2222-222222222202"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7180),
+                            CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3595),
                             IsActive = true,
                             Name = "SİYEZ",
                             ProductType = 2,
@@ -668,7 +660,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000018"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222203"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7191),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3601),
                             IsActive = true,
                             Name = "BÖREK",
                             ProductType = 2,
@@ -679,7 +671,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000019"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222203"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7195),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3608),
                             IsActive = true,
                             Name = "KAFKAS BÖREĞİ",
                             ProductType = 2,
@@ -690,7 +682,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000020"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222203"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7206),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3612),
                             IsActive = true,
                             Name = "AÇMA",
                             ProductType = 2,
@@ -701,7 +693,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000021"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222203"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7210),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3615),
                             IsActive = true,
                             Name = "İÇLİ SİMİT",
                             ProductType = 2,
@@ -712,7 +704,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000022"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222203"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7215),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3618),
                             IsActive = true,
                             Name = "PİZZA",
                             ProductType = 2,
@@ -723,7 +715,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000023"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222203"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7219),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3623),
                             IsActive = true,
                             Name = "POĞAÇA",
                             ProductType = 2,
@@ -734,7 +726,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000024"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222203"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7223),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3627),
                             IsActive = true,
                             Name = "POĞAÇA İRAN",
                             ProductType = 2,
@@ -745,7 +737,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000025"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222203"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7228),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3630),
                             IsActive = true,
                             Name = "POĞAÇA SAKALLI",
                             ProductType = 2,
@@ -756,7 +748,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000026"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222203"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7234),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3634),
                             IsActive = true,
                             Name = "SİMİT",
                             ProductType = 2,
@@ -767,7 +759,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000027"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222203"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7243),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3686),
                             IsActive = true,
                             Name = "SU BÖREĞİ",
                             ProductType = 2,
@@ -778,7 +770,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000028"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222203"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7247),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3691),
                             IsActive = true,
                             Name = "İÇLİ SANDVİÇ",
                             ProductType = 2,
@@ -789,7 +781,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000029"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222204"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7259),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3699),
                             IsActive = true,
                             Name = "ACIBADEM",
                             ProductType = 2,
@@ -800,7 +792,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000030"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222204"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7264),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3702),
                             IsActive = true,
                             Name = "BEZE BÜYÜK",
                             ProductType = 2,
@@ -811,7 +803,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000031"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222204"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7269),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3708),
                             IsActive = true,
                             Name = "BEZE KUTU",
                             ProductType = 2,
@@ -822,7 +814,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000032"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222204"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7307),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3714),
                             IsActive = true,
                             Name = "GÜLEN YÜZ",
                             ProductType = 2,
@@ -833,7 +825,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000033"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222204"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7312),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3717),
                             IsActive = true,
                             Name = "KURABİYE EKSTRA",
                             ProductType = 2,
@@ -844,7 +836,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000034"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222204"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7321),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3722),
                             IsActive = true,
                             Name = "KURABİYE MUZ / BONCUK",
                             ProductType = 2,
@@ -855,7 +847,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000035"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222204"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7381),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3725),
                             IsActive = true,
                             Name = "KURABİYE SADE",
                             ProductType = 2,
@@ -866,7 +858,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000036"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222204"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7387),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3728),
                             IsActive = true,
                             Name = "KURABİYE ŞAM",
                             ProductType = 2,
@@ -877,7 +869,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000037"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222204"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7392),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3731),
                             IsActive = true,
                             Name = "KURABİYE TAHİNLİ",
                             ProductType = 2,
@@ -888,7 +880,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000038"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222204"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7397),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3735),
                             IsActive = true,
                             Name = "KURABİYE UN",
                             ProductType = 2,
@@ -899,7 +891,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000039"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222204"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7401),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3740),
                             IsActive = true,
                             Name = "KURU PASTA",
                             ProductType = 2,
@@ -910,7 +902,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000040"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222204"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7406),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3743),
                             IsActive = true,
                             Name = "KURABİYE TART",
                             ProductType = 2,
@@ -921,7 +913,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000041"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222204"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7411),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3747),
                             IsActive = true,
                             Name = "KANDİL SİMİDİ",
                             ProductType = 2,
@@ -932,7 +924,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000042"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222205"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7419),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3752),
                             IsActive = true,
                             Name = "ALMAN PASTASI",
                             ProductType = 2,
@@ -943,7 +935,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000043"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222205"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7424),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3756),
                             IsActive = true,
                             Name = "RULO SARMA",
                             ProductType = 2,
@@ -954,7 +946,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000044"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222205"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7428),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3759),
                             IsActive = true,
                             Name = "PASTA ADET",
                             ProductType = 2,
@@ -965,7 +957,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000045"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222205"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7432),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3762),
                             IsActive = true,
                             Name = "PASTA CHEESECAKE",
                             ProductType = 2,
@@ -976,7 +968,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000046"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222205"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7436),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3766),
                             IsActive = true,
                             Name = "PASTA B1",
                             ProductType = 2,
@@ -987,7 +979,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000047"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222205"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7441),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3771),
                             IsActive = true,
                             Name = "PASTA NO 0",
                             ProductType = 2,
@@ -998,7 +990,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000048"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222205"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7445),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3775),
                             IsActive = true,
                             Name = "PASTA NO 1",
                             ProductType = 2,
@@ -1009,7 +1001,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000049"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222205"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7449),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3778),
                             IsActive = true,
                             Name = "FİGÜR-BUDAPEŞTE-SEBASTİAN",
                             ProductType = 2,
@@ -1020,7 +1012,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000050"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222205"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7455),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3782),
                             IsActive = true,
                             Name = "SÜTLÜ TATLILAR",
                             ProductType = 2,
@@ -1031,7 +1023,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000051"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222205"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7460),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3785),
                             IsActive = true,
                             Name = "TRİLEÇE",
                             ProductType = 2,
@@ -1042,7 +1034,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000052"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222205"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7464),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3789),
                             IsActive = true,
                             Name = "SİPARİŞ PASTA",
                             ProductType = 2,
@@ -1053,7 +1045,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000053"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222205"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7469),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3792),
                             IsActive = true,
                             Name = "PASTA KG",
                             ProductType = 2,
@@ -1064,7 +1056,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000054"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222206"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7475),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3797),
                             IsActive = true,
                             Name = "AYRAN",
                             ProductType = 2,
@@ -1075,7 +1067,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000055"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222206"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7480),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3803),
                             IsActive = true,
                             Name = "ÇAY SATIŞ",
                             ProductType = 2,
@@ -1086,7 +1078,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000056"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222206"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7484),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3877),
                             IsActive = true,
                             Name = "ESPRESSO",
                             ProductType = 2,
@@ -1097,7 +1089,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000057"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222206"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7489),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3881),
                             IsActive = true,
                             Name = "GAZLI İÇECEK",
                             ProductType = 2,
@@ -1108,7 +1100,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000058"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222206"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7495),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3885),
                             IsActive = true,
                             Name = "LİMONATA",
                             ProductType = 2,
@@ -1119,7 +1111,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000059"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222206"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7499),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3888),
                             IsActive = true,
                             Name = "MEYVE SUYU",
                             ProductType = 2,
@@ -1130,7 +1122,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000060"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222206"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7503),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3891),
                             IsActive = true,
                             Name = "SODA MEYVELİ",
                             ProductType = 2,
@@ -1141,7 +1133,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000061"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222206"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7508),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3894),
                             IsActive = true,
                             Name = "SODA SADE",
                             ProductType = 2,
@@ -1152,7 +1144,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000062"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222206"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7512),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3898),
                             IsActive = true,
                             Name = "SU 0.5 L",
                             ProductType = 2,
@@ -1163,7 +1155,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000063"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222206"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7516),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3903),
                             IsActive = true,
                             Name = "TÜRK KAHVESİ",
                             ProductType = 2,
@@ -1174,7 +1166,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000064"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222206"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7520),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3906),
                             IsActive = true,
                             Name = "BİTKİ ÇAYI",
                             ProductType = 2,
@@ -1185,7 +1177,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000065"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222206"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7525),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3909),
                             IsActive = true,
                             Name = "PİKNİK ÜRÜNLER",
                             ProductType = 2,
@@ -1196,7 +1188,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000066"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222206"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7580),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3914),
                             IsActive = true,
                             Name = "KAHVALTI TABAĞI",
                             ProductType = 2,
@@ -1207,7 +1199,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000067"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7586),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3919),
                             IsActive = true,
                             Name = "GALETE",
                             ProductType = 2,
@@ -1218,7 +1210,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000068"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7591),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3923),
                             IsActive = true,
                             Name = "EKMEK BEYAZ",
                             ProductType = 2,
@@ -1229,7 +1221,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000069"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7596),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3926),
                             IsActive = true,
                             Name = "EKMEK ÇEŞİT",
                             ProductType = 2,
@@ -1240,7 +1232,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000070"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7600),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3929),
                             IsActive = true,
                             Name = "EKMEK KEPEK",
                             ProductType = 2,
@@ -1251,7 +1243,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000071"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7605),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3935),
                             IsActive = true,
                             Name = "EKMEK MISIR",
                             ProductType = 2,
@@ -1262,7 +1254,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000072"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7609),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3938),
                             IsActive = true,
                             Name = "EKMEK SANDVİÇ",
                             ProductType = 2,
@@ -1273,7 +1265,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000073"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7613),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3941),
                             IsActive = true,
                             Name = "TAHILLI EKMEK",
                             ProductType = 2,
@@ -1284,7 +1276,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000074"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7619),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3944),
                             IsActive = true,
                             Name = "PİDE ÇİFTLİ",
                             ProductType = 2,
@@ -1295,7 +1287,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000075"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7623),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3947),
                             IsActive = true,
                             Name = "TANDIR EKMEĞİ",
                             ProductType = 2,
@@ -1306,7 +1298,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000076"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222208"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7629),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3952),
                             IsActive = true,
                             Name = "UN",
                             ProductType = 1,
@@ -1316,7 +1308,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000077"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222208"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7634),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3957),
                             IsActive = true,
                             Name = "TUZ",
                             ProductType = 1,
@@ -1326,7 +1318,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000078"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222208"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7638),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3960),
                             IsActive = true,
                             Name = "ŞEKER",
                             ProductType = 1,
@@ -1336,7 +1328,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000079"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222208"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7642),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3965),
                             IsActive = true,
                             Name = "MAYA",
                             ProductType = 1,
@@ -1346,7 +1338,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000080"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222208"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7646),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3968),
                             IsActive = true,
                             Name = "TEREYAĞI",
                             ProductType = 1,
@@ -1356,7 +1348,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000081"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222208"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7650),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3972),
                             IsActive = true,
                             Name = "MARGARİN",
                             ProductType = 1,
@@ -1366,7 +1358,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000082"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222208"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7656),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3975),
                             IsActive = true,
                             Name = "KAKAO",
                             ProductType = 1,
@@ -1376,7 +1368,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000083"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222208"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7661),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3978),
                             IsActive = true,
                             Name = "KABARTMA TOZU",
                             ProductType = 1,
@@ -1386,7 +1378,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000084"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222208"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7665),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(4033),
                             IsActive = true,
                             Name = "NİŞASTA",
                             ProductType = 1,
@@ -1396,7 +1388,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000085"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222208"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7670),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(4038),
                             IsActive = true,
                             Name = "SÜT",
                             ProductType = 1,
@@ -1406,7 +1398,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000086"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222208"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7674),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(4041),
                             IsActive = true,
                             Name = "KREMA",
                             ProductType = 1,
@@ -1416,7 +1408,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000087"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222208"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7678),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(4047),
                             IsActive = true,
                             Name = "AYÇİÇEK YAĞI",
                             ProductType = 1,
@@ -1426,7 +1418,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000088"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222208"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 21, DateTimeKind.Utc).AddTicks(7683),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(4051),
                             IsActive = true,
                             Name = "YUMURTA",
                             ProductType = 1,
@@ -1581,7 +1573,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("33333333-3333-3333-3333-333333333301"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 18, DateTimeKind.Utc).AddTicks(4120),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 398, DateTimeKind.Utc).AddTicks(4846),
                             Email = "admin@pastryflow.com",
                             FullName = "Admin Kullanıcı",
                             IsActive = true,
@@ -1592,7 +1584,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("33333333-3333-3333-3333-333333333302"),
                             BranchId = new Guid("11111111-1111-1111-1111-111111111101"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 18, DateTimeKind.Utc).AddTicks(7171),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 398, DateTimeKind.Utc).AddTicks(7525),
                             Email = "kirklareli.mutfak@pastryflow.com",
                             FullName = "Kırklareli Üretim",
                             IsActive = true,
@@ -1603,7 +1595,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("33333333-3333-3333-3333-333333333303"),
                             BranchId = new Guid("11111111-1111-1111-1111-111111111102"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 18, DateTimeKind.Utc).AddTicks(7810),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 398, DateTimeKind.Utc).AddTicks(8064),
                             Email = "edirne.mutfak@pastryflow.com",
                             FullName = "Edirne Üretim",
                             IsActive = true,
@@ -1614,7 +1606,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("33333333-3333-3333-3333-333333333304"),
                             BranchId = new Guid("11111111-1111-1111-1111-111111111103"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 18, DateTimeKind.Utc).AddTicks(7822),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 398, DateTimeKind.Utc).AddTicks(8072),
                             Email = "luleburgaz.mutfak@pastryflow.com",
                             FullName = "Lüleburgaz Üretim",
                             IsActive = true,
@@ -1625,7 +1617,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("33333333-3333-3333-3333-333333333305"),
                             BranchId = new Guid("11111111-1111-1111-1111-111111111104"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 18, DateTimeKind.Utc).AddTicks(7825),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 398, DateTimeKind.Utc).AddTicks(8075),
                             Email = "kirklareli.tezgah@pastryflow.com",
                             FullName = "Kırklareli Satış",
                             IsActive = true,
@@ -1636,7 +1628,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("33333333-3333-3333-3333-333333333306"),
                             BranchId = new Guid("11111111-1111-1111-1111-111111111105"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 18, DateTimeKind.Utc).AddTicks(7828),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 398, DateTimeKind.Utc).AddTicks(8087),
                             Email = "edirne.tezgah@pastryflow.com",
                             FullName = "Edirne Satış",
                             IsActive = true,
@@ -1647,7 +1639,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("33333333-3333-3333-3333-333333333307"),
                             BranchId = new Guid("11111111-1111-1111-1111-111111111106"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 18, DateTimeKind.Utc).AddTicks(7831),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 398, DateTimeKind.Utc).AddTicks(8090),
                             Email = "luleburgaz.tezgah@pastryflow.com",
                             FullName = "Lüleburgaz Satış",
                             IsActive = true,
@@ -1657,7 +1649,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("33333333-3333-3333-3333-333333333308"),
-                            CreatedAt = new DateTime(2026, 4, 16, 8, 44, 2, 18, DateTimeKind.Utc).AddTicks(7834),
+                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 398, DateTimeKind.Utc).AddTicks(8092),
                             Email = "sofor@pastryflow.com",
                             FullName = "Şoför",
                             IsActive = true,
