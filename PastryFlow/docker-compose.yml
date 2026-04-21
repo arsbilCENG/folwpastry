@@ -1,45 +1,44 @@
-
 services:
   db:
     image: postgres:16-alpine
     environment:
-      POSTGRES_USER: pastryflow_user
-      POSTGRES_PASSWORD: PastryFlow_DB_2024!
-      POSTGRES_DB: pastryflow
+      POSTGRES_USER: ${DB_USER:-pastryflow_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-PastryFlow_DB_2024!}
+      POSTGRES_DB: ${DB_NAME:-pastryflow}
     ports:
       - "5460:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
-    restart: unless-stopped
+    restart: always
 
   api:
     build:
       context: .
       dockerfile: Dockerfile
     environment:
-      - ConnectionStrings__DefaultConnection=Host=db;Database=pastryflow;Username=pastryflow_user;Password=PastryFlow_DB_2024!
-      - Jwt__Secret=PastryFlowSuperSecretKeyThatIsAtLeast32Characters2024!
-      - Jwt__Issuer=PastryFlowAPI
-      - Jwt__Audience=PastryFlowWeb
+      - ConnectionStrings__DefaultConnection=Host=db;Database=${DB_NAME:-pastryflow};Username=${DB_USER:-pastryflow_user};Password=${DB_PASSWORD:-PastryFlow_DB_2024!}
+      - Jwt__Secret=${JWT_SECRET:-PastryFlowSuperSecretKeyThatIsAtLeast32Characters2024!}
+      - Jwt__Issuer=${JWT_ISSUER:-PastryFlowAPI}
+      - Jwt__Audience=${JWT_AUDIENCE:-PastryFlowWeb}
     ports:
       - "5000:8080"
     depends_on:
       - db
     volumes:
       - uploads_vol:/app/uploads
-    restart: unless-stopped
+    restart: always
 
   web:
     build:
       context: ./pastryflow-web
       dockerfile: Dockerfile
       args:
-        - VITE_API_URL=/api
+        - VITE_API_URL=${VITE_API_URL:-/api}
     ports:
       - "3000:80"
     depends_on:
       - api
-    restart: unless-stopped
+    restart: always
 
 volumes:
   pgdata:
