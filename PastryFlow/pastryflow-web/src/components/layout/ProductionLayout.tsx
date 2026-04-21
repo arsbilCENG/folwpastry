@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Layout, Menu, Button, Grid, Typography, theme } from 'antd';
+import { Layout, Menu, Button, Grid, Typography, theme, Avatar, Space, Dropdown, Drawer, type MenuProps } from 'antd';
 import {
   HomeOutlined,
   InboxOutlined,
   LogoutOutlined,
   MenuOutlined,
+  UserOutlined
 } from '@ant-design/icons';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
@@ -15,12 +16,14 @@ const { Title, Text } = Typography;
 
 const ProductionLayout: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
+  const [drawerVisible, setDrawerVisible] = useState(false);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const screens = useBreakpoint();
+  
   const {
-    token: { colorBgContainer, borderRadiusLG },
+    token: { colorBgContainer, borderRadiusLG, colorPrimary },
   } = theme.useToken();
 
   const isMobile = !screens.md;
@@ -32,6 +35,7 @@ const ProductionLayout: React.FC = () => {
 
   const handleMenuClick = ({ key }: { key: string }) => {
     navigate(key);
+    if (isMobile) setDrawerVisible(false);
   };
 
   const handleLogout = () => {
@@ -39,8 +43,29 @@ const ProductionLayout: React.FC = () => {
     navigate('/login');
   };
 
+  const profileMenuItems: MenuProps['items'] = [
+    {
+      key: 'user-info',
+      label: (
+        <div style={{ padding: '4px 8px' }}>
+          <Text strong style={{ display: 'block' }}>{user?.fullName}</Text>
+          <Text type="secondary" style={{ fontSize: 12 }}>{user?.role} - {user?.branchName}</Text>
+        </div>
+      ),
+      disabled: true,
+    },
+    { type: 'divider' },
+    {
+      key: 'logout',
+      icon: <LogoutOutlined />,
+      label: 'Çıkış Yap',
+      danger: true,
+      onClick: handleLogout
+    }
+  ];
+
   const sidebarContent = (
-    <>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div style={{ height: 64, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
         <Title level={4} style={{ color: 'white', margin: 0 }}>
           {isMobile || !collapsed ? '🏭 Üretim' : '🏭'}
@@ -55,8 +80,9 @@ const ProductionLayout: React.FC = () => {
         selectedKeys={[location.pathname]}
         items={menuItems}
         onClick={handleMenuClick}
+        style={{ flex: 1 }}
       />
-      <div style={{ position: 'absolute', bottom: 16, width: '100%', padding: '0 16px' }}>
+      <div style={{ padding: '16px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
         <Button
           type="primary"
           danger
@@ -67,7 +93,7 @@ const ProductionLayout: React.FC = () => {
           {(!collapsed || isMobile) && 'Çıkış Yap'}
         </Button>
       </div>
-    </>
+    </div>
   );
 
   return (
@@ -76,31 +102,70 @@ const ProductionLayout: React.FC = () => {
         <Sider collapsible collapsed={collapsed} onCollapse={setCollapsed}>
           {sidebarContent}
         </Sider>
-      ) : null}
+      ) : (
+        <Drawer
+          placement="left"
+          onClose={() => setDrawerVisible(false)}
+          open={drawerVisible}
+          styles={{ body: { padding: 0, backgroundColor: '#001529' } }}
+          width={250}
+          closable={false}
+        >
+          {sidebarContent}
+        </Drawer>
+      )}
 
       <Layout>
-        <Header style={{ padding: '0 16px', background: colorBgContainer, display: 'flex', alignItems: 'center' }}>
-          {isMobile && (
-            <Button
-              type="text"
-              icon={<MenuOutlined />}
-              style={{ fontSize: '16px', width: 64, height: 64 }}
-            />
-          )}
-          <Title level={4} style={{ margin: 0, marginLeft: isMobile ? 16 : 0 }}>
-            {menuItems.find(i => i.key === location.pathname)?.label || 'Üretim Paneli'}
-          </Title>
+        <Header style={{ 
+          padding: '0 24px', 
+          background: colorBgContainer, 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'space-between',
+          boxShadow: '0 1px 4px rgba(0,21,41,.08)',
+          zIndex: 1
+        }}>
+          <Space>
+            {isMobile && (
+              <Button
+                type="text"
+                icon={<MenuOutlined />}
+                onClick={() => setDrawerVisible(true)}
+                style={{ fontSize: '16px', width: 40, height: 40 }}
+              />
+            )}
+            <Title level={4} style={{ margin: 0 }}>
+              {menuItems.find(i => i.key === location.pathname)?.label || 'Üretim Paneli'}
+            </Title>
+          </Space>
+
+          <Space size="middle">
+            {!isMobile && (
+              <div style={{ textAlign: 'right' }}>
+                <Text strong style={{ display: 'block', lineHeight: '1.2' }}>{user?.fullName}</Text>
+                <Text type="secondary" style={{ fontSize: 12 }}>{user?.branchName}</Text>
+              </div>
+            )}
+            <Dropdown menu={{ items: profileMenuItems }} placement="bottomRight" arrow>
+              <Avatar 
+                icon={<UserOutlined />} 
+                style={{ backgroundColor: colorPrimary, cursor: 'pointer' }} 
+              />
+            </Dropdown>
+          </Space>
         </Header>
         <Content
           style={{
-            margin: '16px',
+            margin: isMobile ? '8px' : '24px',
             padding: 24,
             minHeight: 280,
             background: colorBgContainer,
             borderRadius: borderRadiusLG,
           }}
         >
-          <Outlet />
+          <div style={{ minHeight: '100%' }}>
+            <Outlet />
+          </div>
         </Content>
       </Layout>
     </Layout>

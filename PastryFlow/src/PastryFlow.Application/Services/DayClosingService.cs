@@ -163,6 +163,7 @@ public class DayClosingService : IDayClosingService
                 .ThenBy(d => d.Product.Name)
                 .Select(d => new DailySummaryItemDto
                 {
+                    Id = d.Id,
                     ProductId = d.ProductId,
                     ProductName = d.Product.Name,
                     CategoryName = d.Product.Category.Name,
@@ -177,7 +178,11 @@ public class DayClosingService : IDayClosingService
                     EndOfDayWaste = d.EndOfDayWaste,
                     CalculatedSales = d.CalculatedSales == 0 && !closing.IsClosed ? 
                         ((d.OpeningStock + d.ReceivedFromDemands + d.IncomingTransferQuantity) - (d.OutgoingTransferQuantity + d.EndOfDayCount + d.DayWasteQuantity)) : 
-                        d.CalculatedSales 
+                        d.CalculatedSales,
+                    IsCorrected = d.OriginalEndOfDayCount.HasValue,
+                    OriginalEndOfDayCount = d.OriginalEndOfDayCount,
+                    OriginalCarryOverQuantity = d.OriginalCarryOverQuantity,
+                    LastCorrectionReason = d.CorrectionReason
                 }).ToList()
         };
 

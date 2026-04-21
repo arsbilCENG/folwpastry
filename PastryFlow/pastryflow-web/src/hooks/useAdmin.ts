@@ -224,24 +224,25 @@ export const useUpdateBranch = () => {
 };
 
 // ============ DAY CLOSING CORRECTION ============
-export const useAdminCorrectDayClosing = () => {
-    const queryClient = useQueryClient();
-    return useMutation({
-      mutationFn: ({ dayClosingId, data }: { dayClosingId: string; data: DayClosingCorrectionDto }) =>
-        adminDayClosingApi.correct(dayClosingId, data),
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['admin', 'day-closing'] });
-        message.success('Gün sonu düzeltmesi başarıyla kaydedildi');
-      },
-      onError: (error: any) => {
-        message.error(error.message || 'Düzeltme kaydedilirken hata oluştu');
-      },
-    });
-  };
-  
+export const useDayClosingCorrection = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ dayClosingId, data }: { dayClosingId: string; data: DayClosingCorrectionDto }) =>
+      adminDayClosingApi.correct(dayClosingId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'day-closing'] });
+      message.success('Düzeltme başarıyla kaydedildi');
+    },
+    onError: (error: any) => {
+      message.error(error.response?.data?.message || 'Düzeltme kaydedilirken hata oluştu');
+    },
+  });
+};
+
 export const useAdminDayClosings = (branchId?: string, date?: string) => {
   return useQuery<any>({
     queryKey: ['admin', 'day-closing', branchId, date],
     queryFn: () => adminDayClosingApi.getDayClosings(branchId, date),
+    enabled: !!branchId && !!date,
   });
 };

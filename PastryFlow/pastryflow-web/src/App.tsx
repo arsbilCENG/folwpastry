@@ -31,8 +31,8 @@ import AdminUsers from './pages/admin/Users';
 import AdminCategories from './pages/admin/Categories';
 import AdminProducts from './pages/admin/Products';
 import AdminBranches from './pages/admin/Branches';
-import ReportsPlaceholder from './pages/admin/ReportsPlaceholder';
-import DayCorrectionPlaceholder from './pages/admin/DayCorrectionPlaceholder';
+import AdminReports from './pages/admin/Reports';
+import AdminDayCorrection from './pages/admin/DayCorrection';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -66,8 +66,8 @@ const App: React.FC = () => {
                   <Route path="categories" element={<AdminCategories />} />
                   <Route path="products" element={<AdminProducts />} />
                   <Route path="branches" element={<AdminBranches />} />
-                  <Route path="reports" element={<ReportsPlaceholder />} />
-                  <Route path="day-correction" element={<DayCorrectionPlaceholder />} />
+                  <Route path="reports" element={<AdminReports />} />
+                  <Route path="day-correction" element={<AdminDayCorrection />} />
                 </Route>
               </Route>
 

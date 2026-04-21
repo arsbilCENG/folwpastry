@@ -15,6 +15,7 @@ public class DayClosingSummaryDto
 
 public class DailySummaryItemDto
 {
+    public Guid Id { get; set; }
     public Guid ProductId { get; set; }
     public string ProductName { get; set; } = string.Empty;
     public string CategoryName { get; set; } = string.Empty;
@@ -28,6 +29,12 @@ public class DailySummaryItemDto
     public decimal CarryOver { get; set; }
     public decimal EndOfDayWaste { get; set; }
     public decimal CalculatedSales { get; set; }
+    
+    // Correction Info
+    public bool IsCorrected { get; set; }
+    public decimal? OriginalEndOfDayCount { get; set; }
+    public decimal? OriginalCarryOverQuantity { get; set; }
+    public string? LastCorrectionReason { get; set; }
 }
 
 public class DayClosingTotals
