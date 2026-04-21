@@ -39,6 +39,6 @@ public class AuthController : ControllerBase
         var result = await _authService.GetCurrentUserAsync(userId);
         if (!result.Success) return BadRequest(result);
         
-        return Ok(result.Data); // Note: frontend specifically expects CurrentUserDto in response directly for this endpoint based on "Response: CurrentUserDto" from specs!
+        return Ok(result);
     }
 }

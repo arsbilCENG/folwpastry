@@ -10,13 +10,16 @@ const { Content } = Layout;
 
 const getRoleRoute = (role: string): string => {
   switch (role) {
+    case 'Admin':
+      return '/admin/dashboard';
     case 'Production':
       return '/production/dashboard';
-    case 'Admin':
     case 'Sales':
-    case 'Driver':
-    default:
       return '/sales/dashboard';
+    case 'Driver':
+      return '/sales/dashboard'; // Placeholder until driver pages are ready
+    default:
+      return '/';
   }
 };
 
@@ -39,12 +42,13 @@ const LoginPage: React.FC = () => {
         message.success('Giriş başarılı');
         login(res.data);
         const route = getRoleRoute(res.data.user.role);
+        // Small delay to ensure state update
         setTimeout(() => navigate(route, { replace: true }), 100);
       } else {
         message.error(res.message || 'Giriş başarısız');
       }
     } catch (err: any) {
-      message.error(err.message || 'Bir hata oluştu');
+      message.error(err.response?.data?.message || 'Giriş yapılırken bir hata oluştu');
     } finally {
       setLoading(false);
     }
@@ -52,25 +56,74 @@ const LoginPage: React.FC = () => {
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <Content style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
-        <Card style={{ width: 400, boxShadow: '0 4px 12px rgba(0,0,0,0.1)', borderRadius: 12 }}>
-          <div style={{ textAlign: 'center', marginBottom: 24 }}>
-            <Title level={2}>🧁 PastryFlow</Title>
-            <div style={{ color: '#888' }}>Şube Yönetim Sistemi</div>
+      <Content style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        background: 'linear-gradient(135deg, #1677ff 0%, #722ed1 100%)' 
+      }}>
+        <Card style={{ 
+          width: 400, 
+          boxShadow: '0 8px 24px rgba(0,0,0,0.15)', 
+          borderRadius: 16,
+          padding: '12px'
+        }}>
+          <div style={{ textAlign: 'center', marginBottom: 32 }}>
+            <div style={{ fontSize: 48, marginBottom: 8 }}>🧁</div>
+            <Title level={2} style={{ margin: 0 }}>PastryFlow</Title>
+            <Typography.Text type="secondary">Zayıat ve Stok Yönetim Sistemi</Typography.Text>
           </div>
-          <Form name="login" onFinish={onFinish} layout="vertical" size="large">
-            <Form.Item name="email" rules={[{ required: true, message: 'Lütfen e-posta adresinizi giriniz!' }, { type: 'email', message: 'Geçerli bir e-posta adresi giriniz!' }]}>
-              <Input prefix={<UserOutlined />} placeholder="E-posta" />
+
+          <Form 
+            name="login" 
+            onFinish={onFinish} 
+            layout="vertical" 
+            size="large"
+            requiredMark={false}
+          >
+            <Form.Item 
+              name="email" 
+              label="E-posta"
+              rules={[
+                { required: true, message: 'Lütfen e-posta adresinizi giriniz!' },
+                { type: 'email', message: 'Geçerli bir e-posta adresi giriniz!' }
+              ]}
+            >
+              <Input prefix={<UserOutlined style={{ color: '#bfbfbf' }} />} placeholder="ornek@pastryflow.com" />
             </Form.Item>
-            <Form.Item name="password" rules={[{ required: true, message: 'Lütfen şifrenizi giriniz!' }]}>
-              <Input.Password prefix={<LockOutlined />} placeholder="Şifre" />
+
+            <Form.Item 
+              name="password" 
+              label="Şifre"
+              rules={[{ required: true, message: 'Lütfen şifrenizi giriniz!' }]}
+            >
+              <Input.Password prefix={<LockOutlined style={{ color: '#bfbfbf' }} />} placeholder="••••••••" />
             </Form.Item>
-            <Form.Item>
-              <Button type="primary" htmlType="submit" loading={loading} block style={{ height: 40, borderRadius: 6 }}>
+
+            <Form.Item style={{ marginTop: 8 }}>
+              <Button 
+                type="primary" 
+                htmlType="submit" 
+                loading={loading} 
+                block 
+                style={{ 
+                  height: 48, 
+                  borderRadius: 12, 
+                  fontSize: 16,
+                  fontWeight: 'bold',
+                  boxShadow: '0 4px 12px rgba(22, 119, 255, 0.3)'
+                }}
+              >
                 Giriş Yap
               </Button>
             </Form.Item>
           </Form>
+
+          <div style={{ textAlign: 'center', marginTop: 16 }}>
+            <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+              © 2024 PastryFlow - Tüm Hakları Saklıdır
+            </Typography.Text>
+          </div>
         </Card>
       </Content>
     </Layout>

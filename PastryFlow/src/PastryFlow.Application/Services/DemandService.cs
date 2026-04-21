@@ -256,29 +256,46 @@ public class DemandService : IDemandService
             if (item.Status == DemandItemStatus.Rejected)
                 continue;
 
-            var summary = await _context.DailyStockSummaries
-                .FirstOrDefaultAsync(s => s.BranchId == demand.SalesBranchId && s.ProductId == item.ProductId && s.Date == today);
+            var closing = await _context.DayClosings
+                .Include(c => c.Details)
+                .FirstOrDefaultAsync(c => c.BranchId == demand.SalesBranchId && c.Date == today);
 
-            if (summary == null)
+            if (closing == null)
             {
-                var previousSummary = await _context.DailyStockSummaries
-                    .Where(s => s.BranchId == demand.SalesBranchId && s.ProductId == item.ProductId && s.Date < today && s.IsClosed)
-                    .OrderByDescending(s => s.Date)
-                    .FirstOrDefaultAsync();
-
-                summary = new DailyStockSummary
+                closing = new DayClosing
                 {
                     BranchId = demand.SalesBranchId,
-                    ProductId = item.ProductId,
                     Date = today,
-                    OpeningStock = previousSummary?.CarryOverQuantity ?? 0,
+                    IsOpened = true,
+                    OpenedAt = DateTime.UtcNow
+                };
+                _context.DayClosings.Add(closing);
+                await _context.SaveChangesAsync(); // Save to get Id
+            }
+
+            var detail = await _context.DayClosingDetails
+                .FirstOrDefaultAsync(d => d.DayClosingId == closing.Id && d.ProductId == item.ProductId);
+
+            if (detail == null)
+            {
+                var previousDetail = await _context.DayClosingDetails
+                    .Include(d => d.DayClosing)
+                    .Where(d => d.DayClosing.BranchId == demand.SalesBranchId && d.ProductId == item.ProductId && d.DayClosing.Date < today && d.DayClosing.IsClosed)
+                    .OrderByDescending(d => d.DayClosing.Date)
+                    .FirstOrDefaultAsync();
+
+                detail = new DayClosingDetail
+                {
+                    DayClosingId = closing.Id,
+                    ProductId = item.ProductId,
+                    OpeningStock = previousDetail?.CarryOverQuantity ?? 0,
                     ReceivedFromDemands = approvedQty
                 };
-                _context.DailyStockSummaries.Add(summary);
+                _context.DayClosingDetails.Add(detail);
             }
             else
             {
-                summary.ReceivedFromDemands += approvedQty;
+                detail.ReceivedFromDemands += approvedQty;
             }
         }
 

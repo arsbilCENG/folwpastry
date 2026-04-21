@@ -15,7 +15,8 @@ public interface IPastryFlowDbContext
     DbSet<DemandItem> DemandItems { get; }
     DbSet<Transfer> Transfers { get; }
     DbSet<TransferItem> TransferItems { get; }
-    DbSet<DailyStockSummary> DailyStockSummaries { get; }
+    DbSet<DayClosing> DayClosings { get; }
+    DbSet<DayClosingDetail> DayClosingDetails { get; }
     DbSet<Waste> Wastes { get; }
     DbSet<Notification> Notifications { get; }
 

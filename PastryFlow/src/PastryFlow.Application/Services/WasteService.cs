@@ -54,12 +54,13 @@ public class WasteService : IWasteService
         _context.Wastes.Add(waste);
 
         // Update DailyStockSummary
-        var summary = await _context.DailyStockSummaries
-            .FirstOrDefaultAsync(s => s.BranchId == dto.BranchId && s.ProductId == dto.ProductId && s.Date == dto.Date);
+        var detail = await _context.DayClosingDetails
+            .Include(d => d.DayClosing)
+            .FirstOrDefaultAsync(d => d.DayClosing.BranchId == dto.BranchId && d.ProductId == dto.ProductId && d.DayClosing.Date == dto.Date);
 
-        if (summary != null)
+        if (detail != null)
         {
-            summary.DayWasteQuantity += dto.Quantity;
+            detail.DayWasteQuantity += dto.Quantity;
         }
 
         await _context.SaveChangesAsync();

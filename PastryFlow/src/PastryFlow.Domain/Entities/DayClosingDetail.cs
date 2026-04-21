@@ -2,11 +2,10 @@ using System;
 
 namespace PastryFlow.Domain.Entities;
 
-public class DailyStockSummary : BaseEntity
+public class DayClosingDetail : BaseEntity
 {
-    public Guid BranchId { get; set; }
+    public Guid DayClosingId { get; set; }
     public Guid ProductId { get; set; }
-    public DateOnly Date { get; set; }
     
     public decimal OpeningStock { get; set; } = 0;
     public decimal ReceivedFromDemands { get; set; } = 0;
@@ -22,11 +21,17 @@ public class DailyStockSummary : BaseEntity
     // (Opening + ReceivedFromDemands + IncomingTransfer) - (OutgoingTransfer + EndOfDayCount + DayWaste)
     public decimal CalculatedSales { get; set; } = 0;
     
-    public bool IsClosed { get; set; } = false;
-    public Guid? ClosedByUserId { get; set; }
-    public DateTime? ClosedAt { get; set; }
+    // Correction fields
+    public decimal? OriginalEndOfDayCount { get; set; }
+    public decimal? OriginalCarryOverQuantity { get; set; }
+    public decimal? CorrectedEndOfDayCount { get; set; }
+    public decimal? CorrectedCarryOverQuantity { get; set; }
+    public string? CorrectionReason { get; set; }
+    public DateTime? CorrectedAt { get; set; }
+    public Guid? CorrectedByUserId { get; set; }
 
     // Navigation properties
-    public virtual Branch Branch { get; set; } = null!;
+    public virtual DayClosing DayClosing { get; set; } = null!;
     public virtual Product Product { get; set; } = null!;
+    public virtual User? CorrectedByUser { get; set; }
 }

@@ -37,7 +37,13 @@ namespace PastryFlow.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
                     b.Property<string>("Name")
@@ -58,8 +64,9 @@ namespace PastryFlow.Infrastructure.Migrations
                             Id = new Guid("11111111-1111-1111-1111-111111111101"),
                             BranchType = 1,
                             City = 1,
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 396, DateTimeKind.Utc).AddTicks(9777),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 287, DateTimeKind.Utc).AddTicks(790),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "Kırklareli Mutfak"
                         },
                         new
@@ -67,8 +74,9 @@ namespace PastryFlow.Infrastructure.Migrations
                             Id = new Guid("11111111-1111-1111-1111-111111111102"),
                             BranchType = 1,
                             City = 2,
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 397, DateTimeKind.Utc).AddTicks(6699),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 287, DateTimeKind.Utc).AddTicks(3052),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "Edirne Mutfak"
                         },
                         new
@@ -76,8 +84,9 @@ namespace PastryFlow.Infrastructure.Migrations
                             Id = new Guid("11111111-1111-1111-1111-111111111103"),
                             BranchType = 1,
                             City = 3,
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 397, DateTimeKind.Utc).AddTicks(6703),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 287, DateTimeKind.Utc).AddTicks(3055),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "Lüleburgaz Mutfak"
                         },
                         new
@@ -85,8 +94,9 @@ namespace PastryFlow.Infrastructure.Migrations
                             Id = new Guid("11111111-1111-1111-1111-111111111104"),
                             BranchType = 2,
                             City = 1,
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 397, DateTimeKind.Utc).AddTicks(6712),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 287, DateTimeKind.Utc).AddTicks(3058),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "Kırklareli Tezgah"
                         },
                         new
@@ -94,8 +104,9 @@ namespace PastryFlow.Infrastructure.Migrations
                             Id = new Guid("11111111-1111-1111-1111-111111111105"),
                             BranchType = 2,
                             City = 2,
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 397, DateTimeKind.Utc).AddTicks(6714),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 287, DateTimeKind.Utc).AddTicks(3072),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "Edirne Tezgah"
                         },
                         new
@@ -103,8 +114,9 @@ namespace PastryFlow.Infrastructure.Migrations
                             Id = new Guid("11111111-1111-1111-1111-111111111106"),
                             BranchType = 2,
                             City = 3,
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 397, DateTimeKind.Utc).AddTicks(6716),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 287, DateTimeKind.Utc).AddTicks(3075),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "Lüleburgaz Tezgah"
                         });
                 });
@@ -118,7 +130,13 @@ namespace PastryFlow.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
                     b.Property<string>("Name")
@@ -140,62 +158,69 @@ namespace PastryFlow.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("22222222-2222-2222-2222-222222222201"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 400, DateTimeKind.Utc).AddTicks(1744),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 290, DateTimeKind.Utc).AddTicks(1095),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "KEK",
                             SortOrder = 1
                         },
                         new
                         {
                             Id = new Guid("22222222-2222-2222-2222-222222222203"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 400, DateTimeKind.Utc).AddTicks(6892),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 290, DateTimeKind.Utc).AddTicks(6918),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "MAYALILAR",
                             SortOrder = 2
                         },
                         new
                         {
                             Id = new Guid("22222222-2222-2222-2222-222222222204"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 400, DateTimeKind.Utc).AddTicks(6904),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 290, DateTimeKind.Utc).AddTicks(6928),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "KURABİYE",
                             SortOrder = 3
                         },
                         new
                         {
                             Id = new Guid("22222222-2222-2222-2222-222222222205"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 400, DateTimeKind.Utc).AddTicks(6987),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 290, DateTimeKind.Utc).AddTicks(6960),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "PASTALAR",
                             SortOrder = 4
                         },
                         new
                         {
                             Id = new Guid("22222222-2222-2222-2222-222222222206"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 400, DateTimeKind.Utc).AddTicks(6990),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 290, DateTimeKind.Utc).AddTicks(6963),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "İÇECEK",
                             SortOrder = 5
                         },
                         new
                         {
                             Id = new Guid("22222222-2222-2222-2222-222222222207"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 400, DateTimeKind.Utc).AddTicks(6998),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 290, DateTimeKind.Utc).AddTicks(6966),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "FIRIN",
                             SortOrder = 6
                         },
                         new
                         {
                             Id = new Guid("22222222-2222-2222-2222-222222222208"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 400, DateTimeKind.Utc).AddTicks(7001),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 290, DateTimeKind.Utc).AddTicks(6976),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "HAMMADDE",
                             SortOrder = 7
                         });
                 });
 
-            modelBuilder.Entity("PastryFlow.Domain.Entities.DailyStockSummary", b =>
+            modelBuilder.Entity("PastryFlow.Domain.Entities.DayClosing", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -203,14 +228,6 @@ namespace PastryFlow.Infrastructure.Migrations
 
                     b.Property<Guid>("BranchId")
                         .HasColumnType("uuid");
-
-                    b.Property<decimal>("CalculatedSales")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
-
-                    b.Property<decimal>("CarryOverQuantity")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
 
                     b.Property<DateTime?>("ClosedAt")
                         .HasColumnType("timestamp with time zone");
@@ -224,9 +241,83 @@ namespace PastryFlow.Infrastructure.Migrations
                     b.Property<DateOnly>("Date")
                         .HasColumnType("date");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsClosed")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsOpened")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("OpenedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("OpenedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClosedByUserId");
+
+                    b.HasIndex("OpenedByUserId");
+
+                    b.HasIndex("BranchId", "Date")
+                        .IsUnique();
+
+                    b.ToTable("DayClosings");
+                });
+
+            modelBuilder.Entity("PastryFlow.Domain.Entities.DayClosingDetail", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("CalculatedSales")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<decimal>("CarryOverQuantity")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<DateTime?>("CorrectedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CorrectedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal?>("CorrectedCarryOverQuantity")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<decimal?>("CorrectedEndOfDayCount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<string>("CorrectionReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("DayClosingId")
+                        .HasColumnType("uuid");
+
                     b.Property<decimal>("DayWasteQuantity")
                         .HasPrecision(18, 2)
                         .HasColumnType("numeric(18,2)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<decimal>("EndOfDayCount")
                         .HasPrecision(18, 2)
@@ -240,10 +331,18 @@ namespace PastryFlow.Infrastructure.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("numeric(18,2)");
 
-                    b.Property<bool>("IsClosed")
+                    b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
                     b.Property<decimal>("OpeningStock")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<decimal?>("OriginalCarryOverQuantity")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<decimal?>("OriginalEndOfDayCount")
                         .HasPrecision(18, 2)
                         .HasColumnType("numeric(18,2)");
 
@@ -263,12 +362,14 @@ namespace PastryFlow.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CorrectedByUserId");
+
                     b.HasIndex("ProductId");
 
-                    b.HasIndex("BranchId", "ProductId", "Date")
+                    b.HasIndex("DayClosingId", "ProductId")
                         .IsUnique();
 
-                    b.ToTable("DailyStockSummaries");
+                    b.ToTable("DayClosingDetails");
                 });
 
             modelBuilder.Entity("PastryFlow.Domain.Entities.Demand", b =>
@@ -283,6 +384,9 @@ namespace PastryFlow.Infrastructure.Migrations
                     b.Property<Guid>("CreatedByUserId")
                         .HasColumnType("uuid");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<DateTime?>("DeliveredAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -293,6 +397,9 @@ namespace PastryFlow.Infrastructure.Migrations
 
                     b.Property<Guid?>("DriverUserId")
                         .HasColumnType("uuid");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Notes")
                         .HasMaxLength(500)
@@ -346,8 +453,14 @@ namespace PastryFlow.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<Guid>("DemandId")
                         .HasColumnType("uuid");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
 
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uuid");
@@ -393,6 +506,12 @@ namespace PastryFlow.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
                     b.Property<bool>("IsRead")
                         .HasColumnType("boolean");
 
@@ -436,7 +555,13 @@ namespace PastryFlow.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
                     b.Property<string>("Name")
@@ -449,6 +574,9 @@ namespace PastryFlow.Infrastructure.Migrations
 
                     b.Property<Guid?>("ProductionBranchId")
                         .HasColumnType("uuid");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer");
 
                     b.Property<int>("Unit")
                         .HasColumnType("integer");
@@ -473,955 +601,1131 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000001"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222201"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(622),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(896),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "KEK DİLİM",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111101"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000002"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222201"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3508),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(3865),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "KEK KALIP BÜYÜK",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111101"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000003"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222201"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3520),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(3877),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "KEK KALIP KÜÇÜK",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111101"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000004"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222201"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3524),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(3881),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "KEK KALIP ORTA",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111101"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000005"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222201"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3528),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(3885),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "KEK MUFİN",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111101"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000006"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3545),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(3896),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "EKŞİ MAYA (3'LÜ)",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111102"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000007"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3555),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(3900),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "EKŞİ MAYA (2'Lİ)",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111102"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000008"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3558),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(3910),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "ÇAVDAR",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111102"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000009"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3566),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(3914),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "TAHILLI",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111102"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000010"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3571),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(3921),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "MISIR",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111102"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000011"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3574),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(3924),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "TEKLİ BEYAZ",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111102"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000012"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3577),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(3928),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "ÇİFTLİ BEYAZ",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111102"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000013"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3580),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(3931),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "KEPEK",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111102"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000014"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3583),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(3935),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "TAMBUĞDAY",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111102"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000015"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3589),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(3938),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "PİDE",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111102"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000016"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3592),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(3944),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "SANDVİÇ",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111102"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000017"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3595),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(3962),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "SİYEZ",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111102"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000018"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222203"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3601),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(3970),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "BÖREK",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111103"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000019"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222203"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3608),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(3974),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "KAFKAS BÖREĞİ",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111103"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000020"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222203"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3612),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(3978),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "AÇMA",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111103"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000021"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222203"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3615),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(3981),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "İÇLİ SİMİT",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111103"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000022"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222203"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3618),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(3985),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "PİZZA",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111103"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000023"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222203"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3623),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(3988),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "POĞAÇA",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111103"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000024"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222203"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3627),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(3994),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "POĞAÇA İRAN",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111103"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000025"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222203"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3630),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(3998),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "POĞAÇA SAKALLI",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111103"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000026"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222203"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3634),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4001),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "SİMİT",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111103"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000027"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222203"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3686),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4005),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "SU BÖREĞİ",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111103"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000028"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222203"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3691),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4009),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "İÇLİ SANDVİÇ",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111103"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000029"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222204"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3699),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4014),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "ACIBADEM",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111103"),
+                            SortOrder = 0,
                             Unit = 2
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000030"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222204"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3702),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4018),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "BEZE BÜYÜK",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111103"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000031"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222204"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3708),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4023),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "BEZE KUTU",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111103"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000032"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222204"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3714),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4066),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "GÜLEN YÜZ",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111103"),
+                            SortOrder = 0,
                             Unit = 2
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000033"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222204"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3717),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4071),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "KURABİYE EKSTRA",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111103"),
+                            SortOrder = 0,
                             Unit = 2
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000034"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222204"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3722),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4076),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "KURABİYE MUZ / BONCUK",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111103"),
+                            SortOrder = 0,
                             Unit = 2
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000035"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222204"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3725),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4081),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "KURABİYE SADE",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111103"),
+                            SortOrder = 0,
                             Unit = 2
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000036"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222204"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3728),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4085),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "KURABİYE ŞAM",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111103"),
+                            SortOrder = 0,
                             Unit = 2
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000037"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222204"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3731),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4088),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "KURABİYE TAHİNLİ",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111103"),
+                            SortOrder = 0,
                             Unit = 2
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000038"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222204"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3735),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4092),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "KURABİYE UN",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111103"),
+                            SortOrder = 0,
                             Unit = 2
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000039"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222204"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3740),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4096),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "KURU PASTA",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111103"),
+                            SortOrder = 0,
                             Unit = 2
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000040"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222204"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3743),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4102),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "KURABİYE TART",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111103"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000041"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222204"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3747),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4106),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "KANDİL SİMİDİ",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111103"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000042"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222205"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3752),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4120),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "ALMAN PASTASI",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111103"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000043"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222205"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3756),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4125),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "RULO SARMA",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111103"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000044"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222205"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3759),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4129),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "PASTA ADET",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111103"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000045"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222205"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3762),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4132),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "PASTA CHEESECAKE",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111103"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000046"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222205"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3766),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4136),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "PASTA B1",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111103"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000047"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222205"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3771),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4140),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "PASTA NO 0",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111103"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000048"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222205"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3775),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4146),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "PASTA NO 1",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111103"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000049"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222205"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3778),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4150),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "FİGÜR-BUDAPEŞTE-SEBASTİAN",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111103"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000050"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222205"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3782),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4153),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "SÜTLÜ TATLILAR",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111103"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000051"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222205"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3785),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4158),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "TRİLEÇE",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111103"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000052"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222205"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3789),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4161),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "SİPARİŞ PASTA",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111103"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000053"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222205"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3792),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4166),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "PASTA KG",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111103"),
+                            SortOrder = 0,
                             Unit = 2
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000054"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222206"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3797),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4174),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "AYRAN",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111103"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000055"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222206"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3803),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4178),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "ÇAY SATIŞ",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111103"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000056"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222206"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3877),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4184),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "ESPRESSO",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111103"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000057"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222206"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3881),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4188),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "GAZLI İÇECEK",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111103"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000058"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222206"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3885),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4191),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "LİMONATA",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111103"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000059"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222206"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3888),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4195),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "MEYVE SUYU",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111103"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000060"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222206"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3891),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4199),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "SODA MEYVELİ",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111103"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000061"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222206"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3894),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4203),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "SODA SADE",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111103"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000062"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222206"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3898),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4207),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "SU 0.5 L",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111103"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000063"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222206"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3903),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4210),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "TÜRK KAHVESİ",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111103"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000064"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222206"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3906),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4216),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "BİTKİ ÇAYI",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111103"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000065"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222206"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3909),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4220),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "PİKNİK ÜRÜNLER",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111103"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000066"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222206"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3914),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4225),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "KAHVALTI TABAĞI",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111103"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000067"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3919),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4236),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "GALETE",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111103"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000068"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3923),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4240),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "EKMEK BEYAZ",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111103"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000069"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3926),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4244),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "EKMEK ÇEŞİT",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111103"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000070"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3929),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4247),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "EKMEK KEPEK",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111103"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000071"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3935),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4251),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "EKMEK MISIR",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111103"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000072"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3938),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4257),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "EKMEK SANDVİÇ",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111103"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000073"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3941),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4261),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "TAHILLI EKMEK",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111103"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000074"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3944),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4265),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "PİDE ÇİFTLİ",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111103"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000075"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3947),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4268),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "TANDIR EKMEĞİ",
                             ProductType = 2,
                             ProductionBranchId = new Guid("11111111-1111-1111-1111-111111111103"),
+                            SortOrder = 0,
                             Unit = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000076"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222208"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3952),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4274),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "UN",
                             ProductType = 1,
+                            SortOrder = 0,
                             Unit = 2
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000077"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222208"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3957),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4278),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "TUZ",
                             ProductType = 1,
+                            SortOrder = 0,
                             Unit = 2
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000078"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222208"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3960),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4282),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "ŞEKER",
                             ProductType = 1,
+                            SortOrder = 0,
                             Unit = 2
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000079"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222208"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3965),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4286),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "MAYA",
                             ProductType = 1,
+                            SortOrder = 0,
                             Unit = 2
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000080"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222208"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3968),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4291),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "TEREYAĞI",
                             ProductType = 1,
+                            SortOrder = 0,
                             Unit = 2
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000081"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222208"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3972),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4295),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "MARGARİN",
                             ProductType = 1,
+                            SortOrder = 0,
                             Unit = 2
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000082"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222208"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3975),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4299),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "KAKAO",
                             ProductType = 1,
+                            SortOrder = 0,
                             Unit = 2
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000083"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222208"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(3978),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4302),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "KABARTMA TOZU",
                             ProductType = 1,
+                            SortOrder = 0,
                             Unit = 2
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000084"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222208"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(4033),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4306),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "NİŞASTA",
                             ProductType = 1,
+                            SortOrder = 0,
                             Unit = 2
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000085"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222208"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(4038),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4311),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "SÜT",
                             ProductType = 1,
+                            SortOrder = 0,
                             Unit = 3
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000086"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222208"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(4041),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4315),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "KREMA",
                             ProductType = 1,
+                            SortOrder = 0,
                             Unit = 3
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000087"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222208"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(4047),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4319),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "AYÇİÇEK YAĞI",
                             ProductType = 1,
+                            SortOrder = 0,
                             Unit = 3
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000088"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222208"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 401, DateTimeKind.Utc).AddTicks(4051),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4325),
                             IsActive = true,
+                            IsDeleted = false,
                             Name = "YUMURTA",
                             ProductType = 1,
+                            SortOrder = 0,
                             Unit = 1
                         });
                 });
@@ -1444,6 +1748,9 @@ namespace PastryFlow.Infrastructure.Migrations
                     b.Property<Guid>("CreatedByUserId")
                         .HasColumnType("uuid");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<DateTime?>("DeliveredAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -1452,6 +1759,9 @@ namespace PastryFlow.Infrastructure.Migrations
 
                     b.Property<Guid>("FromBranchId")
                         .HasColumnType("uuid");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Notes")
                         .HasMaxLength(500)
@@ -1495,6 +1805,12 @@ namespace PastryFlow.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("Notes")
                         .HasMaxLength(300)
                         .HasColumnType("character varying(300)");
@@ -1537,6 +1853,9 @@ namespace PastryFlow.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(150)
@@ -1548,6 +1867,9 @@ namespace PastryFlow.Infrastructure.Migrations
                         .HasColumnType("character varying(100)");
 
                     b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
                     b.Property<string>("PasswordHash")
@@ -1573,88 +1895,96 @@ namespace PastryFlow.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("33333333-3333-3333-3333-333333333301"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 398, DateTimeKind.Utc).AddTicks(4846),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 288, DateTimeKind.Utc).AddTicks(2119),
                             Email = "admin@pastryflow.com",
                             FullName = "Admin Kullanıcı",
                             IsActive = true,
+                            IsDeleted = false,
                             PasswordHash = "$2a$11$NleqkNOCjv3N1YWwrJYYfuHYXvpO5vaE1.It3fUTKLgHrTkXCABWO",
-                            Role = 1
+                            Role = 0
                         },
                         new
                         {
                             Id = new Guid("33333333-3333-3333-3333-333333333302"),
                             BranchId = new Guid("11111111-1111-1111-1111-111111111101"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 398, DateTimeKind.Utc).AddTicks(7525),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 288, DateTimeKind.Utc).AddTicks(5039),
                             Email = "kirklareli.mutfak@pastryflow.com",
                             FullName = "Kırklareli Üretim",
                             IsActive = true,
+                            IsDeleted = false,
                             PasswordHash = "$2a$11$NleqkNOCjv3N1YWwrJYYfuHYXvpO5vaE1.It3fUTKLgHrTkXCABWO",
-                            Role = 2
+                            Role = 1
                         },
                         new
                         {
                             Id = new Guid("33333333-3333-3333-3333-333333333303"),
                             BranchId = new Guid("11111111-1111-1111-1111-111111111102"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 398, DateTimeKind.Utc).AddTicks(8064),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 288, DateTimeKind.Utc).AddTicks(5717),
                             Email = "edirne.mutfak@pastryflow.com",
                             FullName = "Edirne Üretim",
                             IsActive = true,
+                            IsDeleted = false,
                             PasswordHash = "$2a$11$NleqkNOCjv3N1YWwrJYYfuHYXvpO5vaE1.It3fUTKLgHrTkXCABWO",
-                            Role = 2
+                            Role = 1
                         },
                         new
                         {
                             Id = new Guid("33333333-3333-3333-3333-333333333304"),
                             BranchId = new Guid("11111111-1111-1111-1111-111111111103"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 398, DateTimeKind.Utc).AddTicks(8072),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 288, DateTimeKind.Utc).AddTicks(5723),
                             Email = "luleburgaz.mutfak@pastryflow.com",
                             FullName = "Lüleburgaz Üretim",
                             IsActive = true,
+                            IsDeleted = false,
                             PasswordHash = "$2a$11$NleqkNOCjv3N1YWwrJYYfuHYXvpO5vaE1.It3fUTKLgHrTkXCABWO",
-                            Role = 2
+                            Role = 1
                         },
                         new
                         {
                             Id = new Guid("33333333-3333-3333-3333-333333333305"),
                             BranchId = new Guid("11111111-1111-1111-1111-111111111104"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 398, DateTimeKind.Utc).AddTicks(8075),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 288, DateTimeKind.Utc).AddTicks(5728),
                             Email = "kirklareli.tezgah@pastryflow.com",
                             FullName = "Kırklareli Satış",
                             IsActive = true,
+                            IsDeleted = false,
                             PasswordHash = "$2a$11$NleqkNOCjv3N1YWwrJYYfuHYXvpO5vaE1.It3fUTKLgHrTkXCABWO",
-                            Role = 3
+                            Role = 2
                         },
                         new
                         {
                             Id = new Guid("33333333-3333-3333-3333-333333333306"),
                             BranchId = new Guid("11111111-1111-1111-1111-111111111105"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 398, DateTimeKind.Utc).AddTicks(8087),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 288, DateTimeKind.Utc).AddTicks(5731),
                             Email = "edirne.tezgah@pastryflow.com",
                             FullName = "Edirne Satış",
                             IsActive = true,
+                            IsDeleted = false,
                             PasswordHash = "$2a$11$NleqkNOCjv3N1YWwrJYYfuHYXvpO5vaE1.It3fUTKLgHrTkXCABWO",
-                            Role = 3
+                            Role = 2
                         },
                         new
                         {
                             Id = new Guid("33333333-3333-3333-3333-333333333307"),
                             BranchId = new Guid("11111111-1111-1111-1111-111111111106"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 398, DateTimeKind.Utc).AddTicks(8090),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 288, DateTimeKind.Utc).AddTicks(5741),
                             Email = "luleburgaz.tezgah@pastryflow.com",
                             FullName = "Lüleburgaz Satış",
                             IsActive = true,
+                            IsDeleted = false,
                             PasswordHash = "$2a$11$NleqkNOCjv3N1YWwrJYYfuHYXvpO5vaE1.It3fUTKLgHrTkXCABWO",
-                            Role = 3
+                            Role = 2
                         },
                         new
                         {
                             Id = new Guid("33333333-3333-3333-3333-333333333308"),
-                            CreatedAt = new DateTime(2026, 4, 17, 13, 33, 43, 398, DateTimeKind.Utc).AddTicks(8092),
+                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 288, DateTimeKind.Utc).AddTicks(5744),
                             Email = "sofor@pastryflow.com",
                             FullName = "Şoför",
                             IsActive = true,
+                            IsDeleted = false,
                             PasswordHash = "$2a$11$NleqkNOCjv3N1YWwrJYYfuHYXvpO5vaE1.It3fUTKLgHrTkXCABWO",
-                            Role = 4
+                            Role = 3
                         });
                 });
 
@@ -1675,6 +2005,12 @@ namespace PastryFlow.Infrastructure.Migrations
 
                     b.Property<DateOnly>("Date")
                         .HasColumnType("date");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Notes")
                         .HasMaxLength(500)
@@ -1708,12 +2044,42 @@ namespace PastryFlow.Infrastructure.Migrations
                     b.ToTable("Wastes");
                 });
 
-            modelBuilder.Entity("PastryFlow.Domain.Entities.DailyStockSummary", b =>
+            modelBuilder.Entity("PastryFlow.Domain.Entities.DayClosing", b =>
                 {
                     b.HasOne("PastryFlow.Domain.Entities.Branch", "Branch")
                         .WithMany()
                         .HasForeignKey("BranchId")
                         .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("PastryFlow.Domain.Entities.User", "ClosedByUser")
+                        .WithMany()
+                        .HasForeignKey("ClosedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("PastryFlow.Domain.Entities.User", "OpenedByUser")
+                        .WithMany()
+                        .HasForeignKey("OpenedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Branch");
+
+                    b.Navigation("ClosedByUser");
+
+                    b.Navigation("OpenedByUser");
+                });
+
+            modelBuilder.Entity("PastryFlow.Domain.Entities.DayClosingDetail", b =>
+                {
+                    b.HasOne("PastryFlow.Domain.Entities.User", "CorrectedByUser")
+                        .WithMany()
+                        .HasForeignKey("CorrectedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("PastryFlow.Domain.Entities.DayClosing", "DayClosing")
+                        .WithMany("Details")
+                        .HasForeignKey("DayClosingId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("PastryFlow.Domain.Entities.Product", "Product")
@@ -1722,7 +2088,9 @@ namespace PastryFlow.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Branch");
+                    b.Navigation("CorrectedByUser");
+
+                    b.Navigation("DayClosing");
 
                     b.Navigation("Product");
                 });
@@ -1876,6 +2244,11 @@ namespace PastryFlow.Infrastructure.Migrations
             modelBuilder.Entity("PastryFlow.Domain.Entities.Category", b =>
                 {
                     b.Navigation("Products");
+                });
+
+            modelBuilder.Entity("PastryFlow.Domain.Entities.DayClosing", b =>
+                {
+                    b.Navigation("Details");
                 });
 
             modelBuilder.Entity("PastryFlow.Domain.Entities.Demand", b =>

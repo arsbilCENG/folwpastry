@@ -33,6 +33,15 @@ builder.Services.AddScoped<IDayClosingService, DayClosingService>();
 builder.Services.AddScoped<IWasteService, WasteService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 
+// Admin & Report Services
+builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
+builder.Services.AddScoped<IAdminUserService, AdminUserService>();
+builder.Services.AddScoped<IAdminCategoryService, AdminCategoryService>();
+builder.Services.AddScoped<IAdminProductService, AdminProductService>();
+builder.Services.AddScoped<IAdminBranchService, AdminBranchService>();
+builder.Services.AddScoped<IReportService, ReportService>();
+builder.Services.AddScoped<IAdminDayClosingService, AdminDayClosingService>();
+
 // JWT Authentication
 var jwtSecret = builder.Configuration["Jwt:Secret"] ?? throw new InvalidOperationException("Jwt:Secret is missing");
 var key = Encoding.ASCII.GetBytes(jwtSecret);

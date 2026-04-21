@@ -7,7 +7,7 @@ import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/layout/ProtectedRoute';
 import SalesLayout from './components/layout/SalesLayout';
 import ProductionLayout from './components/layout/ProductionLayout';
-import AppLayout from './components/layout/AppLayout';
+import AdminLayout from './components/layout/AdminLayout';
 
 // Sales pages
 import LoginPage from './pages/LoginPage';
@@ -25,6 +25,15 @@ import ProductionDashboard from './pages/production/ProductionDashboard';
 import IncomingDemandsPage from './pages/production/IncomingDemandsPage';
 import DemandReviewPage from './pages/production/DemandReviewPage';
 
+// Admin pages
+import AdminDashboard from './pages/admin/Dashboard';
+import AdminUsers from './pages/admin/Users';
+import AdminCategories from './pages/admin/Categories';
+import AdminProducts from './pages/admin/Products';
+import AdminBranches from './pages/admin/Branches';
+import ReportsPlaceholder from './pages/admin/ReportsPlaceholder';
+import DayCorrectionPlaceholder from './pages/admin/DayCorrectionPlaceholder';
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -40,6 +49,7 @@ const App: React.FC = () => {
       <ConfigProvider locale={trTR} theme={{
         token: {
           colorPrimary: '#1677ff',
+          borderRadius: 8,
         },
       }}>
         <AuthProvider>
@@ -47,7 +57,21 @@ const App: React.FC = () => {
             <Routes>
               <Route path="/login" element={<LoginPage />} />
 
-              {/* Sales + Admin */}
+              {/* Admin Routes */}
+              <Route element={<ProtectedRoute requireRole={['Admin']} />}>
+                <Route path="/admin" element={<AdminLayout />}>
+                  <Route index element={<Navigate to="dashboard" replace />} />
+                  <Route path="dashboard" element={<AdminDashboard />} />
+                  <Route path="users" element={<AdminUsers />} />
+                  <Route path="categories" element={<AdminCategories />} />
+                  <Route path="products" element={<AdminProducts />} />
+                  <Route path="branches" element={<AdminBranches />} />
+                  <Route path="reports" element={<ReportsPlaceholder />} />
+                  <Route path="day-correction" element={<DayCorrectionPlaceholder />} />
+                </Route>
+              </Route>
+
+              {/* Sales Routes */}
               <Route element={<ProtectedRoute requireRole={['Sales', 'Admin']} />}>
                 <Route path="/sales" element={<SalesLayout />}>
                   <Route index element={<Navigate to="dashboard" replace />} />
@@ -62,7 +86,7 @@ const App: React.FC = () => {
                 </Route>
               </Route>
 
-              {/* Production + Admin */}
+              {/* Production Routes */}
               <Route element={<ProtectedRoute requireRole={['Production', 'Admin']} />}>
                 <Route path="/production" element={<ProductionLayout />}>
                   <Route index element={<Navigate to="dashboard" replace />} />
@@ -71,10 +95,6 @@ const App: React.FC = () => {
                   <Route path="demands/:id" element={<DemandReviewPage />} />
                 </Route>
               </Route>
-
-              {/* Admin + Driver fallback */}
-              <Route path="/admin" element={<Navigate to="/sales/dashboard" replace />} />
-              <Route path="/admin/*" element={<Navigate to="/sales/dashboard" replace />} />
 
               {/* Default & Catch-all */}
               <Route path="/" element={<Navigate to="/login" replace />} />

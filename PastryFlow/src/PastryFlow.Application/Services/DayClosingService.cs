@@ -22,94 +22,102 @@ public class DayClosingService : IDayClosingService
 
     public async Task<ApiResponse<string>> SaveCountAsync(CountInputDto dto)
     {
-        // Upsert DailyStockSummaries for EndOfDayCount
+        var closing = await GetOrCreateDayClosingAsync(dto.BranchId, dto.Date);
+        if (closing.IsClosed) return ApiResponse<string>.Fail("Bu gün zaten kapatılmış.");
+
         foreach (var item in dto.Items)
         {
-            var summary = await _context.DailyStockSummaries
-                .FirstOrDefaultAsync(s => s.BranchId == dto.BranchId && s.Date == dto.Date && s.ProductId == item.ProductId);
-
-            if (summary == null)
+            var detail = closing.Details.FirstOrDefault(d => d.ProductId == item.ProductId);
+            if (detail == null)
             {
-                // Create new
-                summary = new DailyStockSummary
+                detail = new DayClosingDetail
                 {
-                    BranchId = dto.BranchId,
-                    Date = dto.Date,
+                    DayClosingId = closing.Id,
                     ProductId = item.ProductId,
                     EndOfDayCount = item.EndOfDayCount
                 };
-                _context.DailyStockSummaries.Add(summary);
+                _context.DayClosingDetails.Add(detail);
             }
             else
             {
-                if (summary.IsClosed) continue; // cannot mutate closed day
-                summary.EndOfDayCount = item.EndOfDayCount;
+                detail.EndOfDayCount = item.EndOfDayCount;
             }
         }
+
         await _context.SaveChangesAsync();
         return ApiResponse<string>.Ok("Sayım sonuçları kaydedildi.");
     }
 
     public async Task<ApiResponse<string>> SaveCarryOverAsync(CarryOverInputDto dto)
     {
+        var closing = await GetOrCreateDayClosingAsync(dto.BranchId, dto.Date);
+        if (closing.IsClosed) return ApiResponse<string>.Fail("Bu gün zaten kapatılmış.");
+
         foreach (var item in dto.Items)
         {
-            var summary = await _context.DailyStockSummaries
-                .FirstOrDefaultAsync(s => s.BranchId == dto.BranchId && s.Date == dto.Date && s.ProductId == item.ProductId);
-
-            if (summary != null && !summary.IsClosed)
+            var detail = closing.Details.FirstOrDefault(d => d.ProductId == item.ProductId);
+            if (detail != null)
             {
-                summary.CarryOverQuantity = item.CarryOverQuantity;
-                summary.EndOfDayWaste = summary.EndOfDayCount - summary.CarryOverQuantity;
+                detail.CarryOverQuantity = item.CarryOverQuantity;
+                detail.EndOfDayWaste = detail.EndOfDayCount - detail.CarryOverQuantity;
             }
         }
+
         await _context.SaveChangesAsync();
         return ApiResponse<string>.Ok("Devir miktarları kaydedildi.");
     }
 
     public async Task<ApiResponse<DayClosingSummaryDto>> CloseDayAsync(Guid branchId, DateOnly date, Guid closedByUserId)
     {
-        var summaries = await _context.DailyStockSummaries
-            .Include(s => s.Product)
-            .Where(s => s.BranchId == branchId && s.Date == date)
-            .ToListAsync();
+        var closing = await _context.DayClosings
+            .Include(c => c.Details)
+            .ThenInclude(d => d.Product)
+            .Include(c => c.Details)
+            .ThenInclude(d => d.Product.Category)
+            .FirstOrDefaultAsync(c => c.BranchId == branchId && c.Date == date);
 
-        if (summaries.Any(s => s.IsClosed))
-        {
-            return ApiResponse<DayClosingSummaryDto>.Fail("Bu gün zaten kapatılmış.");
-        }
+        if (closing == null) return ApiResponse<DayClosingSummaryDto>.Fail("Kapatılacak veri bulunamadı.");
+        if (closing.IsClosed) return ApiResponse<DayClosingSummaryDto>.Fail("Bu gün zaten kapatılmış.");
+
+        closing.IsClosed = true;
+        closing.ClosedByUserId = closedByUserId;
+        closing.ClosedAt = DateTime.UtcNow;
 
         var nextDay = date.AddDays(1);
+        var nextClosing = await GetOrCreateDayClosingAsync(branchId, nextDay);
 
-        foreach (var summary in summaries)
+        foreach (var detail in closing.Details)
         {
             // CalculatedSales = (Opening + ReceivedFromDemands + IncomingTransfer) - (OutgoingTransfer + EndOfDayCount + DayWaste)
-            summary.CalculatedSales = (summary.OpeningStock + summary.ReceivedFromDemands + summary.IncomingTransferQuantity)
-                                      - (summary.OutgoingTransferQuantity + summary.EndOfDayCount + summary.DayWasteQuantity);
-            
-            summary.IsClosed = true;
-            summary.ClosedByUserId = closedByUserId;
-            summary.ClosedAt = DateTime.UtcNow;
+            detail.CalculatedSales = (detail.OpeningStock + detail.ReceivedFromDemands + detail.IncomingTransferQuantity)
+                                     - (detail.OutgoingTransferQuantity + detail.EndOfDayCount + detail.DayWasteQuantity);
 
-            // Create Next Day's Summary
-            var nextSummary = new DailyStockSummary
+            // Carry Over to next day
+            var nextDetail = nextClosing.Details.FirstOrDefault(d => d.ProductId == detail.ProductId);
+            if (nextDetail == null)
             {
-                BranchId = branchId,
-                ProductId = summary.ProductId,
-                Date = nextDay,
-                OpeningStock = summary.CarryOverQuantity
-            };
-            _context.DailyStockSummaries.Add(nextSummary);
+                nextDetail = new DayClosingDetail
+                {
+                    DayClosingId = nextClosing.Id,
+                    ProductId = detail.ProductId,
+                    OpeningStock = detail.CarryOverQuantity
+                };
+                _context.DayClosingDetails.Add(nextDetail);
+            }
+            else
+            {
+                nextDetail.OpeningStock = detail.CarryOverQuantity;
+            }
 
             // Create EndOfDay Waste Records if > 0
-            if (summary.EndOfDayWaste > 0)
+            if (detail.EndOfDayWaste > 0)
             {
                 var waste = new Waste
                 {
                     BranchId = branchId,
-                    ProductId = summary.ProductId,
+                    ProductId = detail.ProductId,
                     Date = date,
-                    Quantity = summary.EndOfDayWaste,
+                    Quantity = detail.EndOfDayWaste,
                     WasteType = WasteType.EndOfDay,
                     CreatedByUserId = closedByUserId,
                     Notes = "Gün sonu otomatik atık"
@@ -119,7 +127,6 @@ public class DayClosingService : IDayClosingService
         }
 
         await _context.SaveChangesAsync();
-
         return await GetSummaryAsync(branchId, date);
     }
 
@@ -128,39 +135,50 @@ public class DayClosingService : IDayClosingService
         var branch = await _context.Branches.FindAsync(branchId);
         if (branch == null) return ApiResponse<DayClosingSummaryDto>.Fail("Şube bulunamadı.");
 
-        var summaries = await _context.DailyStockSummaries
-            .Include(s => s.Product)
-            .Include(s => s.Product.Category)
-            .Where(s => s.BranchId == branchId && s.Date == date && s.Product.IsActive)
-            .OrderBy(s => s.Product.Category.SortOrder)
-            .ThenBy(s => s.Product.Name)
-            .ToListAsync();
+        var closing = await _context.DayClosings
+            .Include(c => c.Details)
+            .ThenInclude(d => d.Product)
+            .ThenInclude(p => p.Category)
+            .FirstOrDefaultAsync(c => c.BranchId == branchId && c.Date == date);
 
-        var isClosed = summaries.Any() && summaries.All(s => s.IsClosed);
+        if (closing == null)
+        {
+            return ApiResponse<DayClosingSummaryDto>.Ok(new DayClosingSummaryDto
+            {
+                BranchName = branch.Name,
+                Date = date,
+                IsClosed = false,
+                Items = new List<DailySummaryItemDto>()
+            });
+        }
 
         var response = new DayClosingSummaryDto
         {
             BranchName = branch.Name,
             Date = date,
-            IsClosed = isClosed,
-            Items = summaries.Select(s => new DailySummaryItemDto
-            {
-                ProductId = s.ProductId,
-                ProductName = s.Product.Name,
-                CategoryName = s.Product.Category.Name,
-                Unit = s.Product.Unit.ToString(),
-                OpeningStock = s.OpeningStock,
-                ReceivedFromDemands = s.ReceivedFromDemands,
-                IncomingTransfer = s.IncomingTransferQuantity,
-                OutgoingTransfer = s.OutgoingTransferQuantity,
-                DayWaste = s.DayWasteQuantity,
-                EndOfDayCount = s.EndOfDayCount,
-                CarryOver = s.CarryOverQuantity,
-                EndOfDayWaste = s.EndOfDayWaste,
-                CalculatedSales = s.CalculatedSales == 0 && !s.IsClosed ? 
-                    ((s.OpeningStock + s.ReceivedFromDemands + s.IncomingTransferQuantity) - (s.OutgoingTransferQuantity + s.EndOfDayCount + s.DayWasteQuantity)) : 
-                    s.CalculatedSales 
-            }).ToList()
+            IsClosed = closing.IsClosed,
+            Items = closing.Details
+                .Where(d => d.Product.IsActive)
+                .OrderBy(d => d.Product.Category.SortOrder)
+                .ThenBy(d => d.Product.Name)
+                .Select(d => new DailySummaryItemDto
+                {
+                    ProductId = d.ProductId,
+                    ProductName = d.Product.Name,
+                    CategoryName = d.Product.Category.Name,
+                    Unit = d.Product.Unit.ToString(),
+                    OpeningStock = d.OpeningStock,
+                    ReceivedFromDemands = d.ReceivedFromDemands,
+                    IncomingTransfer = d.IncomingTransferQuantity,
+                    OutgoingTransfer = d.OutgoingTransferQuantity,
+                    DayWaste = d.DayWasteQuantity,
+                    EndOfDayCount = d.EndOfDayCount,
+                    CarryOver = d.CarryOverQuantity,
+                    EndOfDayWaste = d.EndOfDayWaste,
+                    CalculatedSales = d.CalculatedSales == 0 && !closing.IsClosed ? 
+                        ((d.OpeningStock + d.ReceivedFromDemands + d.IncomingTransferQuantity) - (d.OutgoingTransferQuantity + d.EndOfDayCount + d.DayWasteQuantity)) : 
+                        d.CalculatedSales 
+                }).ToList()
         };
 
         response.Totals.TotalSales = response.Items.Sum(i => i.CalculatedSales);
@@ -168,5 +186,27 @@ public class DayClosingService : IDayClosingService
         response.Totals.TotalCarryOver = response.Items.Sum(i => i.CarryOver);
 
         return ApiResponse<DayClosingSummaryDto>.Ok(response);
+    }
+
+    private async Task<DayClosing> GetOrCreateDayClosingAsync(Guid branchId, DateOnly date)
+    {
+        var closing = await _context.DayClosings
+            .Include(c => c.Details)
+            .FirstOrDefaultAsync(c => c.BranchId == branchId && c.Date == date);
+
+        if (closing == null)
+        {
+            closing = new DayClosing
+            {
+                BranchId = branchId,
+                Date = date,
+                IsOpened = true,
+                OpenedAt = DateTime.UtcNow
+            };
+            _context.DayClosings.Add(closing);
+            await _context.SaveChangesAsync();
+        }
+
+        return closing;
     }
 }

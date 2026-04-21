@@ -17,7 +17,8 @@ public class PastryFlowDbContext : DbContext, IPastryFlowDbContext
     public DbSet<DemandItem> DemandItems => Set<DemandItem>();
     public DbSet<Transfer> Transfers => Set<Transfer>();
     public DbSet<TransferItem> TransferItems => Set<TransferItem>();
-    public DbSet<DailyStockSummary> DailyStockSummaries => Set<DailyStockSummary>();
+    public DbSet<DayClosing> DayClosings => Set<DayClosing>();
+    public DbSet<DayClosingDetail> DayClosingDetails => Set<DayClosingDetail>();
     public DbSet<Waste> Wastes => Set<Waste>();
     public DbSet<Notification> Notifications => Set<Notification>();
 
@@ -31,6 +32,13 @@ public class PastryFlowDbContext : DbContext, IPastryFlowDbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+        
+        // Soft Delete Filters
+        modelBuilder.Entity<Branch>().HasQueryFilter(x => !x.IsDeleted);
+        modelBuilder.Entity<Category>().HasQueryFilter(x => !x.IsDeleted);
+        modelBuilder.Entity<Product>().HasQueryFilter(x => !x.IsDeleted);
+        modelBuilder.Entity<User>().HasQueryFilter(x => !x.IsDeleted);
+
         modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         SeedData.Initialize(modelBuilder);
     }

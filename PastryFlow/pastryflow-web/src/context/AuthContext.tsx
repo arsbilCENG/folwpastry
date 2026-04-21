@@ -12,10 +12,10 @@ interface AuthContextType {
 }
 
 const ROLE_MAP: Record<string | number, string> = {
-  1: 'Admin',
-  2: 'Production',
-  3: 'Sales',
-  4: 'Driver',
+  0: 'Admin',
+  1: 'Production',
+  2: 'Sales',
+  3: 'Driver',
   'Admin': 'Admin',
   'Production': 'Production',
   'Sales': 'Sales',
@@ -40,11 +40,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     localStorage.removeItem('token');
     setToken(null);
     setUser(null);
+    setIsLoading(false);
   }, []);
 
   useEffect(() => {
     const initAuth = async () => {
-      if (token) {
+      // If we already have a user and token (e.g. from fresh login), skip redundant verification
+      if (token && !user) {
+        setIsLoading(true);
         try {
           const res = await authApi.getCurrentUser();
           if (res.success && res.data) {
@@ -61,14 +64,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     };
 
     initAuth();
-  }, []);
+  }, [token, user, logout]);
 
   const login = (data: LoginResponse) => {
     localStorage.setItem('token', data.token);
     setToken(data.token);
     const normalizedUser = normalizeUser(data.user);
-    console.log('Login successful. Role:', normalizedUser.role, 'Branch:', normalizedUser.branchName);
+    console.log('Login successful. Role:', normalizedUser.role);
     setUser(normalizedUser);
+    setIsLoading(false); // Optimization: Finish loading as soon as login data is applied
   };
 
   return (

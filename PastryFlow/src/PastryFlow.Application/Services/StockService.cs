@@ -20,10 +20,11 @@ public class StockService : IStockService
 
     public async Task<ApiResponse<List<CurrentStockDto>>> GetCurrentStockAsync(Guid branchId, DateOnly date)
     {
-        var summaries = await _context.DailyStockSummaries
+        var summaries = await _context.DayClosingDetails
             .Include(s => s.Product)
             .Include(s => s.Product.Category)
-            .Where(s => s.BranchId == branchId && s.Date == date && s.Product.IsActive)
+            .Include(s => s.DayClosing)
+            .Where(s => s.DayClosing.BranchId == branchId && s.DayClosing.Date == date && s.Product.IsActive)
             .OrderBy(s => s.Product.Category.SortOrder)
             .ThenBy(s => s.Product.Name)
             .ToListAsync();
