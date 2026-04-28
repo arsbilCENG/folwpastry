@@ -79,6 +79,16 @@ public class DayClosingService : IDayClosingService
         if (closing == null) return ApiResponse<DayClosingSummaryDto>.Fail("Kapatılacak veri bulunamadı.");
         if (closing.IsClosed) return ApiResponse<DayClosingSummaryDto>.Fail("Bu gün zaten kapatılmış.");
 
+        // Validations
+        if (closing.CashAmount == null || closing.PosAmount == null)
+            return ApiResponse<DayClosingSummaryDto>.Fail("Kasa sayımı yapılmadan gün kapatılamaz.");
+
+        if (string.IsNullOrEmpty(closing.ReceiptPhotoUrl))
+            return ApiResponse<DayClosingSummaryDto>.Fail("Gün sonu fişi fotoğrafı yüklenmelidir.");
+
+        if (string.IsNullOrEmpty(closing.CounterPhotoUrl))
+            return ApiResponse<DayClosingSummaryDto>.Fail("Tezgah fotoğrafı yüklenmelidir.");
+
         closing.IsClosed = true;
         closing.ClosedByUserId = closedByUserId;
         closing.ClosedAt = DateTime.UtcNow;
@@ -130,6 +140,106 @@ public class DayClosingService : IDayClosingService
         return await GetSummaryAsync(branchId, date);
     }
 
+    public async Task<ApiResponse<ExpectedCashDto>> CalculateExpectedCashAsync(Guid branchId, DateOnly date)
+    {
+        var closing = await _context.DayClosings
+            .Include(c => c.Details)
+            .ThenInclude(d => d.Product)
+            .FirstOrDefaultAsync(c => c.BranchId == branchId && c.Date == date);
+
+        if (closing == null) return ApiResponse<ExpectedCashDto>.Fail("Gün sonu kaydı bulunamadı.");
+
+        var response = new ExpectedCashDto();
+
+        foreach (var detail in closing.Details)
+        {
+            var calculatedSales = (detail.OpeningStock + detail.ReceivedFromDemands + detail.IncomingTransferQuantity)
+                                  - (detail.OutgoingTransferQuantity + detail.EndOfDayCount + detail.DayWasteQuantity);
+
+            if (detail.Product.UnitPrice.HasValue)
+            {
+                var salesValue = calculatedSales * detail.Product.UnitPrice.Value;
+                response.ExpectedAmount += salesValue;
+                response.ProductsWithPrice++;
+
+                response.Items.Add(new ExpectedCashItemDto
+                {
+                    ProductName = detail.Product.Name,
+                    CalculatedSales = calculatedSales,
+                    UnitPrice = detail.Product.UnitPrice.Value,
+                    SalesValue = salesValue
+                });
+            }
+            else
+            {
+                response.ProductsWithoutPrice++;
+                response.Items.Add(new ExpectedCashItemDto
+                {
+                    ProductName = detail.Product.Name,
+                    CalculatedSales = calculatedSales,
+                    UnitPrice = null,
+                    SalesValue = null
+                });
+            }
+        }
+
+        return ApiResponse<ExpectedCashDto>.Ok(response);
+    }
+
+    public async Task<ApiResponse<DayClosingSummaryDto>> SubmitCashCountAsync(Guid dayClosingId, CashCountDto dto, Guid currentUserId)
+    {
+        var closing = await _context.DayClosings
+            .Include(c => c.Details)
+            .FirstOrDefaultAsync(c => c.Id == dayClosingId);
+
+        if (closing == null) return ApiResponse<DayClosingSummaryDto>.Fail("Kayıt bulunamadı.");
+        if (closing.IsClosed) return ApiResponse<DayClosingSummaryDto>.Fail("Bu gün zaten kapatılmış.");
+
+        if (!closing.Details.Any(d => d.EndOfDayCount > 0))
+            return ApiResponse<DayClosingSummaryDto>.Fail("Önce ürün sayımını tamamlayınız.");
+
+        var expectedCashRes = await CalculateExpectedCashAsync(closing.BranchId, closing.Date);
+        if (!expectedCashRes.Success || expectedCashRes.Data == null)
+            return ApiResponse<DayClosingSummaryDto>.Fail("Beklenen tutar hesaplanamadı.");
+
+        var expectedAmount = expectedCashRes.Data.ExpectedAmount;
+        var totalCounted = dto.CashAmount + dto.PosAmount;
+        var diff = totalCounted - expectedAmount;
+
+        if (diff != 0 && string.IsNullOrWhiteSpace(dto.DifferenceNote))
+            return ApiResponse<DayClosingSummaryDto>.Fail("Kasa farkı bulunmaktadır. Lütfen açıklama giriniz.");
+
+        closing.ExpectedCashAmount = expectedAmount;
+        closing.CashAmount = dto.CashAmount;
+        closing.PosAmount = dto.PosAmount;
+        closing.TotalCounted = totalCounted;
+        closing.CashDifference = diff;
+        closing.DifferenceNote = dto.DifferenceNote;
+
+        await _context.SaveChangesAsync();
+        return await GetSummaryAsync(closing.BranchId, closing.Date);
+    }
+
+    public async Task<ApiResponse<string>> UpdateReceiptPhotoAsync(Guid dayClosingId, string photoUrl)
+    {
+        var closing = await _context.DayClosings.FindAsync(dayClosingId);
+        if (closing == null) return ApiResponse<string>.Fail("Kayıt bulunamadı.");
+        
+        closing.ReceiptPhotoUrl = photoUrl;
+        await _context.SaveChangesAsync();
+        return ApiResponse<string>.Ok(photoUrl, "Fiş fotoğrafı yüklendi.");
+    }
+
+    public async Task<ApiResponse<string>> UpdateCounterPhotoAsync(Guid dayClosingId, string photoUrl)
+    {
+        var closing = await _context.DayClosings.FindAsync(dayClosingId);
+        if (closing == null) return ApiResponse<string>.Fail("Kayıt bulunamadı.");
+        
+        closing.CounterPhotoUrl = photoUrl;
+        await _context.SaveChangesAsync();
+        return ApiResponse<string>.Ok(photoUrl, "Tezgah fotoğrafı yüklendi.");
+    }
+
     public async Task<ApiResponse<DayClosingSummaryDto>> GetSummaryAsync(Guid branchId, DateOnly date)
     {
         var branch = await _context.Branches.FindAsync(branchId);
@@ -154,9 +264,18 @@ public class DayClosingService : IDayClosingService
 
         var response = new DayClosingSummaryDto
         {
+            Id = closing.Id,
             BranchName = branch.Name,
             Date = date,
             IsClosed = closing.IsClosed,
+            ExpectedCashAmount = closing.ExpectedCashAmount,
+            CashAmount = closing.CashAmount,
+            PosAmount = closing.PosAmount,
+            TotalCounted = closing.TotalCounted,
+            CashDifference = closing.CashDifference,
+            DifferenceNote = closing.DifferenceNote,
+            ReceiptPhotoUrl = closing.ReceiptPhotoUrl,
+            CounterPhotoUrl = closing.CounterPhotoUrl,
             Items = closing.Details
                 .Where(d => d.Product.IsActive)
                 .OrderBy(d => d.Product.Category.SortOrder)

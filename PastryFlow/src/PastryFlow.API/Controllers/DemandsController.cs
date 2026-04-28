@@ -16,10 +16,12 @@ namespace PastryFlow.API.Controllers;
 public class DemandsController : ControllerBase
 {
     private readonly IDemandService _demandService;
+    private readonly Microsoft.AspNetCore.Hosting.IWebHostEnvironment _env;
 
-    public DemandsController(IDemandService demandService)
+    public DemandsController(IDemandService demandService, Microsoft.AspNetCore.Hosting.IWebHostEnvironment env)
     {
         _demandService = demandService;
+        _env = env;
     }
 
     [HttpPost]
@@ -80,7 +82,46 @@ public class DemandsController : ControllerBase
         return Ok(result);
     }
 
+    [Authorize(Roles = "Production")]
+    [HttpPost("{id}/ship")]
+    public async Task<IActionResult> ShipDemand(Guid id, ShipDemandDto dto)
+    {
+        var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (!Guid.TryParse(userIdString, out var userId)) return Unauthorized();
+
+        var result = await _demandService.ShipDemandAsync(id, dto, userId);
+        if (!result.Success) return BadRequest(result);
+        return Ok(result);
+    }
+
+    [Authorize(Roles = "Sales")]
+    [HttpPut("{id}/accept-delivery")]
+    public async Task<IActionResult> AcceptDelivery(Guid id, AcceptDeliveryDto dto)
+    {
+        var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (!Guid.TryParse(userIdString, out var userId)) return Unauthorized();
+
+        var result = await _demandService.AcceptDeliveryAsync(id, dto, userId);
+        if (!result.Success) return BadRequest(result);
+        return Ok(result);
+    }
+
+    [Authorize(Roles = "Sales")]
+    [HttpPost("{id}/items/{itemId}/rejection-photo")]
+    public async Task<IActionResult> UploadRejectionPhoto(Guid id, Guid itemId, Microsoft.AspNetCore.Http.IFormFile photo)
+    {
+        var contentRootPath = _env.ContentRootPath;
+        var photoUrl = await FileUploadHelper.SaveFileAsync(photo, "delivery-returns", contentRootPath);
+        
+        var result = await _demandService.UpdateRejectionPhotoAsync(itemId, photoUrl);
+        if (!result.Success) return BadRequest(result);
+        
+        return Ok(result);
+    }
+
+    // Old flow endpoints (Backward compatibility)
     [HttpPatch("{id}/deliver")]
+    [Obsolete]
     public async Task<IActionResult> DeliverDemand(Guid id, DeliverDemandDto dto)
     {
         var result = await _demandService.DeliverDemandAsync(id, dto);
@@ -89,6 +130,7 @@ public class DemandsController : ControllerBase
     }
 
     [HttpPatch("{id}/receive")]
+    [Obsolete]
     public async Task<IActionResult> ReceiveDemand(Guid id, ReceiveDemandDto dto)
     {
         var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;

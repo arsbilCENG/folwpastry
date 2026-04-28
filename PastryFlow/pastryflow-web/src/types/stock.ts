@@ -11,3 +11,13 @@ export interface CurrentStock {
   dayWaste: number;
   currentStock: number;
 }
+
+export interface Stock {
+  id: string;
+  branchId: string;
+  productId: string;
+  productName: string;
+  quantity: number;
+  unitName: string;
+  lastUpdated: string;
+}

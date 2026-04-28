@@ -3,12 +3,16 @@ import { Layout, Menu, Button, Grid, Typography, theme, Avatar, Space, Dropdown,
 import {
   HomeOutlined,
   InboxOutlined,
+  BarChartOutlined,
   LogoutOutlined,
   MenuOutlined,
-  UserOutlined
+  UserOutlined,
+  RollbackOutlined
 } from '@ant-design/icons';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
+import NotificationBell from '../notifications/NotificationBell';
+import ConnectionStatus from '../notifications/ConnectionStatus';
 
 const { Sider, Header, Content } = Layout;
 const { useBreakpoint } = Grid;
@@ -31,6 +35,9 @@ const ProductionLayout: React.FC = () => {
   const menuItems = [
     { key: '/production/dashboard', icon: <HomeOutlined />, label: 'Dashboard' },
     { key: '/production/demands', icon: <InboxOutlined />, label: 'Gelen Talepler' },
+    { key: '/production/cake-orders', icon: <InboxOutlined />, label: 'Özel Pasta Siparişleri' },
+    { key: '/production/delivery-returns', icon: <RollbackOutlined />, label: 'İadeler' },
+    { key: '/production/reports', icon: <BarChartOutlined />, label: 'Raporlar' },
   ];
 
   const handleMenuClick = ({ key }: { key: string }) => {
@@ -82,6 +89,7 @@ const ProductionLayout: React.FC = () => {
         onClick={handleMenuClick}
         style={{ flex: 1 }}
       />
+      {!collapsed && <ConnectionStatus />}
       <div style={{ padding: '16px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
         <Button
           type="primary"
@@ -140,6 +148,7 @@ const ProductionLayout: React.FC = () => {
           </Space>
 
           <Space size="middle">
+            <NotificationBell />
             {!isMobile && (
               <div style={{ textAlign: 'right' }}>
                 <Text strong style={{ display: 'block', lineHeight: '1.2' }}>{user?.fullName}</Text>

@@ -2,10 +2,12 @@ namespace PastryFlow.Domain.Enums;
 
 public enum DemandStatus
 {
-    Pending = 1,
-    Approved = 2,
+    Pending = 0,
+    Approved = 1,
+    Rejected = 2,
     PartiallyApproved = 3,
-    Rejected = 4,
+    Shipped = 4,
     Delivered = 5,
-    Received = 6
+    Received = 6,
+    Cancelled = 7
 }

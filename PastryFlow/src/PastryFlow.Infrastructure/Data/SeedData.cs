@@ -113,5 +113,30 @@ public static class SeedData
         AddProduct("YUMURTA", UnitType.Adet, null, catIds["HAMMADDE"], ProductType.RawMaterial);
 
         modelBuilder.Entity<Product>().HasData(products);
+
+        // CakeOptions Seed Data
+        var cakeOptions = new List<CakeOption>();
+        int optionCounter = 1;
+        
+        void AddOption(string name, CakeOptionType type, int sortOrder)
+        {
+            var idString = $"55555555-5555-5555-5555-{optionCounter:D12}";
+            cakeOptions.Add(new CakeOption { Id = Guid.Parse(idString), Name = name, OptionType = type, SortOrder = sortOrder });
+            optionCounter++;
+        }
+
+        // CakeType
+        var cakeTypes = new[] { "Kakaolu", "Vanilyalı", "Meyveli", "Havuçlu", "Muzlu", "Limonlu" };
+        for (int i = 0; i < cakeTypes.Length; i++) AddOption(cakeTypes[i], CakeOptionType.CakeType, i + 1);
+
+        // InnerCream
+        var innerCreams = new[] { "Çikolatalı", "Muzlu", "Frambuazlı", "Vanilyalı", "Karamelli", "Fıstıklı", "Beyaz Çikolatalı" };
+        for (int i = 0; i < innerCreams.Length; i++) AddOption(innerCreams[i], CakeOptionType.InnerCream, i + 1);
+
+        // OuterCream  
+        var outerCreams = new[] { "Toz Pembe", "Beyaz", "Çikolata", "Mavi", "Kırmızı", "Mor", "Yeşil", "Sarı", "Turuncu" };
+        for (int i = 0; i < outerCreams.Length; i++) AddOption(outerCreams[i], CakeOptionType.OuterCream, i + 1);
+
+        modelBuilder.Entity<CakeOption>().HasData(cakeOptions);
     }
 }

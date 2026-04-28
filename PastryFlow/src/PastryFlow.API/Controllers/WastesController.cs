@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using PastryFlow.Application.DTOs.Waste;
 using PastryFlow.Application.Interfaces;
 using System.Security.Claims;
+using PastryFlow.Application.Common;
 
 namespace PastryFlow.API.Controllers;
 
@@ -16,10 +17,12 @@ namespace PastryFlow.API.Controllers;
 public class WastesController : ControllerBase
 {
     private readonly IWasteService _wasteService;
+    private readonly Microsoft.AspNetCore.Hosting.IWebHostEnvironment _env;
 
-    public WastesController(IWasteService wasteService)
+    public WastesController(IWasteService wasteService, Microsoft.AspNetCore.Hosting.IWebHostEnvironment env)
     {
         _wasteService = wasteService;
+        _env = env;
     }
 
     [HttpPost]
@@ -32,23 +35,8 @@ public class WastesController : ControllerBase
 
         if (form.Photo != null && form.Photo.Length > 0)
         {
-            var extension = Path.GetExtension(form.Photo.FileName);
-            if (string.IsNullOrEmpty(extension)) extension = ".jpg";
-
-            var dateFolder = form.Date.ToString("yyyy-MM-dd");
-            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "uploads", "wastes", dateFolder);
-            if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
-
-            var fileName = $"{Guid.NewGuid()}{extension}";
-            var filePath = Path.Combine(uploadsFolder, fileName);
-
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await form.Photo.CopyToAsync(stream);
-            }
-
-            // Store as relative URL accessible from /uploads/
-            photoPath = $"/uploads/wastes/{dateFolder}/{fileName}";
+            var contentRootPath = _env.ContentRootPath;
+            photoPath = await FileUploadHelper.SaveFileAsync(form.Photo, "wastes", contentRootPath);
         }
 
         var dto = new CreateWasteDto

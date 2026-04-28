@@ -14,6 +14,8 @@ import {
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
 import BranchSelector from '../admin/BranchSelector';
+import NotificationBell from '../notifications/NotificationBell';
+import ConnectionStatus from '../notifications/ConnectionStatus';
 
 const { Header, Sider, Content } = Layout;
 const { useBreakpoint } = Grid;
@@ -40,6 +42,7 @@ const AdminLayout: React.FC = () => {
     { key: '/admin/categories', icon: <AppstoreOutlined />, label: 'Kategoriler' },
     { key: '/admin/products', icon: <ShoppingOutlined />, label: 'Ürünler' },
     { key: '/admin/branches', icon: <ShopOutlined />, label: 'Şubeler' },
+    { key: '/admin/cake-options', icon: <AppstoreOutlined />, label: 'Pasta Seçenekleri' },
     { key: '/admin/reports', icon: <BarChartOutlined />, label: 'Raporlar' },
     { key: '/admin/day-correction', icon: <EditOutlined />, label: 'Gün Düzeltme' },
   ];
@@ -90,6 +93,7 @@ const AdminLayout: React.FC = () => {
         onClick={handleMenuClick}
         style={{ flex: 1 }}
       />
+      {!collapsed && <ConnectionStatus />}
       {!isMobile && (
         <div style={{ padding: '16px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
           <Button 
@@ -152,6 +156,7 @@ const AdminLayout: React.FC = () => {
           </Space>
 
           <Space size="middle">
+            <NotificationBell />
             {!isMobile && (
               <div style={{ textAlign: 'right' }}>
                 <Text strong style={{ display: 'block', lineHeight: '1.2' }}>{user?.fullName}</Text>

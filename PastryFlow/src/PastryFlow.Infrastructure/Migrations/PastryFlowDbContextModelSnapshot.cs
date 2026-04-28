@@ -64,7 +64,7 @@ namespace PastryFlow.Infrastructure.Migrations
                             Id = new Guid("11111111-1111-1111-1111-111111111101"),
                             BranchType = 1,
                             City = 1,
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 287, DateTimeKind.Utc).AddTicks(790),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 179, DateTimeKind.Utc).AddTicks(1372),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "Kırklareli Mutfak"
@@ -74,7 +74,7 @@ namespace PastryFlow.Infrastructure.Migrations
                             Id = new Guid("11111111-1111-1111-1111-111111111102"),
                             BranchType = 1,
                             City = 2,
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 287, DateTimeKind.Utc).AddTicks(3052),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 179, DateTimeKind.Utc).AddTicks(4639),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "Edirne Mutfak"
@@ -84,7 +84,7 @@ namespace PastryFlow.Infrastructure.Migrations
                             Id = new Guid("11111111-1111-1111-1111-111111111103"),
                             BranchType = 1,
                             City = 3,
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 287, DateTimeKind.Utc).AddTicks(3055),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 179, DateTimeKind.Utc).AddTicks(4650),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "Lüleburgaz Mutfak"
@@ -94,7 +94,7 @@ namespace PastryFlow.Infrastructure.Migrations
                             Id = new Guid("11111111-1111-1111-1111-111111111104"),
                             BranchType = 2,
                             City = 1,
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 287, DateTimeKind.Utc).AddTicks(3058),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 179, DateTimeKind.Utc).AddTicks(4655),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "Kırklareli Tezgah"
@@ -104,7 +104,7 @@ namespace PastryFlow.Infrastructure.Migrations
                             Id = new Guid("11111111-1111-1111-1111-111111111105"),
                             BranchType = 2,
                             City = 2,
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 287, DateTimeKind.Utc).AddTicks(3072),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 179, DateTimeKind.Utc).AddTicks(4661),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "Edirne Tezgah"
@@ -114,10 +114,272 @@ namespace PastryFlow.Infrastructure.Migrations
                             Id = new Guid("11111111-1111-1111-1111-111111111106"),
                             BranchType = 2,
                             City = 3,
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 287, DateTimeKind.Utc).AddTicks(3075),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 179, DateTimeKind.Utc).AddTicks(4667),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "Lüleburgaz Tezgah"
+                        });
+                });
+
+            modelBuilder.Entity("PastryFlow.Domain.Entities.CakeOption", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<int>("OptionType")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OptionType", "Name")
+                        .IsUnique();
+
+                    b.ToTable("CakeOptions");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("55555555-5555-5555-5555-000000000001"),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(6289),
+                            IsActive = true,
+                            IsDeleted = false,
+                            Name = "Kakaolu",
+                            OptionType = 0,
+                            SortOrder = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("55555555-5555-5555-5555-000000000002"),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(8133),
+                            IsActive = true,
+                            IsDeleted = false,
+                            Name = "Vanilyalı",
+                            OptionType = 0,
+                            SortOrder = 2
+                        },
+                        new
+                        {
+                            Id = new Guid("55555555-5555-5555-5555-000000000003"),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(8150),
+                            IsActive = true,
+                            IsDeleted = false,
+                            Name = "Meyveli",
+                            OptionType = 0,
+                            SortOrder = 3
+                        },
+                        new
+                        {
+                            Id = new Guid("55555555-5555-5555-5555-000000000004"),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(8154),
+                            IsActive = true,
+                            IsDeleted = false,
+                            Name = "Havuçlu",
+                            OptionType = 0,
+                            SortOrder = 4
+                        },
+                        new
+                        {
+                            Id = new Guid("55555555-5555-5555-5555-000000000005"),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(8158),
+                            IsActive = true,
+                            IsDeleted = false,
+                            Name = "Muzlu",
+                            OptionType = 0,
+                            SortOrder = 5
+                        },
+                        new
+                        {
+                            Id = new Guid("55555555-5555-5555-5555-000000000006"),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(8164),
+                            IsActive = true,
+                            IsDeleted = false,
+                            Name = "Limonlu",
+                            OptionType = 0,
+                            SortOrder = 6
+                        },
+                        new
+                        {
+                            Id = new Guid("55555555-5555-5555-5555-000000000007"),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(8169),
+                            IsActive = true,
+                            IsDeleted = false,
+                            Name = "Çikolatalı",
+                            OptionType = 1,
+                            SortOrder = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("55555555-5555-5555-5555-000000000008"),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(8173),
+                            IsActive = true,
+                            IsDeleted = false,
+                            Name = "Muzlu",
+                            OptionType = 1,
+                            SortOrder = 2
+                        },
+                        new
+                        {
+                            Id = new Guid("55555555-5555-5555-5555-000000000009"),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(8176),
+                            IsActive = true,
+                            IsDeleted = false,
+                            Name = "Frambuazlı",
+                            OptionType = 1,
+                            SortOrder = 3
+                        },
+                        new
+                        {
+                            Id = new Guid("55555555-5555-5555-5555-000000000010"),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(8253),
+                            IsActive = true,
+                            IsDeleted = false,
+                            Name = "Vanilyalı",
+                            OptionType = 1,
+                            SortOrder = 4
+                        },
+                        new
+                        {
+                            Id = new Guid("55555555-5555-5555-5555-000000000011"),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(8261),
+                            IsActive = true,
+                            IsDeleted = false,
+                            Name = "Karamelli",
+                            OptionType = 1,
+                            SortOrder = 5
+                        },
+                        new
+                        {
+                            Id = new Guid("55555555-5555-5555-5555-000000000012"),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(8264),
+                            IsActive = true,
+                            IsDeleted = false,
+                            Name = "Fıstıklı",
+                            OptionType = 1,
+                            SortOrder = 6
+                        },
+                        new
+                        {
+                            Id = new Guid("55555555-5555-5555-5555-000000000013"),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(8268),
+                            IsActive = true,
+                            IsDeleted = false,
+                            Name = "Beyaz Çikolatalı",
+                            OptionType = 1,
+                            SortOrder = 7
+                        },
+                        new
+                        {
+                            Id = new Guid("55555555-5555-5555-5555-000000000014"),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(8272),
+                            IsActive = true,
+                            IsDeleted = false,
+                            Name = "Toz Pembe",
+                            OptionType = 2,
+                            SortOrder = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("55555555-5555-5555-5555-000000000015"),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(8275),
+                            IsActive = true,
+                            IsDeleted = false,
+                            Name = "Beyaz",
+                            OptionType = 2,
+                            SortOrder = 2
+                        },
+                        new
+                        {
+                            Id = new Guid("55555555-5555-5555-5555-000000000016"),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(8279),
+                            IsActive = true,
+                            IsDeleted = false,
+                            Name = "Çikolata",
+                            OptionType = 2,
+                            SortOrder = 3
+                        },
+                        new
+                        {
+                            Id = new Guid("55555555-5555-5555-5555-000000000017"),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(8282),
+                            IsActive = true,
+                            IsDeleted = false,
+                            Name = "Mavi",
+                            OptionType = 2,
+                            SortOrder = 4
+                        },
+                        new
+                        {
+                            Id = new Guid("55555555-5555-5555-5555-000000000018"),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(8286),
+                            IsActive = true,
+                            IsDeleted = false,
+                            Name = "Kırmızı",
+                            OptionType = 2,
+                            SortOrder = 5
+                        },
+                        new
+                        {
+                            Id = new Guid("55555555-5555-5555-5555-000000000019"),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(8292),
+                            IsActive = true,
+                            IsDeleted = false,
+                            Name = "Mor",
+                            OptionType = 2,
+                            SortOrder = 6
+                        },
+                        new
+                        {
+                            Id = new Guid("55555555-5555-5555-5555-000000000020"),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(8295),
+                            IsActive = true,
+                            IsDeleted = false,
+                            Name = "Yeşil",
+                            OptionType = 2,
+                            SortOrder = 7
+                        },
+                        new
+                        {
+                            Id = new Guid("55555555-5555-5555-5555-000000000021"),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(8298),
+                            IsActive = true,
+                            IsDeleted = false,
+                            Name = "Sarı",
+                            OptionType = 2,
+                            SortOrder = 8
+                        },
+                        new
+                        {
+                            Id = new Guid("55555555-5555-5555-5555-000000000022"),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(8302),
+                            IsActive = true,
+                            IsDeleted = false,
+                            Name = "Turuncu",
+                            OptionType = 2,
+                            SortOrder = 9
                         });
                 });
 
@@ -158,7 +420,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("22222222-2222-2222-2222-222222222201"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 290, DateTimeKind.Utc).AddTicks(1095),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 182, DateTimeKind.Utc).AddTicks(5932),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "KEK",
@@ -167,7 +429,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("22222222-2222-2222-2222-222222222203"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 290, DateTimeKind.Utc).AddTicks(6918),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 183, DateTimeKind.Utc).AddTicks(2551),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "MAYALILAR",
@@ -176,7 +438,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("22222222-2222-2222-2222-222222222204"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 290, DateTimeKind.Utc).AddTicks(6928),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 183, DateTimeKind.Utc).AddTicks(2570),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "KURABİYE",
@@ -185,7 +447,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("22222222-2222-2222-2222-222222222205"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 290, DateTimeKind.Utc).AddTicks(6960),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 183, DateTimeKind.Utc).AddTicks(2575),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "PASTALAR",
@@ -194,7 +456,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("22222222-2222-2222-2222-222222222206"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 290, DateTimeKind.Utc).AddTicks(6963),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 183, DateTimeKind.Utc).AddTicks(2580),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "İÇECEK",
@@ -203,7 +465,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("22222222-2222-2222-2222-222222222207"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 290, DateTimeKind.Utc).AddTicks(6966),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 183, DateTimeKind.Utc).AddTicks(2583),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "FIRIN",
@@ -212,12 +474,119 @@ namespace PastryFlow.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("22222222-2222-2222-2222-222222222208"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 290, DateTimeKind.Utc).AddTicks(6976),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 183, DateTimeKind.Utc).AddTicks(2586),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "HAMMADDE",
                             SortOrder = 7
                         });
+                });
+
+            modelBuilder.Entity("PastryFlow.Domain.Entities.CustomCakeOrder", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("BranchId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("CakeTypeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("CustomerName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("CustomerPhone")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("DeliveryDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<Guid>("InnerCreamId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("OrderNumber")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<Guid>("OuterCreamId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("Price")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<Guid>("ProductionBranchId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ReferencePhotoUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<int>("ServingSize")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("StatusChangedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("StatusChangedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("StatusNote")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BranchId");
+
+                    b.HasIndex("CakeTypeId");
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("DeliveryDate");
+
+                    b.HasIndex("InnerCreamId");
+
+                    b.HasIndex("OrderNumber")
+                        .IsUnique();
+
+                    b.HasIndex("OuterCreamId");
+
+                    b.HasIndex("ProductionBranchId");
+
+                    b.HasIndex("Status");
+
+                    b.HasIndex("StatusChangedByUserId");
+
+                    b.ToTable("CustomCakeOrders");
                 });
 
             modelBuilder.Entity("PastryFlow.Domain.Entities.DayClosing", b =>
@@ -229,11 +598,23 @@ namespace PastryFlow.Infrastructure.Migrations
                     b.Property<Guid>("BranchId")
                         .HasColumnType("uuid");
 
+                    b.Property<decimal?>("CashAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<decimal?>("CashDifference")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
                     b.Property<DateTime?>("ClosedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid?>("ClosedByUserId")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("CounterPhotoUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -243,6 +624,14 @@ namespace PastryFlow.Infrastructure.Migrations
 
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DifferenceNote")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<decimal?>("ExpectedCashAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
 
                     b.Property<bool>("IsClosed")
                         .HasColumnType("boolean");
@@ -258,6 +647,18 @@ namespace PastryFlow.Infrastructure.Migrations
 
                     b.Property<Guid?>("OpenedByUserId")
                         .HasColumnType("uuid");
+
+                    b.Property<decimal?>("PosAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<string>("ReceiptPhotoUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<decimal?>("TotalCounted")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -372,6 +773,72 @@ namespace PastryFlow.Infrastructure.Migrations
                     b.ToTable("DayClosingDetails");
                 });
 
+            modelBuilder.Entity("PastryFlow.Domain.Entities.DeliveryReturn", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("DemandId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("DemandItemId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("FromBranchId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("PhotoUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("Quantity")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("ToBranchId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedAt");
+
+                    b.HasIndex("DemandId");
+
+                    b.HasIndex("DemandItemId");
+
+                    b.HasIndex("FromBranchId");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("ToBranchId");
+
+                    b.ToTable("DeliveryReturns");
+                });
+
             modelBuilder.Entity("PastryFlow.Domain.Entities.Demand", b =>
                 {
                     b.Property<Guid>("Id")
@@ -446,6 +913,13 @@ namespace PastryFlow.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<DateTime?>("AcceptedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal?>("AcceptedQuantity")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
                     b.Property<decimal?>("ApprovedQuantity")
                         .HasPrecision(18, 2)
                         .HasColumnType("numeric(18,2)");
@@ -456,6 +930,10 @@ namespace PastryFlow.Infrastructure.Migrations
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DeliveryRejectionReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
                     b.Property<Guid>("DemandId")
                         .HasColumnType("uuid");
 
@@ -464,6 +942,14 @@ namespace PastryFlow.Infrastructure.Migrations
 
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uuid");
+
+                    b.Property<decimal?>("RejectedQuantity")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<string>("RejectionPhotoUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
 
                     b.Property<string>("RejectionReason")
                         .HasMaxLength(300)
@@ -478,6 +964,13 @@ namespace PastryFlow.Infrastructure.Migrations
 
                     b.Property<Guid?>("ReviewedByUserId")
                         .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("SentAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal?>("SentQuantity")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
 
                     b.Property<int>("Status")
                         .HasColumnType("integer");
@@ -517,13 +1010,27 @@ namespace PastryFlow.Infrastructure.Migrations
 
                     b.Property<string>("Message")
                         .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)");
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
 
-                    b.Property<Guid?>("RelatedEntityId")
+                    b.Property<DateTime?>("ReadAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("SourceBranchId")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("RelatedEntityType")
+                    b.Property<string>("SourceBranchName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("SourceEntity")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<Guid?>("SourceEntityId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("TargetRole")
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
@@ -532,6 +1039,9 @@ namespace PastryFlow.Infrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -539,6 +1049,16 @@ namespace PastryFlow.Infrastructure.Migrations
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("BranchId");
+
+                    b.HasIndex("CreatedAt");
+
+                    b.HasIndex("IsRead");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("BranchId", "IsRead");
 
                     b.ToTable("Notifications");
                 });
@@ -601,7 +1121,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000001"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222201"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(896),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 183, DateTimeKind.Utc).AddTicks(7718),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "KEK DİLİM",
@@ -614,7 +1134,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000002"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222201"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(3865),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1141),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "KEK KALIP BÜYÜK",
@@ -627,7 +1147,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000003"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222201"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(3877),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1164),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "KEK KALIP KÜÇÜK",
@@ -640,7 +1160,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000004"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222201"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(3881),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1171),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "KEK KALIP ORTA",
@@ -653,7 +1173,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000005"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222201"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(3885),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1176),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "KEK MUFİN",
@@ -666,7 +1186,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000006"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(3896),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1203),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "EKŞİ MAYA (3'LÜ)",
@@ -679,7 +1199,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000007"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(3900),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1209),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "EKŞİ MAYA (2'Lİ)",
@@ -692,7 +1212,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000008"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(3910),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1214),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "ÇAVDAR",
@@ -705,7 +1225,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000009"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(3914),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1227),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "TAHILLI",
@@ -718,7 +1238,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000010"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(3921),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1233),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "MISIR",
@@ -731,7 +1251,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000011"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(3924),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1239),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "TEKLİ BEYAZ",
@@ -744,7 +1264,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000012"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(3928),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1244),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "ÇİFTLİ BEYAZ",
@@ -757,7 +1277,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000013"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(3931),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1248),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "KEPEK",
@@ -770,7 +1290,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000014"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(3935),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1252),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "TAMBUĞDAY",
@@ -783,7 +1303,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000015"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(3938),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1256),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "PİDE",
@@ -796,7 +1316,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000016"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(3944),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1260),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "SANDVİÇ",
@@ -809,7 +1329,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000017"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(3962),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1264),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "SİYEZ",
@@ -822,7 +1342,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000018"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222203"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(3970),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1311),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "BÖREK",
@@ -835,7 +1355,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000019"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222203"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(3974),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1324),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "KAFKAS BÖREĞİ",
@@ -848,7 +1368,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000020"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222203"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(3978),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1329),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "AÇMA",
@@ -861,7 +1381,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000021"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222203"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(3981),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1333),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "İÇLİ SİMİT",
@@ -874,7 +1394,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000022"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222203"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(3985),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1337),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "PİZZA",
@@ -887,7 +1407,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000023"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222203"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(3988),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1342),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "POĞAÇA",
@@ -900,7 +1420,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000024"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222203"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(3994),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1346),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "POĞAÇA İRAN",
@@ -913,7 +1433,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000025"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222203"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(3998),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1350),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "POĞAÇA SAKALLI",
@@ -926,7 +1446,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000026"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222203"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4001),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1426),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "SİMİT",
@@ -939,7 +1459,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000027"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222203"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4005),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1439),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "SU BÖREĞİ",
@@ -952,7 +1472,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000028"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222203"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4009),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1444),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "İÇLİ SANDVİÇ",
@@ -965,7 +1485,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000029"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222204"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4014),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1460),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "ACIBADEM",
@@ -978,7 +1498,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000030"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222204"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4018),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1469),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "BEZE BÜYÜK",
@@ -991,7 +1511,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000031"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222204"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4023),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1474),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "BEZE KUTU",
@@ -1004,7 +1524,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000032"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222204"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4066),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1480),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "GÜLEN YÜZ",
@@ -1017,7 +1537,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000033"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222204"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4071),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1485),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "KURABİYE EKSTRA",
@@ -1030,7 +1550,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000034"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222204"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4076),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1490),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "KURABİYE MUZ / BONCUK",
@@ -1043,7 +1563,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000035"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222204"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4081),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1497),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "KURABİYE SADE",
@@ -1056,7 +1576,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000036"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222204"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4085),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1501),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "KURABİYE ŞAM",
@@ -1069,7 +1589,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000037"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222204"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4088),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1505),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "KURABİYE TAHİNLİ",
@@ -1082,7 +1602,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000038"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222204"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4092),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1510),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "KURABİYE UN",
@@ -1095,7 +1615,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000039"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222204"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4096),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1514),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "KURU PASTA",
@@ -1108,7 +1628,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000040"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222204"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4102),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1519),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "KURABİYE TART",
@@ -1121,7 +1641,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000041"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222204"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4106),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1524),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "KANDİL SİMİDİ",
@@ -1134,7 +1654,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000042"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222205"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4120),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1530),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "ALMAN PASTASI",
@@ -1147,7 +1667,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000043"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222205"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4125),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1538),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "RULO SARMA",
@@ -1160,7 +1680,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000044"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222205"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4129),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1542),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "PASTA ADET",
@@ -1173,7 +1693,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000045"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222205"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4132),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1547),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "PASTA CHEESECAKE",
@@ -1186,7 +1706,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000046"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222205"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4136),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1551),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "PASTA B1",
@@ -1199,7 +1719,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000047"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222205"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4140),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1556),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "PASTA NO 0",
@@ -1212,7 +1732,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000048"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222205"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4146),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1560),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "PASTA NO 1",
@@ -1225,7 +1745,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000049"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222205"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4150),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1565),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "FİGÜR-BUDAPEŞTE-SEBASTİAN",
@@ -1238,7 +1758,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000050"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222205"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4153),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1569),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "SÜTLÜ TATLILAR",
@@ -1251,7 +1771,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000051"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222205"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4158),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1576),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "TRİLEÇE",
@@ -1264,7 +1784,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000052"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222205"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4161),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1624),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "SİPARİŞ PASTA",
@@ -1277,7 +1797,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000053"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222205"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4166),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1630),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "PASTA KG",
@@ -1290,7 +1810,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000054"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222206"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4174),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1637),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "AYRAN",
@@ -1303,7 +1823,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000055"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222206"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4178),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1641),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "ÇAY SATIŞ",
@@ -1316,7 +1836,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000056"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222206"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4184),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1645),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "ESPRESSO",
@@ -1329,7 +1849,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000057"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222206"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4188),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1649),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "GAZLI İÇECEK",
@@ -1342,7 +1862,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000058"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222206"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4191),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1654),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "LİMONATA",
@@ -1355,7 +1875,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000059"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222206"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4195),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1660),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "MEYVE SUYU",
@@ -1368,7 +1888,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000060"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222206"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4199),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1665),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "SODA MEYVELİ",
@@ -1381,7 +1901,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000061"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222206"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4203),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1669),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "SODA SADE",
@@ -1394,7 +1914,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000062"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222206"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4207),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1673),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "SU 0.5 L",
@@ -1407,7 +1927,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000063"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222206"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4210),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1677),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "TÜRK KAHVESİ",
@@ -1420,7 +1940,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000064"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222206"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4216),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1682),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "BİTKİ ÇAYI",
@@ -1433,7 +1953,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000065"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222206"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4220),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1686),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "PİKNİK ÜRÜNLER",
@@ -1446,7 +1966,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000066"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222206"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4225),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1692),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "KAHVALTI TABAĞI",
@@ -1459,7 +1979,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000067"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4236),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1700),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "GALETE",
@@ -1472,7 +1992,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000068"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4240),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1704),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "EKMEK BEYAZ",
@@ -1485,7 +2005,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000069"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4244),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1709),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "EKMEK ÇEŞİT",
@@ -1498,7 +2018,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000070"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4247),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1713),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "EKMEK KEPEK",
@@ -1511,7 +2031,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000071"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4251),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1717),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "EKMEK MISIR",
@@ -1524,7 +2044,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000072"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4257),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1722),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "EKMEK SANDVİÇ",
@@ -1537,7 +2057,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000073"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4261),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1726),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "TAHILLI EKMEK",
@@ -1550,7 +2070,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000074"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4265),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1730),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "PİDE ÇİFTLİ",
@@ -1563,7 +2083,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000075"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222207"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4268),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1736),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "TANDIR EKMEĞİ",
@@ -1576,7 +2096,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000076"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222208"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4274),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1743),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "UN",
@@ -1588,7 +2108,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000077"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222208"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4278),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1791),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "TUZ",
@@ -1600,7 +2120,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000078"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222208"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4282),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1796),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "ŞEKER",
@@ -1612,7 +2132,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000079"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222208"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4286),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1800),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "MAYA",
@@ -1624,7 +2144,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000080"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222208"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4291),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1805),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "TEREYAĞI",
@@ -1636,7 +2156,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000081"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222208"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4295),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1809),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "MARGARİN",
@@ -1648,7 +2168,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000082"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222208"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4299),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1813),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "KAKAO",
@@ -1660,7 +2180,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000083"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222208"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4302),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1820),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "KABARTMA TOZU",
@@ -1672,7 +2192,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000084"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222208"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4306),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1824),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "NİŞASTA",
@@ -1684,7 +2204,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000085"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222208"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4311),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1829),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "SÜT",
@@ -1696,7 +2216,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000086"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222208"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4315),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1833),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "KREMA",
@@ -1708,7 +2228,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000087"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222208"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4319),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1838),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "AYÇİÇEK YAĞI",
@@ -1720,7 +2240,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("44444444-4444-4444-4444-000000000088"),
                             CategoryId = new Guid("22222222-2222-2222-2222-222222222208"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 291, DateTimeKind.Utc).AddTicks(4325),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 184, DateTimeKind.Utc).AddTicks(1843),
                             IsActive = true,
                             IsDeleted = false,
                             Name = "YUMURTA",
@@ -1895,7 +2415,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("33333333-3333-3333-3333-333333333301"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 288, DateTimeKind.Utc).AddTicks(2119),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 180, DateTimeKind.Utc).AddTicks(4829),
                             Email = "admin@pastryflow.com",
                             FullName = "Admin Kullanıcı",
                             IsActive = true,
@@ -1907,7 +2427,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("33333333-3333-3333-3333-333333333302"),
                             BranchId = new Guid("11111111-1111-1111-1111-111111111101"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 288, DateTimeKind.Utc).AddTicks(5039),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 180, DateTimeKind.Utc).AddTicks(7925),
                             Email = "kirklareli.mutfak@pastryflow.com",
                             FullName = "Kırklareli Üretim",
                             IsActive = true,
@@ -1919,7 +2439,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("33333333-3333-3333-3333-333333333303"),
                             BranchId = new Guid("11111111-1111-1111-1111-111111111102"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 288, DateTimeKind.Utc).AddTicks(5717),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 180, DateTimeKind.Utc).AddTicks(8572),
                             Email = "edirne.mutfak@pastryflow.com",
                             FullName = "Edirne Üretim",
                             IsActive = true,
@@ -1931,7 +2451,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("33333333-3333-3333-3333-333333333304"),
                             BranchId = new Guid("11111111-1111-1111-1111-111111111103"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 288, DateTimeKind.Utc).AddTicks(5723),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 180, DateTimeKind.Utc).AddTicks(8582),
                             Email = "luleburgaz.mutfak@pastryflow.com",
                             FullName = "Lüleburgaz Üretim",
                             IsActive = true,
@@ -1943,7 +2463,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("33333333-3333-3333-3333-333333333305"),
                             BranchId = new Guid("11111111-1111-1111-1111-111111111104"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 288, DateTimeKind.Utc).AddTicks(5728),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 180, DateTimeKind.Utc).AddTicks(8585),
                             Email = "kirklareli.tezgah@pastryflow.com",
                             FullName = "Kırklareli Satış",
                             IsActive = true,
@@ -1955,7 +2475,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("33333333-3333-3333-3333-333333333306"),
                             BranchId = new Guid("11111111-1111-1111-1111-111111111105"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 288, DateTimeKind.Utc).AddTicks(5731),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 180, DateTimeKind.Utc).AddTicks(8590),
                             Email = "edirne.tezgah@pastryflow.com",
                             FullName = "Edirne Satış",
                             IsActive = true,
@@ -1967,7 +2487,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         {
                             Id = new Guid("33333333-3333-3333-3333-333333333307"),
                             BranchId = new Guid("11111111-1111-1111-1111-111111111106"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 288, DateTimeKind.Utc).AddTicks(5741),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 180, DateTimeKind.Utc).AddTicks(8594),
                             Email = "luleburgaz.tezgah@pastryflow.com",
                             FullName = "Lüleburgaz Satış",
                             IsActive = true,
@@ -1978,7 +2498,7 @@ namespace PastryFlow.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("33333333-3333-3333-3333-333333333308"),
-                            CreatedAt = new DateTime(2026, 4, 21, 9, 10, 56, 288, DateTimeKind.Utc).AddTicks(5744),
+                            CreatedAt = new DateTime(2026, 4, 28, 5, 24, 30, 180, DateTimeKind.Utc).AddTicks(8597),
                             Email = "sofor@pastryflow.com",
                             FullName = "Şoför",
                             IsActive = true,
@@ -2044,6 +2564,64 @@ namespace PastryFlow.Infrastructure.Migrations
                     b.ToTable("Wastes");
                 });
 
+            modelBuilder.Entity("PastryFlow.Domain.Entities.CustomCakeOrder", b =>
+                {
+                    b.HasOne("PastryFlow.Domain.Entities.Branch", "Branch")
+                        .WithMany()
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("PastryFlow.Domain.Entities.CakeOption", "CakeType")
+                        .WithMany()
+                        .HasForeignKey("CakeTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("PastryFlow.Domain.Entities.User", "CreatedByUser")
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("PastryFlow.Domain.Entities.CakeOption", "InnerCream")
+                        .WithMany()
+                        .HasForeignKey("InnerCreamId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("PastryFlow.Domain.Entities.CakeOption", "OuterCream")
+                        .WithMany()
+                        .HasForeignKey("OuterCreamId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("PastryFlow.Domain.Entities.Branch", "ProductionBranch")
+                        .WithMany()
+                        .HasForeignKey("ProductionBranchId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("PastryFlow.Domain.Entities.User", "StatusChangedByUser")
+                        .WithMany()
+                        .HasForeignKey("StatusChangedByUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Branch");
+
+                    b.Navigation("CakeType");
+
+                    b.Navigation("CreatedByUser");
+
+                    b.Navigation("InnerCream");
+
+                    b.Navigation("OuterCream");
+
+                    b.Navigation("ProductionBranch");
+
+                    b.Navigation("StatusChangedByUser");
+                });
+
             modelBuilder.Entity("PastryFlow.Domain.Entities.DayClosing", b =>
                 {
                     b.HasOne("PastryFlow.Domain.Entities.Branch", "Branch")
@@ -2095,6 +2673,49 @@ namespace PastryFlow.Infrastructure.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("PastryFlow.Domain.Entities.DeliveryReturn", b =>
+                {
+                    b.HasOne("PastryFlow.Domain.Entities.Demand", "Demand")
+                        .WithMany()
+                        .HasForeignKey("DemandId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("PastryFlow.Domain.Entities.DemandItem", "DemandItem")
+                        .WithMany()
+                        .HasForeignKey("DemandItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("PastryFlow.Domain.Entities.Branch", "FromBranch")
+                        .WithMany()
+                        .HasForeignKey("FromBranchId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("PastryFlow.Domain.Entities.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("PastryFlow.Domain.Entities.Branch", "ToBranch")
+                        .WithMany()
+                        .HasForeignKey("ToBranchId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Demand");
+
+                    b.Navigation("DemandItem");
+
+                    b.Navigation("FromBranch");
+
+                    b.Navigation("Product");
+
+                    b.Navigation("ToBranch");
+                });
+
             modelBuilder.Entity("PastryFlow.Domain.Entities.Demand", b =>
                 {
                     b.HasOne("PastryFlow.Domain.Entities.User", "CreatedByUser")
@@ -2139,6 +2760,23 @@ namespace PastryFlow.Infrastructure.Migrations
                     b.Navigation("Demand");
 
                     b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("PastryFlow.Domain.Entities.Notification", b =>
+                {
+                    b.HasOne("PastryFlow.Domain.Entities.Branch", "Branch")
+                        .WithMany()
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("PastryFlow.Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Branch");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("PastryFlow.Domain.Entities.Product", b =>

@@ -5,9 +5,22 @@ namespace PastryFlow.Application.DTOs.DayClosing;
 
 public class DayClosingSummaryDto
 {
+    public Guid? Id { get; set; }
     public string BranchName { get; set; } = string.Empty;
     public DateOnly Date { get; set; }
     public bool IsClosed { get; set; }
+    
+    // Kasa Sayımı
+    public decimal? ExpectedCashAmount { get; set; }
+    public decimal? CashAmount { get; set; }
+    public decimal? PosAmount { get; set; }
+    public decimal? TotalCounted { get; set; }
+    public decimal? CashDifference { get; set; }
+    public string? DifferenceNote { get; set; }
+
+    // Fotoğraflar
+    public string? ReceiptPhotoUrl { get; set; }
+    public string? CounterPhotoUrl { get; set; }
     
     public List<DailySummaryItemDto> Items { get; set; } = new();
     public DayClosingTotals Totals { get; set; } = new();

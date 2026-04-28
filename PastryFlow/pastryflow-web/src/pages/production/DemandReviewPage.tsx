@@ -59,8 +59,9 @@ const DemandReviewPage: React.FC = () => {
         if (res.success && res.data) {
           setDemand(res.data);
           
-          // Check if already processed
-          if (res.data.status !== 1) {
+          // Check if already processed (Support both number 1 and string 'Pending')
+          const isActuallyPending = res.data.status === 1 || res.data.status === 'Pending';
+          if (!isActuallyPending) {
              message.warning('Bu talep daha önce incelenmiş.');
           }
 
@@ -72,7 +73,8 @@ const DemandReviewPage: React.FC = () => {
               unit: item.unitName,
               requestedQuantity: item.requestedQuantity,
               approvedQuantity: item.approvedQuantity !== null ? item.approvedQuantity : item.requestedQuantity,
-              status: item.status === 3 ? 'Rejected' : 'Approved', 
+              // DemandItemStatus.Rejected = 3
+              status: (item.status === 3 || item.status === 'Rejected') ? 'Rejected' : 'Approved', 
               rejectionReason: item.rejectionReason || '',
             }))
           );
@@ -248,7 +250,7 @@ const DemandReviewPage: React.FC = () => {
   if (loading) return <Spin size="large" style={{ display: 'block', marginTop: 100 }} />;
   if (!demand) return null;
 
-  const isPending = demand.status === 1;
+  const isPending = demand.status === 1 || demand.status === 'Pending';
 
   return (
     <div style={{ padding: '24px' }}>

@@ -5,6 +5,7 @@ public enum DemandItemStatus
     Pending = 1,
     Approved = 2,
     Rejected = 3,
-    Delivered = 4,
-    Received = 5
+    Shipped = 4,
+    Delivered = 5,
+    Received = 6
 }

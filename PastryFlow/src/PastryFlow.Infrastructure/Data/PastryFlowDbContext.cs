@@ -21,6 +21,9 @@ public class PastryFlowDbContext : DbContext, IPastryFlowDbContext
     public DbSet<DayClosingDetail> DayClosingDetails => Set<DayClosingDetail>();
     public DbSet<Waste> Wastes => Set<Waste>();
     public DbSet<Notification> Notifications => Set<Notification>();
+    public DbSet<DeliveryReturn> DeliveryReturns => Set<DeliveryReturn>();
+    public DbSet<CakeOption> CakeOptions => Set<CakeOption>();
+    public DbSet<CustomCakeOrder> CustomCakeOrders => Set<CustomCakeOrder>();
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

@@ -15,4 +15,12 @@ public class DemandItemDto
     public DemandItemStatus Status { get; set; }
     public string StatusName => Status.ToString();
     public string? RejectionReason { get; set; }
+    
+    public decimal? SentQuantity { get; set; }
+    public DateTime? SentAt { get; set; }
+    public decimal? AcceptedQuantity { get; set; }
+    public decimal? RejectedQuantity { get; set; }
+    public string? DeliveryRejectionReason { get; set; }
+    public string? RejectionPhotoUrl { get; set; }
+    public DateTime? AcceptedAt { get; set; }
 }

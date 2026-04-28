@@ -19,6 +19,9 @@ public interface IPastryFlowDbContext
     DbSet<DayClosingDetail> DayClosingDetails { get; }
     DbSet<Waste> Wastes { get; }
     DbSet<Notification> Notifications { get; }
+    DbSet<DeliveryReturn> DeliveryReturns { get; }
+    DbSet<CakeOption> CakeOptions { get; }
+    DbSet<CustomCakeOrder> CustomCakeOrders { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

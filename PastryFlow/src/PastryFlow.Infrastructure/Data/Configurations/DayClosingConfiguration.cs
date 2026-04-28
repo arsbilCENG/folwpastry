@@ -28,5 +28,14 @@ public class DayClosingConfiguration : IEntityTypeConfiguration<DayClosing>
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasIndex(x => new { x.BranchId, x.Date }).IsUnique();
+
+        builder.Property(e => e.DifferenceNote).HasMaxLength(500);
+        builder.Property(e => e.ReceiptPhotoUrl).HasMaxLength(500);
+        builder.Property(e => e.CounterPhotoUrl).HasMaxLength(500);
+        builder.Property(e => e.ExpectedCashAmount).HasPrecision(18, 2);
+        builder.Property(e => e.CashAmount).HasPrecision(18, 2);
+        builder.Property(e => e.PosAmount).HasPrecision(18, 2);
+        builder.Property(e => e.TotalCounted).HasPrecision(18, 2);
+        builder.Property(e => e.CashDifference).HasPrecision(18, 2);
     }
 }

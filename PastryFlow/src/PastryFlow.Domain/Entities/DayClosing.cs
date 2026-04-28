@@ -14,6 +14,18 @@ public class DayClosing : BaseEntity
     public DateTime? ClosedAt { get; set; }
     public Guid? ClosedByUserId { get; set; }
 
+    // Kasa Sayımı
+    public decimal? ExpectedCashAmount { get; set; }
+    public decimal? CashAmount { get; set; }
+    public decimal? PosAmount { get; set; }
+    public decimal? TotalCounted { get; set; }
+    public decimal? CashDifference { get; set; }
+    public string? DifferenceNote { get; set; }
+
+    // Fotoğraflar
+    public string? ReceiptPhotoUrl { get; set; }
+    public string? CounterPhotoUrl { get; set; }
+
     // Navigation properties
     public virtual Branch Branch { get; set; } = null!;
     public virtual User? OpenedByUser { get; set; }

@@ -15,6 +15,8 @@ import {
 } from '@ant-design/icons';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
+import NotificationBell from '../notifications/NotificationBell';
+import ConnectionStatus from '../notifications/ConnectionStatus';
 
 const { Header, Sider, Content } = Layout;
 const { useBreakpoint } = Grid;
@@ -36,13 +38,14 @@ const SalesLayout: React.FC = () => {
 
   const menuItems = [
     { key: '/sales/dashboard', icon: <HomeOutlined />, label: 'Dashboard' },
+    { key: '/sales/cake-orders', icon: <PlusCircleOutlined />, label: 'Özel Pasta Sipariş' },
     { key: '/sales/stock', icon: <DatabaseOutlined />, label: 'Mevcut Stok' },
     { key: '/sales/demands/create', icon: <PlusCircleOutlined />, label: 'Talep Oluştur' },
     { key: '/sales/demands', icon: <UnorderedListOutlined />, label: 'Taleplerim' },
     { key: '/sales/demands/receive', icon: <CheckCircleOutlined />, label: 'Teslimat Kabul' },
     { key: '/sales/wastes/add', icon: <WarningOutlined />, label: 'Zayiat Ekle' },
     { key: '/sales/day-closing', icon: <CalculatorOutlined />, label: 'Gün Sonu Sayım' },
-    { key: '/sales/reports/daily', icon: <BarChartOutlined />, label: 'Günlük Rapor' },
+    { key: '/sales/reports', icon: <BarChartOutlined />, label: 'Raporlar' },
   ];
 
   const handleMenuClick = ({ key }: { key: string }) => {
@@ -94,6 +97,7 @@ const SalesLayout: React.FC = () => {
         onClick={handleMenuClick}
         style={{ flex: 1 }}
       />
+      {!collapsed && <ConnectionStatus />}
       <div style={{ padding: '16px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
         <Button 
           type="primary" 
@@ -152,6 +156,7 @@ const SalesLayout: React.FC = () => {
           </Space>
 
           <Space size="middle">
+            <NotificationBell />
             {!isMobile && (
               <div style={{ textAlign: 'right' }}>
                 <Text strong style={{ display: 'block', lineHeight: '1.2' }}>{user?.fullName}</Text>

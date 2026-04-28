@@ -18,6 +18,7 @@ public class DemandDto
     public DateTime CreatedAt { get; set; }
     public Guid CreatedByUserId { get; set; }
     public DateTime? ReviewedAt { get; set; }
+    public DateTime? ShippedAt { get; set; }
     public DateTime? DeliveredAt { get; set; }
     public DateTime? ReceivedAt { get; set; }
     public Guid? ReceivedByUserId { get; set; }

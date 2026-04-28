@@ -2,6 +2,7 @@ using AutoMapper;
 using PastryFlow.Application.DTOs.Branch;
 using PastryFlow.Application.DTOs.Category;
 using PastryFlow.Application.DTOs.Demand;
+using PastryFlow.Application.DTOs.DeliveryReturns;
 using PastryFlow.Application.DTOs.Notification;
 using PastryFlow.Application.DTOs.Product;
 using PastryFlow.Application.DTOs.Waste;
@@ -33,5 +34,13 @@ public class MappingProfile : Profile
             .ForMember(d => d.UnitName, o => o.MapFrom(s => s.Product.Unit.ToString()));
 
         CreateMap<Notification, NotificationDto>();
+
+        CreateMap<DeliveryReturn, DeliveryReturnDto>()
+            .ForMember(d => d.ProductName, o => o.MapFrom(s => s.Product != null ? s.Product.Name : ""))
+            .ForMember(d => d.CategoryName, o => o.MapFrom(s => s.Product != null && s.Product.Category != null ? s.Product.Category.Name : ""))
+            .ForMember(d => d.UnitType, o => o.MapFrom(s => s.Product != null ? s.Product.Unit.ToString() : ""))
+            .ForMember(d => d.FromBranchName, o => o.MapFrom(s => s.FromBranch != null ? s.FromBranch.Name : ""))
+            .ForMember(d => d.ToBranchName, o => o.MapFrom(s => s.ToBranch != null ? s.ToBranch.Name : ""))
+            .ForMember(d => d.Status, o => o.MapFrom(s => s.Status.ToString()));
     }
 }

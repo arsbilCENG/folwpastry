@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Tag, Button, message, Space, Modal, Typography, Descriptions, Divider } from 'antd';
+import { Table, Tag, Button, message, Space, Modal, Typography, Descriptions, Divider, Image, Card } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 import { demandApi } from '../../api/demandApi';
 import { Demand, DemandItem } from '../../types/demand';
 import useAuth from '../../hooks/useAuth';
+import { DEMAND_STATUS_CONFIG } from '../../utils/constants';
 
 const { Text, Title } = Typography;
 
@@ -55,23 +56,16 @@ const DemandListPage: React.FC = () => {
     }
   };
 
-  const getStatusColor = (status: number) => {
+  const getItemStatusTag = (status: any) => {
     switch (status) {
-      case 1: return 'blue';    // Pending
-      case 2: return 'green';   // Approved
-      case 3: return 'cyan';    // PartiallyApproved
-      case 4: return 'red';     // Rejected
-      case 5: return 'purple';  // Delivered
-      case 6: return 'success'; // Received
-      default: return 'default';
-    }
-  };
-
-  const getItemStatusTag = (status: number) => {
-    switch (status) {
-      case 1: return <Tag color="blue">Beklemede</Tag>;
-      case 2: return <Tag color="green">Onaylandı</Tag>;
-      case 3: return <Tag color="red">Reddedildi</Tag>;
+      case 0:
+      case 'Pending': return <Tag color="orange">Beklemede</Tag>;
+      case 1:
+      case 'Approved': return <Tag color="green">Onaylandı</Tag>;
+      case 2:
+      case 'Rejected': return <Tag color="red">Reddedildi</Tag>;
+      case 3:
+      case 'PartiallyApproved': return <Tag color="blue">Kısmen Onaylandı</Tag>;
       default: return <Tag>{status}</Tag>;
     }
   };
@@ -98,9 +92,10 @@ const DemandListPage: React.FC = () => {
       title: 'Durum',
       dataIndex: 'statusName',
       key: 'statusName',
-      render: (val: string, record) => (
-        <Tag color={getStatusColor(record.status)}>{val}</Tag>
-      )
+      render: (val: string) => {
+        const config = DEMAND_STATUS_CONFIG[val] || { color: 'default', text: val };
+        return <Tag color={config.color}>{config.text}</Tag>;
+      }
     },
     {
       title: 'İşlem',
@@ -124,15 +119,27 @@ const DemandListPage: React.FC = () => {
       key: 'unitName',
     },
     {
-      title: 'İstenen',
+      title: 'Talep',
       dataIndex: 'requestedQuantity',
       key: 'requestedQuantity',
     },
     {
-      title: 'Onaylanan',
+      title: 'Onay',
       dataIndex: 'approvedQuantity',
       key: 'approvedQuantity',
       render: (val: number | null) => val !== null ? <Text strong color="green">{val}</Text> : '-'
+    },
+    {
+      title: 'Gönderilen',
+      dataIndex: 'sentQuantity',
+      key: 'sentQuantity',
+      render: (val: number | null) => val !== null ? <Text strong style={{ color: '#13c2c2' }}>{val}</Text> : '-'
+    },
+    {
+      title: 'Kabul',
+      dataIndex: 'acceptedQuantity',
+      key: 'acceptedQuantity',
+      render: (val: number | null) => val !== null ? <Text strong style={{ color: '#52c41a' }}>{val}</Text> : '-'
     },
     {
       title: 'Durum',
@@ -141,24 +148,34 @@ const DemandListPage: React.FC = () => {
       render: (_: any, record: DemandItem) => getItemStatusTag(record.status)
     },
     {
-      title: 'Sebep / Not',
-      dataIndex: 'rejectionReason',
-      key: 'rejectionReason',
-      render: (val: string | null) => val ? <Text type="danger">{val}</Text> : '-'
+      title: 'Not / Red Nedeni',
+      key: 'rejection',
+      render: (_: any, record: DemandItem) => (
+        <Space direction="vertical" size={0}>
+          {record.rejectionReason && <Text type="danger" style={{ fontSize: 12 }}>Onay Red: {record.rejectionReason}</Text>}
+          {record.deliveryRejectionReason && <Text type="warning" style={{ fontSize: 12 }}>Teslim Red: {record.deliveryRejectionReason}</Text>}
+          {record.rejectionPhotoUrl && (
+            <Image src={record.rejectionPhotoUrl} width={30} height={30} style={{ borderRadius: 4, marginTop: 4 }} />
+          )}
+        </Space>
+      )
     }
   ];
 
   return (
     <div style={{ padding: '24px' }}>
-      <div style={{ marginBottom: 16 }}>
+      <Card bordered={false} style={{ borderRadius: 12, marginBottom: 24 }}>
         <Title level={2}>Taleplerim</Title>
-      </div>
+        <Text type="secondary">Verdiğiniz siparişlerin durumunu ve üretim detaylarını buradan takip edebilirsiniz.</Text>
+      </Card>
+
       <Table 
         columns={columns} 
         dataSource={demands} 
         rowKey="id" 
         loading={loading}
         bordered
+        style={{ background: '#fff', borderRadius: 8, overflow: 'hidden' }}
       />
 
       <Modal
@@ -182,14 +199,20 @@ const DemandListPage: React.FC = () => {
               <Descriptions.Item label="Tarih">{dayjs(selectedDemand.createdAt).format('DD.MM.YYYY HH:mm')}</Descriptions.Item>
               <Descriptions.Item label="Üretim Şubesi">{selectedDemand.productionBranchName}</Descriptions.Item>
               <Descriptions.Item label="Durum">
-                <Tag color={getStatusColor(selectedDemand.status)}>{selectedDemand.statusName}</Tag>
+                <Tag color={DEMAND_STATUS_CONFIG[selectedDemand.statusName]?.color}>{selectedDemand.statusName}</Tag>
               </Descriptions.Item>
+              {selectedDemand.shippedAt && (
+                <Descriptions.Item label="Gönderim Tarihi">{dayjs(selectedDemand.shippedAt).format('DD.MM.YYYY HH:mm')}</Descriptions.Item>
+              )}
+              {selectedDemand.receivedAt && (
+                <Descriptions.Item label="Teslim Alım Tarihi">{dayjs(selectedDemand.receivedAt).format('DD.MM.YYYY HH:mm')}</Descriptions.Item>
+              )}
               {selectedDemand.notes && (
                 <Descriptions.Item label="Notlar" span={2}>{selectedDemand.notes}</Descriptions.Item>
               )}
             </Descriptions>
 
-            <Divider orientation={"left" as any}>Talep Edilen Ürünler</Divider>
+            <Divider orientation={"left" as any}>Ürün Detayları</Divider>
             
             <Table 
               dataSource={selectedDemand.items}

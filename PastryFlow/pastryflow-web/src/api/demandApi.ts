@@ -1,6 +1,13 @@
 import axiosClient from './axiosClient';
 import { ApiResponse } from '../types/api';
-import { Demand, CreateDemandDto, ReviewDemandDto, DeliverDemandDto } from '../types/demand';
+import { 
+  Demand, 
+  CreateDemandDto, 
+  ReviewDemandDto, 
+  DeliverDemandDto,
+  ShipDemandDto,
+  AcceptDeliveryDto
+} from '../types/demand';
 
 export const demandApi = {
   createDemand: async (data: CreateDemandDto): Promise<ApiResponse<Demand>> => {
@@ -28,5 +35,26 @@ export const demandApi = {
   },
   receiveDemand: async (id: string, receivedByUserId: string): Promise<ApiResponse<Demand>> => {
     return axiosClient.patch(`/demands/${id}/receive`, { receivedByUserId });
+  },
+
+  // Mutfak gönderim
+  shipDemand: async (demandId: string, data: ShipDemandDto): Promise<ApiResponse<Demand>> => {
+    return axiosClient.post(`/demands/${demandId}/ship`, data);
+  },
+
+  // Tezgah sevkiyat kabul
+  acceptDelivery: async (demandId: string, data: AcceptDeliveryDto): Promise<ApiResponse<Demand>> => {
+    return axiosClient.put(`/demands/${demandId}/accept-delivery`, data);
+  },
+
+  // Red fotoğrafı upload
+  uploadRejectionPhoto: async (demandId: string, itemId: string, photo: File): Promise<ApiResponse<string>> => {
+    const formData = new FormData();
+    formData.append('photo', photo);
+    return axiosClient.post(
+      `/demands/${demandId}/items/${itemId}/rejection-photo`,
+      formData,
+      { headers: { 'Content-Type': 'multipart/form-data' } }
+    );
   },
 };

@@ -6,6 +6,7 @@ using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using PastryFlow.Application.Common;
 using PastryFlow.Application.DTOs.Waste;
+using PastryFlow.Application.DTOs.Notifications;
 using PastryFlow.Application.Interfaces;
 using PastryFlow.Domain.Entities;
 using PastryFlow.Domain.Enums;
@@ -17,12 +18,18 @@ public class WasteService : IWasteService
     private readonly IPastryFlowDbContext _context;
     private readonly IMapper _mapper;
     private readonly IStockService _stockService;
+    private readonly INotificationService _notificationService;
 
-    public WasteService(IPastryFlowDbContext context, IMapper mapper, IStockService stockService)
+    public WasteService(
+        IPastryFlowDbContext context, 
+        IMapper mapper, 
+        IStockService stockService,
+        INotificationService notificationService)
     {
         _context = context;
         _mapper = mapper;
         _stockService = stockService;
+        _notificationService = notificationService;
     }
 
     public async Task<ApiResponse<WasteDto>> CreateWasteAsync(CreateWasteDto dto, Guid createdByUserId)
@@ -69,6 +76,23 @@ public class WasteService : IWasteService
             .Include(w => w.Branch)
             .Include(w => w.Product)
             .FirstOrDefaultAsync(w => w.Id == waste.Id);
+
+        // Admin'e bildirim
+        try
+        {
+            await _notificationService.CreateAndSendAsync(new CreateNotificationDto
+            {
+                TargetRole = "Admin",
+                Title = "Zayiat Kaydedildi",
+                Message = $"{createdWaste?.Branch?.Name} şubesinde {waste.Quantity} {createdWaste?.Product?.Unit} {createdWaste?.Product?.Name} zayiat kaydedildi.",
+                Type = NotificationType.WasteRecorded,
+                SourceEntity = "Waste",
+                SourceEntityId = waste.Id,
+                SourceBranchId = createdWaste?.BranchId,
+                SourceBranchName = createdWaste?.Branch?.Name
+            });
+        }
+        catch (Exception) { }
 
         return ApiResponse<WasteDto>.Ok(_mapper.Map<WasteDto>(createdWaste));
     }

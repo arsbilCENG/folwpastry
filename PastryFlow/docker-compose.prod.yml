@@ -1,0 +1,35 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: always
+
+  api:
+    image: ${DOCKER_USERNAME}/pastryflow-api:latest
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=db;Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD}
+      - Jwt__Secret=${JWT_SECRET}
+      - Jwt__Issuer=${JWT_ISSUER}
+      - Jwt__Audience=${JWT_AUDIENCE}
+    depends_on:
+      - db
+    volumes:
+      - uploads_vol:/app/uploads
+    restart: always
+
+  web:
+    image: ${DOCKER_USERNAME}/pastryflow-web:latest
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+    restart: always
+
+volumes:
+  pgdata:
+  uploads_vol:

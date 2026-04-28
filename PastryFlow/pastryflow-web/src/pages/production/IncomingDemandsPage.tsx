@@ -7,41 +7,23 @@ import {
   Space,
   Select,
   Badge,
-  Modal,
   message,
   Tooltip,
 } from 'antd';
 import {
   EyeOutlined,
-  CarOutlined,
   CheckCircleOutlined,
+  SendOutlined,
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { demandApi } from '../../api/demandApi';
 import { Demand } from '../../types/demand';
 import useAuth from '../../hooks/useAuth';
 import dayjs from 'dayjs';
+import { DEMAND_STATUS_CONFIG } from '../../utils/constants';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
-
-const statusColors: Record<string, string> = {
-  Pending: 'orange',
-  Approved: 'green',
-  PartiallyApproved: 'blue',
-  Rejected: 'red',
-  Delivered: 'purple',
-  Received: 'success',
-};
-
-const statusLabels: Record<string, string> = {
-  Pending: 'Bekliyor',
-  Approved: 'Onaylandı',
-  PartiallyApproved: 'Kısmen Onaylandı',
-  Rejected: 'Reddedildi',
-  Delivered: 'Teslim Edildi',
-  Received: 'Teslim Alındı',
-};
 
 const IncomingDemandsPage: React.FC = () => {
   const { user } = useAuth();
@@ -49,13 +31,11 @@ const IncomingDemandsPage: React.FC = () => {
   const [demands, setDemands] = useState<Demand[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>('All');
-  const [deliverLoading, setDeliverLoading] = useState<string | null>(null);
 
   const fetchDemands = useCallback(async () => {
     if (!user?.branchId) return;
     setLoading(true);
     try {
-      // Logic fix: Explicitly use productionBranchId for this page
       const params: any = { productionBranchId: user.branchId };
       if (statusFilter !== 'All') params.status = statusFilter;
       
@@ -74,40 +54,7 @@ const IncomingDemandsPage: React.FC = () => {
     fetchDemands();
   }, [fetchDemands]);
 
-  const pendingCount = demands.filter(d => d.status === 1).length;
-
-  const handleDeliver = (demand: Demand) => {
-    Modal.confirm({
-      title: 'Şoföre Teslim Onayı',
-      icon: <CarOutlined style={{ color: '#722ed1' }} />,
-      content: (
-        <div style={{ marginTop: 16 }}>
-          <p><strong>{demand.demandNumber}</strong> numaralı talebi şoföre teslim etmek istediğinize emin misiniz?</p>
-          <p>Satış Şubesi: <strong>{demand.salesBranchName}</strong></p>
-          <p style={{ fontSize: '12px', color: '#666' }}>Bu işlemden sonra talep "Teslim Edildi" durumuna geçecektir.</p>
-        </div>
-      ),
-      okText: 'Evet, Teslim Et',
-      cancelText: 'Vazgeç',
-      okButtonProps: { style: { backgroundColor: '#722ed1' } },
-      onOk: async () => {
-        setDeliverLoading(demand.id);
-        try {
-          const res = await demandApi.deliverDemand(demand.id, {});
-          if (res.success) {
-            message.success('Talep şoföre başarıyla teslim edildi.');
-            fetchDemands();
-          } else {
-            message.error(res.message || 'Teslim işlemi başarısız.');
-          }
-        } catch {
-          message.error('Bağlantı hatası.');
-        } finally {
-          setDeliverLoading(null);
-        }
-      },
-    });
-  };
+  const pendingCount = demands.filter(d => d.status === 0 || d.status === 'Pending').length;
 
   const columns = [
     {
@@ -136,46 +83,53 @@ const IncomingDemandsPage: React.FC = () => {
       title: 'Durum',
       dataIndex: 'statusName',
       key: 'statusName',
-      render: (val: string, record: Demand) => (
-        <Tag color={statusColors[val] || 'default'}>{statusLabels[val] || val}</Tag>
-      ),
+      render: (val: string) => {
+        const config = DEMAND_STATUS_CONFIG[val] || { color: 'default', text: val };
+        return <Tag color={config.color}>{config.text}</Tag>;
+      },
     },
     {
       title: 'İşlem',
       key: 'action',
-      render: (_: any, record: Demand) => (
-        <Space size="middle">
-          <Tooltip title={record.status === 1 ? 'Talebi İncele' : 'Talebi Görüntüle'}>
-            <Button
-              type={record.status === 1 ? 'primary' : 'default'}
-              icon={record.status === 1 ? <CheckCircleOutlined /> : <EyeOutlined />}
-              size="small"
-              onClick={() => navigate(`/production/demands/${record.id}`)}
-              style={record.status !== 1 ? { color: '#8c8c8c' } : {}}
-            >
-              {record.status === 1 ? 'İncele' : 'Görüntüle'}
-            </Button>
-          </Tooltip>
-          
-          {(record.status === 2 || record.status === 3) && (
-            <Tooltip title="Şoföre Teslim Et">
+      render: (_: any, record: Demand) => {
+        const status = record.status;
+        const isPending = status === 0 || status === 'Pending';
+        const canShip = status === 1 || status === 'Approved' || status === 3 || status === 'PartiallyApproved';
+        const isShipped = status === 4 || status === 'Shipped';
+        
+        return (
+          <Space size="middle">
+            <Tooltip title={isPending ? 'Talebi İncele' : 'Talebi Görüntüle'}>
               <Button
-                type="primary"
-                icon={<CarOutlined />}
+                type={isPending ? 'primary' : 'default'}
+                icon={isPending ? <CheckCircleOutlined /> : <EyeOutlined />}
                 size="small"
-                loading={deliverLoading === record.id}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleDeliver(record);
-                }}
-                style={{ backgroundColor: '#722ed1', borderColor: '#722ed1' }}
+                onClick={() => navigate(`/production/demands/${record.id}`)}
               >
-                Teslim Et
+                {isPending ? 'İncele' : 'Görüntüle'}
               </Button>
             </Tooltip>
-          )}
-        </Space>
-      ),
+            
+            {canShip && (
+              <Tooltip title="Sevkiyatı Hazırla ve Gönder">
+                <Button
+                  type="primary"
+                  icon={<SendOutlined />}
+                  size="small"
+                  onClick={() => navigate(`/production/ship-demand/${record.id}`)}
+                  style={{ backgroundColor: '#13c2c2', borderColor: '#13c2c2' }}
+                >
+                  Gönder
+                </Button>
+              </Tooltip>
+            )}
+
+            {isShipped && (
+              <Tag color="cyan" icon={<SendOutlined />}>Gönderildi</Tag>
+            )}
+          </Space>
+        );
+      },
     },
   ];
 
@@ -199,9 +153,10 @@ const IncomingDemandsPage: React.FC = () => {
             <Option value="Pending">Bekleyenler</Option>
             <Option value="Approved">Onaylananlar</Option>
             <Option value="PartiallyApproved">Kısmen Onaylananlar</Option>
-            <Option value="Rejected">Reddedilenler</Option>
-            <Option value="Delivered">Teslim Edilenler</Option>
+            <Option value="Shipped">Gönderilenler</Option>
+            <Option value="Delivered">Yoldakiler</Option>
             <Option value="Received">Teslim Alınanlar</Option>
+            <Option value="Rejected">Reddedilenler</Option>
           </Select>
           <Button onClick={fetchDemands}>Tazele</Button>
         </Space>
