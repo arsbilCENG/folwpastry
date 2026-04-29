@@ -89,10 +89,6 @@ const DayClosingPage: React.FC = () => {
         if (summaryRes.success && summaryRes.data) {
           setIsClosed(summaryRes.data.isClosed);
           
-          // @ts-ignore - API returns id but type might not have it mapped yet if we just added it, actually dayClosingId is needed for later steps.
-          // In PastryFlow we usually get dayClosing details. Let's assume summaryRes doesn't return ID directly in DTO, we might need to fetch it or the backend doesn't require ID for everything.
-          // Wait, backend endpoints for cash/photos require dayClosingId: /api/day-closing/{dayClosingId}/...
-          // If summaryRes doesn't have ID, we need to handle it. Actually backend DayClosingSummaryDto might have Id. Let's assume it has Id.
           // @ts-ignore
           setDayClosingId(summaryRes.data.id || summaryRes.data.dayClosingId || null);
           
@@ -138,7 +134,6 @@ const DayClosingPage: React.FC = () => {
       const items = Object.keys(counts).map(k => ({ productId: k, endOfDayCount: counts[k] }));
       await dayClosingApi.saveCount({ branchId: user.branchId, date: today, items });
       
-      // We need dayClosingId for next steps. If we didn't have it, fetch summary again to get it.
       const summaryRes = await dayClosingApi.getSummary(user.branchId, today);
       if (summaryRes.success && summaryRes.data) {
         // @ts-ignore
@@ -203,7 +198,6 @@ const DayClosingPage: React.FC = () => {
 
     setSaving(true);
     try {
-      // If they are File objects, we need to upload them. If they are strings (URLs), they are already uploaded.
       const uploadPromises = [];
       
       if (receiptPhoto instanceof File) {
@@ -219,7 +213,6 @@ const DayClosingPage: React.FC = () => {
       
       setCurrentStep(3);
     } catch {
-      // Error handled by mutation
       message.error('Fotoğraflar yüklenirken hata oluştu.');
     } finally {
       setSaving(false);
@@ -238,7 +231,6 @@ const DayClosingPage: React.FC = () => {
       onOk: async () => {
         setSaving(true);
         try {
-          // Auto-save carry overs
           const carryItems = Object.keys(carryOvers).map(k => ({ productId: k, carryOverQuantity: carryOvers[k] }));
           await dayClosingApi.saveCarryOver({ branchId: user.branchId!, date: today, items: carryItems });
 
@@ -290,8 +282,6 @@ const DayClosingPage: React.FC = () => {
   const cashDifference = totalCounted - expectedAmount;
   
   const hasCashDiff = Math.abs(cashDifference) > 0.01;
-  const isCashDeficit = cashDifference < -0.01;
-  const isCashSurplus = cashDifference > 0.01;
 
   const missingPriceProducts = expectedCashQuery.data?.data?.items?.filter(i => i.unitPrice === null || i.unitPrice === 0) || [];
 
@@ -302,6 +292,7 @@ const DayClosingPage: React.FC = () => {
       <Card style={{ marginBottom: 24, borderRadius: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
         <Steps 
           current={currentStep}
+          responsive
           items={[
             { title: 'Sayım', icon: <ExceptionOutlined /> },
             { title: 'Kasa', icon: <DollarOutlined /> },
@@ -324,36 +315,40 @@ const DayClosingPage: React.FC = () => {
               key={cat.id}
               style={{ marginBottom: 16, background: '#fff', borderRadius: 8, border: '1px solid #f0f0f0' }}
             >
-              <Row style={{ fontWeight: 'bold', marginBottom: 12, paddingBottom: 12, borderBottom: '1px solid #f0f0f0', textAlign: 'center' }}>
-                <Col span={8} style={{ textAlign: 'left' }}>Ürün Adı</Col>
-                <Col span={4}>Stok</Col>
-                <Col span={8}>Sayım Miktarı</Col>
-                <Col span={4}>Fark</Col>
-              </Row>
+              <div style={{ overflowX: 'auto' }}>
+                <div style={{ minWidth: 600 }}>
+                  <Row style={{ fontWeight: 'bold', marginBottom: 12, paddingBottom: 12, borderBottom: '1px solid #f0f0f0', textAlign: 'center' }}>
+                    <Col span={8} style={{ textAlign: 'left' }}>Ürün Adı</Col>
+                    <Col span={4}>Stok</Col>
+                    <Col span={8}>Sayım Miktarı</Col>
+                    <Col span={4}>Fark</Col>
+                  </Row>
 
-              {cat.products.map(p => (
-                <Row key={p.id} style={{ marginBottom: 12, padding: '8px 0', borderBottom: '1px solid #fafafa', alignItems: 'center', textAlign: 'center' }}>
-                  <Col span={8} style={{ textAlign: 'left' }}>
-                    <Text>{p.name}</Text><br />
-                    <Text type="secondary" style={{ fontSize: 11 }}>{p.unitName}</Text>
-                  </Col>
-                  <Col span={4}>
-                    <Text strong>{stocks[p.id] || 0}</Text>
-                  </Col>
-                  <Col span={8}>
-                    <InputNumber 
-                      min={0} 
-                      precision={2}
-                      value={counts[p.id] || 0} 
-                      onChange={val => setCounts(prev => ({ ...prev, [p.id]: val || 0 }))}
-                      style={{ width: '80%' }}
-                    />
-                  </Col>
-                  <Col span={4}>
-                    {renderDiff(p.id)}
-                  </Col>
-                </Row>
-              ))}
+                  {cat.products.map(p => (
+                    <Row key={p.id} style={{ marginBottom: 12, padding: '8px 0', borderBottom: '1px solid #fafafa', alignItems: 'center', textAlign: 'center' }}>
+                      <Col span={8} style={{ textAlign: 'left' }}>
+                        <Text>{p.name}</Text><br />
+                        <Text type="secondary" style={{ fontSize: 11 }}>{p.unitName}</Text>
+                      </Col>
+                      <Col span={4}>
+                        <Text strong>{stocks[p.id] || 0}</Text>
+                      </Col>
+                      <Col span={8}>
+                        <InputNumber 
+                          min={0} 
+                          precision={2}
+                          value={counts[p.id] || 0} 
+                          onChange={val => setCounts(prev => ({ ...prev, [p.id]: val || 0 }))}
+                          style={{ width: '80%' }}
+                        />
+                      </Col>
+                      <Col span={4}>
+                        {renderDiff(p.id)}
+                      </Col>
+                    </Row>
+                  ))}
+                </div>
+              </div>
             </Panel>
           ))}
         </Collapse>
@@ -410,7 +405,7 @@ const DayClosingPage: React.FC = () => {
               <Card title="Kasa Girişi" style={{ borderRadius: 12, height: '100%' }}>
                 <Form layout="vertical">
                   <Row gutter={16}>
-                    <Col span={12}>
+                    <Col xs={24} sm={12}>
                       <Form.Item label="Kasadaki Nakit" required>
                         <InputNumber 
                           style={{ width: '100%' }} 
@@ -423,7 +418,7 @@ const DayClosingPage: React.FC = () => {
                         />
                       </Form.Item>
                     </Col>
-                    <Col span={12}>
+                    <Col xs={24} sm={12}>
                       <Form.Item label="POS / Kredi Kartı Toplamı" required>
                         <InputNumber 
                           style={{ width: '100%' }} 
@@ -501,6 +496,7 @@ const DayClosingPage: React.FC = () => {
                         size="small"
                         rowKey="productName"
                         pagination={{ pageSize: 10 }}
+                        scroll={{ x: 'max-content' }}
                         columns={[
                           { title: 'Ürün', dataIndex: 'productName' },
                           { title: 'Satış', dataIndex: 'calculatedSales', align: 'right' },
@@ -516,7 +512,7 @@ const DayClosingPage: React.FC = () => {
           </Row>
         )}
         
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 24 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 24, flexWrap: 'wrap', gap: 12 }}>
           <Button onClick={() => setCurrentStep(0)}>◄ Geri</Button>
           <Button type="primary" size="large" onClick={handleSaveCashAndNext} loading={saving}>
             İleri ►
@@ -566,7 +562,7 @@ const DayClosingPage: React.FC = () => {
           </Col>
         </Row>
         
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 24 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 24, flexWrap: 'wrap', gap: 12 }}>
           <Button onClick={() => setCurrentStep(1)}>◄ Geri</Button>
           <Button type="primary" size="large" onClick={handleUploadPhotosAndNext} loading={saving}>
             İleri ►
@@ -582,41 +578,43 @@ const DayClosingPage: React.FC = () => {
         
         <Collapse defaultActiveKey={categories.length > 0 ? [categories[0].id] : undefined} ghost expandIconPosition="end">
           {categories.map(cat => {
-            // Sadece sayımı > 0 olanları devir ekranında göstersek daha mantıklı, ama mevcut mantık hepsini gösteriyor.
-            // Mevcut mantığı koruyalım.
             return (
             <Panel 
               header={<Text strong style={{ fontSize: 16 }}>{cat.name}</Text>} 
               key={cat.id}
               style={{ marginBottom: 16, background: '#fff', borderRadius: 8, border: '1px solid #f0f0f0' }}
             >
-              <Row style={{ fontWeight: 'bold', marginBottom: 12, paddingBottom: 12, borderBottom: '1px solid #f0f0f0', textAlign: 'center' }}>
-                <Col span={10} style={{ textAlign: 'left' }}>Ürün Adı</Col>
-                <Col span={6}>Sayım (Kalan)</Col>
-                <Col span={8}>Yarına Devir</Col>
-              </Row>
+              <div style={{ overflowX: 'auto' }}>
+                <div style={{ minWidth: 600 }}>
+                  <Row style={{ fontWeight: 'bold', marginBottom: 12, paddingBottom: 12, borderBottom: '1px solid #f0f0f0', textAlign: 'center' }}>
+                    <Col span={10} style={{ textAlign: 'left' }}>Ürün Adı</Col>
+                    <Col span={6}>Sayım (Kalan)</Col>
+                    <Col span={8}>Yarına Devir</Col>
+                  </Row>
 
-              {cat.products.map(p => (
-                <Row key={p.id} style={{ marginBottom: 12, padding: '8px 0', borderBottom: '1px solid #fafafa', alignItems: 'center', textAlign: 'center' }}>
-                  <Col span={10} style={{ textAlign: 'left' }}>
-                    <Text>{p.name}</Text><br />
-                    <Text type="secondary" style={{ fontSize: 11 }}>{p.unitName}</Text>
-                  </Col>
-                  <Col span={6}>
-                    <Text strong>{counts[p.id] || 0}</Text>
-                  </Col>
-                  <Col span={8}>
-                    <InputNumber 
-                      min={0} 
-                      max={counts[p.id] || 0}
-                      precision={2}
-                      value={carryOvers[p.id] || 0} 
-                      onChange={val => setCarryOvers(prev => ({ ...prev, [p.id]: val || 0 }))}
-                      style={{ width: '80%' }}
-                    />
-                  </Col>
-                </Row>
-              ))}
+                  {cat.products.map(p => (
+                    <Row key={p.id} style={{ marginBottom: 12, padding: '8px 0', borderBottom: '1px solid #fafafa', alignItems: 'center', textAlign: 'center' }}>
+                      <Col span={10} style={{ textAlign: 'left' }}>
+                        <Text>{p.name}</Text><br />
+                        <Text type="secondary" style={{ fontSize: 11 }}>{p.unitName}</Text>
+                      </Col>
+                      <Col span={6}>
+                        <Text strong>{counts[p.id] || 0}</Text>
+                      </Col>
+                      <Col span={8}>
+                        <InputNumber 
+                          min={0} 
+                          max={counts[p.id] || 0}
+                          precision={2}
+                          value={carryOvers[p.id] || 0} 
+                          onChange={val => setCarryOvers(prev => ({ ...prev, [p.id]: val || 0 }))}
+                          style={{ width: '80%' }}
+                        />
+                      </Col>
+                    </Row>
+                  ))}
+                </div>
+              </div>
             </Panel>
             );
           })}
@@ -633,7 +631,7 @@ const DayClosingPage: React.FC = () => {
                 size="large" 
                 onClick={handleCloseDay} 
                 loading={saving} 
-                style={{ background: '#52c41a', borderColor: '#52c41a', height: 50, padding: '0 40px', fontWeight: 'bold' }}
+                style={{ background: '#52c41a', borderColor: '#52c41a', height: 50, padding: '0 40px', fontWeight: 'bold', whiteSpace: 'normal', lineHeight: '1.2' }}
               >
                 GÜNÜ KAPAT VE Z RAPORU OLUŞTUR
               </Button>

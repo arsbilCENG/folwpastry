@@ -166,7 +166,7 @@ const ProductionLayout: React.FC = () => {
         <Content
           style={{
             margin: isMobile ? '8px' : '24px',
-            padding: 24,
+            padding: isMobile ? 12 : 24,
             minHeight: 280,
             background: colorBgContainer,
             borderRadius: borderRadiusLG,

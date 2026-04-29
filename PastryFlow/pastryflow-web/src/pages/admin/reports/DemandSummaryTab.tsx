@@ -20,6 +20,7 @@ import { exportToExcel, exportToPdf, formatDateRangeForExport } from '../../../u
 import type { DemandSummaryItemDto } from '../../../types/report';
 
 const { RangePicker } = DatePicker;
+const { Text } = Typography;
 
 const DemandSummaryTab: React.FC = () => {
   const [dateRange, setDateRange] = useState<[string, string]>([
@@ -186,8 +187,8 @@ const DemandSummaryTab: React.FC = () => {
             />
           </Col>
           <Col xs={24} md={8}>
-            <Space>
-              <Button type="primary" icon={<SearchOutlined />} loading={isLoading}>Göster</Button>
+            <Space wrap>
+              <Button type="primary" icon={<SearchOutlined />} loading={isLoading} block>Göster</Button>
               <Button icon={<FileExcelOutlined />} onClick={handleExportExcel} disabled={!report}>Excel</Button>
               <Button icon={<FilePdfOutlined />} onClick={handleExportPdf} disabled={!report}>PDF</Button>
             </Space>
@@ -201,7 +202,7 @@ const DemandSummaryTab: React.FC = () => {
         <Empty description="Veri bulunamadı" />
       ) : (
         <>
-          <Row gutter={16} style={{ marginBottom: 24 }}>
+          <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
             <Col xs={24} sm={12} md={6}>
               <Card>
                 <Statistic
@@ -245,7 +246,7 @@ const DemandSummaryTab: React.FC = () => {
             </Col>
           </Row>
 
-          <Row gutter={24}>
+          <Row gutter={[24, 24]}>
             <Col xs={24} lg={16}>
               <Card title="Talep Listesi">
                 <Table
@@ -253,6 +254,7 @@ const DemandSummaryTab: React.FC = () => {
                   dataSource={report.items}
                   rowKey={(record) => `${record.date}-${record.fromBranchId}-${record.toBranchId}`}
                   pagination={{ pageSize: 10 }}
+                  scroll={{ x: 'max-content' }}
                 />
               </Card>
             </Col>
@@ -279,7 +281,5 @@ const DemandSummaryTab: React.FC = () => {
     </div>
   );
 };
-
-const { Text } = Typography;
 
 export default DemandSummaryTab;

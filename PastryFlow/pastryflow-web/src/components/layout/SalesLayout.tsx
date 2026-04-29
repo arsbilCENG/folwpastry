@@ -173,7 +173,7 @@ const SalesLayout: React.FC = () => {
         </Header>
         <Content style={{ margin: isMobile ? '8px' : '24px', minHeight: 280 }}>
           <div style={{ 
-            padding: isMobile ? 16 : 24, 
+            padding: isMobile ? 12 : 24, 
             background: colorBgContainer, 
             borderRadius: borderRadiusLG,
             minHeight: '100%'

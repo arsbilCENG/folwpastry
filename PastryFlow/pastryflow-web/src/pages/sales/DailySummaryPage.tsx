@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Table, DatePicker, message, Card, Row, Col, Typography, Spin } from 'antd';
+import { Table, DatePicker, message, Card, Row, Col, Typography, Spin, Statistic } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 import { dayClosingApi } from '../../api/dayClosingApi';
@@ -48,32 +48,40 @@ const DailySummaryPage: React.FC = () => {
   ];
 
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-        <Title level={2}>Günlük Rapor (Z Raporu)</Title>
+    <div style={{ padding: '24px' }}>
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
+        marginBottom: 24,
+        flexWrap: 'wrap',
+        gap: 12
+      }}>
+        <Title level={2} style={{ margin: 0 }}>Günlük Rapor (Z Raporu)</Title>
         <DatePicker 
           value={selectedDate} 
           onChange={(date) => date && setSelectedDate(date)} 
           allowClear={false} 
+          style={{ width: '100%', maxWidth: 200 }}
         />
       </div>
 
       {loading ? (
-        <Spin size="large" />
+        <div style={{ textAlign: 'center', padding: '50px' }}><Spin size="large" /></div>
       ) : data ? (
         <>
-          <Row gutter={16} style={{ marginBottom: 24 }}>
-            <Col span={8}>
+          <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
+            <Col xs={24} sm={8}>
               <Card>
                 <Statistic title="Toplam Satış Kalemi" value={data.totals.totalSales} valueStyle={{ color: '#3f8600' }} />
               </Card>
             </Col>
-            <Col span={8}>
+            <Col xs={24} sm={8}>
               <Card>
                 <Statistic title="Toplam Zayiat Miktarı" value={data.totals.totalWaste} valueStyle={{ color: '#cf1322' }} />
               </Card>
             </Col>
-            <Col span={8}>
+            <Col xs={24} sm={8}>
               <Card>
                 <Statistic title="Yarına Devreden" value={data.totals.totalCarryOver} />
               </Card>
@@ -85,7 +93,8 @@ const DailySummaryPage: React.FC = () => {
             dataSource={data.items} 
             rowKey="productId" 
             pagination={false}
-            scroll={{ y: 600 }}
+            scroll={{ x: 'max-content' }}
+            bordered
           />
         </>
       ) : (
@@ -96,8 +105,5 @@ const DailySummaryPage: React.FC = () => {
     </div>
   );
 };
-
-// Antd missing import fix:
-import { Statistic } from 'antd';
 
 export default DailySummaryPage;

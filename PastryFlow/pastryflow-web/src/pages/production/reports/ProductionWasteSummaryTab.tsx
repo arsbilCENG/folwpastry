@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { 
   Table, Card, Row, Col, Statistic, DatePicker, Select, Button, Space, 
-  Empty, Spin, Typography
+  Empty, Spin
 } from 'antd';
 import { 
   FileExcelOutlined, FilePdfOutlined, SearchOutlined,
@@ -153,7 +153,7 @@ const ProductionWasteSummaryTab: React.FC = () => {
             />
           </Col>
           <Col xs={24} md={8}>
-            <Space>
+            <Space wrap>
               <Button type="primary" icon={<SearchOutlined />} loading={isLoading}>Göster</Button>
               <Button icon={<FileExcelOutlined />} onClick={handleExportExcel} disabled={!report}>Excel</Button>
               <Button icon={<FilePdfOutlined />} onClick={handleExportPdf} disabled={!report}>PDF</Button>
@@ -168,7 +168,7 @@ const ProductionWasteSummaryTab: React.FC = () => {
         <Empty description="Veri bulunamadı" />
       ) : (
         <>
-          <Row gutter={16} style={{ marginBottom: 24 }}>
+          <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
             <Col xs={24} md={8}>
               <Card>
                 <Statistic
@@ -201,7 +201,7 @@ const ProductionWasteSummaryTab: React.FC = () => {
             </Col>
           </Row>
 
-          <Row gutter={24}>
+          <Row gutter={[24, 24]}>
             <Col xs={24} lg={14}>
               <Card title="Üretim Zayiat Detayları">
                 <Table
@@ -209,6 +209,7 @@ const ProductionWasteSummaryTab: React.FC = () => {
                   dataSource={report.items}
                   rowKey="productId"
                   pagination={{ pageSize: 10 }}
+                  scroll={{ x: 'max-content' }}
                 />
               </Card>
             </Col>

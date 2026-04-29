@@ -35,11 +35,6 @@ const CakeOrders: React.FC = () => {
                     statusFilter === 'Hazır' ? 'Ready' :
                     statusFilter === 'Teslim' ? 'Delivered' : undefined;
 
-  // We actually need to map SentToProduction as "Bekleyen" too, or let backend return both. 
-  // Wait, backend filter takes exact status. Let's not pass filter if it's complex, or do frontend filtering.
-  // Actually, let's just fetch all and filter in frontend for better UX, or use exact backend status if possible.
-  // The user says filter by: Tümü, Bekleyen, Üretimde, Hazır, Teslim
-  // Let's fetch all and filter in frontend.
   const { data: ordersResponse, isLoading } = useCakeOrders();
   const createMutation = useCreateCakeOrder();
   const uploadPhotoMutation = useUploadCakeReferencePhoto();
@@ -103,16 +98,19 @@ const CakeOrders: React.FC = () => {
 
   return (
     <div style={{ padding: '24px' }}>
-      <Row justify="space-between" align="middle" style={{ marginBottom: 24 }}>
-        <Col>
-          <Title level={2} style={{ margin: 0 }}>🎂 Özel Pasta Siparişleri</Title>
-        </Col>
-        <Col>
-          <Button type="primary" icon={<PlusOutlined />} onClick={() => setCreateModalVisible(true)} size="large">
-            Yeni Sipariş
-          </Button>
-        </Col>
-      </Row>
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
+        marginBottom: 24,
+        flexWrap: 'wrap',
+        gap: 12
+      }}>
+        <Title level={2} style={{ margin: 0 }}>🎂 Özel Pasta Siparişleri</Title>
+        <Button type="primary" icon={<PlusOutlined />} onClick={() => setCreateModalVisible(true)} size="large">
+          Yeni Sipariş
+        </Button>
+      </div>
 
       <div style={{ marginBottom: 24, overflowX: 'auto', paddingBottom: 8 }}>
         <Segmented 
@@ -149,7 +147,7 @@ const CakeOrders: React.FC = () => {
                 </div>
                 
                 <div style={{ marginBottom: 8 }}>
-                  <Space size="large">
+                  <Space size="large" wrap>
                     <Text><InfoCircleOutlined /> {order.servingSize} Kişilik</Text>
                     {isDeliveryClose(order.deliveryDate) && order.status !== 'Delivered' && order.status !== 'Cancelled' ? (
                       <Text type="danger" strong><ClockCircleOutlined /> Teslim: {new Date(order.deliveryDate).toLocaleDateString('tr-TR')}</Text>

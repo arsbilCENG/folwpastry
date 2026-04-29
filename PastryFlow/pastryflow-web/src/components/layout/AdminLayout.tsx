@@ -94,19 +94,17 @@ const AdminLayout: React.FC = () => {
         style={{ flex: 1 }}
       />
       {!collapsed && <ConnectionStatus />}
-      {!isMobile && (
-        <div style={{ padding: '16px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-          <Button 
-            type="primary" 
-            danger 
-            icon={<LogoutOutlined />} 
-            onClick={handleLogout} 
-            block={!collapsed}
-          >
-            {!collapsed && 'Çıkış Yap'}
-          </Button>
-        </div>
-      )}
+      <div style={{ padding: '16px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+        <Button 
+          type="primary" 
+          danger 
+          icon={<LogoutOutlined />} 
+          onClick={handleLogout} 
+          block={!collapsed || isMobile}
+        >
+          {(!collapsed || isMobile) && 'Çıkış Yap'}
+        </Button>
+      </div>
     </div>
   );
 

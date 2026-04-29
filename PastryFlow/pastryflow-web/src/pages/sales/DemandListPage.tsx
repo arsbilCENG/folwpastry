@@ -176,6 +176,7 @@ const DemandListPage: React.FC = () => {
         loading={loading}
         bordered
         style={{ background: '#fff', borderRadius: 8, overflow: 'hidden' }}
+        scroll={{ x: 'max-content' }}
       />
 
       <Modal
@@ -193,7 +194,7 @@ const DemandListPage: React.FC = () => {
         loading={detailLoading}
       >
         {selectedDemand && (
-          <>
+          <div style={{ marginTop: 16 }}>
             <Descriptions bordered size="small" column={{ xs: 1, sm: 2 }}>
               <Descriptions.Item label="Talep Numarası">{selectedDemand.demandNumber}</Descriptions.Item>
               <Descriptions.Item label="Tarih">{dayjs(selectedDemand.createdAt).format('DD.MM.YYYY HH:mm')}</Descriptions.Item>
@@ -221,8 +222,9 @@ const DemandListPage: React.FC = () => {
               rowKey="id"
               size="small"
               bordered
+              scroll={{ x: 'max-content' }}
             />
-          </>
+          </div>
         )}
       </Modal>
     </div>

@@ -112,19 +112,20 @@ const AdminDashboard: React.FC = () => {
   if (isLoading && !dashboard) return <Spin size="large" style={{ display: 'block', margin: '100px auto' }} />;
 
   return (
-    <div style={{ padding: '4px' }}>
+    <div style={{ padding: '24px' }}>
       <Row gutter={[16, 16]} justify="space-between" align="middle" style={{ marginBottom: 24 }}>
-        <Col>
+        <Col xs={24} sm={12}>
           <Title level={3} style={{ margin: 0 }}>
             <DashboardOutlined /> Yönetim Paneli
           </Title>
         </Col>
-        <Col>
+        <Col xs={24} sm={12} style={{ textAlign: 'right' }}>
           <DatePicker 
             value={date} 
             onChange={(val) => val && setDate(val)} 
             allowClear={false}
             format="DD.MM.YYYY"
+            style={{ width: '100%', maxWidth: 200 }}
           />
         </Col>
       </Row>
@@ -188,7 +189,7 @@ const AdminDashboard: React.FC = () => {
       </Row>
 
       <Card title={
-        <Space>
+        <Space style={{ flexWrap: 'wrap' }}>
           <CalendarOutlined />
           <span>Şube Bazlı Günlük Özet</span>
           <Tooltip title="Filtrelenmiş şube verileri listelenmektedir.">
@@ -202,6 +203,7 @@ const AdminDashboard: React.FC = () => {
           rowKey="branchId"
           pagination={false}
           locale={{ emptyText: <Empty description="Veri bulunamadı" /> }}
+          scroll={{ x: 'max-content' }}
         />
       </Card>
 

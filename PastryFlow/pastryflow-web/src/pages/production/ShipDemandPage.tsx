@@ -80,8 +80,8 @@ const ShipDemandPage: React.FC = () => {
     }
   };
 
-  if (loading) return <Spin size="large" style={{ display: 'block', margin: '100px auto' }} />;
-  if (!demand) return <Alert message="Talep bulunamadı" type="error" />;
+  if (loading) return <div style={{ textAlign: 'center', padding: '100px' }}><Spin size="large" /></div>;
+  if (!demand) return <div style={{ padding: 24 }}><Alert message="Talep bulunamadı" type="error" /></div>;
 
   const columns = [
     {
@@ -141,13 +141,21 @@ const ShipDemandPage: React.FC = () => {
       </Breadcrumb>
 
       <Card bordered={false} style={{ borderRadius: 12, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'flex-start', 
+          marginBottom: 24,
+          flexWrap: 'wrap',
+          gap: 16
+        }}>
           <div>
             <Title level={3} style={{ margin: 0 }}>📦 Sevkiyat Hazırla — {demand.demandNumber}</Title>
-            <Space split={<Divider type="vertical" />}>
+            <div style={{ marginTop: 8, display: 'flex', flexWrap: 'wrap', gap: 12 }}>
               <Text type="secondary">Talep Eden: <strong>{demand.salesBranchName}</strong></Text>
+              <Divider type="vertical" className="hidden-mobile" />
               <Text type="secondary">Tarih: {dayjs(demand.createdAt).format('DD.MM.YYYY')}</Text>
-            </Space>
+            </div>
           </div>
           <Button icon={<ArrowLeftOutlined />} onClick={() => navigate(-1)}>Geri Dön</Button>
         </div>
@@ -167,12 +175,13 @@ const ShipDemandPage: React.FC = () => {
           pagination={false}
           bordered
           rowClassName={(record) => (!record.approvedQuantity || record.approvedQuantity <= 0 ? 'row-disabled' : '')}
+          scroll={{ x: 'max-content' }}
         />
 
         <Divider />
 
         <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-          <Space>
+          <Space wrap>
             <Button size="large" onClick={() => navigate(-1)}>Vazgeç</Button>
             <Button
               type="primary"
@@ -195,6 +204,11 @@ const ShipDemandPage: React.FC = () => {
         }
         .row-disabled .ant-typography {
           color: #bfbfbf !important;
+        }
+        @media (max-width: 576px) {
+          .hidden-mobile {
+            display: none;
+          }
         }
       `}} />
     </div>

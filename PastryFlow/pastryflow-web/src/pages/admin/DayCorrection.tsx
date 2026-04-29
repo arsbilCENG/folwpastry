@@ -188,6 +188,7 @@ const DayCorrection: React.FC = () => {
               loading={isLoading}
               disabled={!branchId}
               onClick={() => refetch()}
+              block
             >
               Getir
             </Button>
@@ -218,6 +219,7 @@ const DayCorrection: React.FC = () => {
             rowKey="id"
             pagination={false}
             bordered
+            scroll={{ x: 'max-content' }}
           />
         )}
       </Card>

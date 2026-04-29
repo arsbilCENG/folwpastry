@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Table, DatePicker, message, Tag } from 'antd';
+import { Table, DatePicker, message, Tag, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 import { stockApi } from '../../api/stockApi';
 import useAuth from '../../hooks/useAuth';
 import { CurrentStock } from '../../types/stock';
+
+const { Title } = Typography;
 
 const CurrentStockPage: React.FC = () => {
   const [data, setData] = useState<CurrentStock[]>([]);
@@ -93,13 +95,21 @@ const CurrentStockPage: React.FC = () => {
   ];
 
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-        <h2>Mevcut Stok</h2>
+    <div style={{ padding: '24px' }}>
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
+        marginBottom: 16,
+        flexWrap: 'wrap',
+        gap: 12
+      }}>
+        <Title level={2} style={{ margin: 0 }}>Mevcut Stok</Title>
         <DatePicker 
           value={selectedDate} 
           onChange={(date) => date && setSelectedDate(date)} 
           allowClear={false} 
+          style={{ width: '100%', maxWidth: 200 }}
         />
       </div>
       <Table 
@@ -108,7 +118,7 @@ const CurrentStockPage: React.FC = () => {
         rowKey="productId" 
         loading={loading}
         pagination={false}
-        scroll={{ y: 600 }}
+        scroll={{ x: 'max-content' }}
       />
     </div>
   );

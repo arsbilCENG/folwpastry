@@ -135,14 +135,21 @@ const IncomingDemandsPage: React.FC = () => {
 
   return (
     <div style={{ padding: '24px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
+        marginBottom: 24,
+        flexWrap: 'wrap',
+        gap: 16
+      }}>
         <Title level={2} style={{ margin: 0 }}>
           Gelen Talepler{' '}
           {pendingCount > 0 && statusFilter === 'All' && (
             <Badge count={pendingCount} style={{ marginLeft: 8, backgroundColor: '#fa8c16' }} />
           )}
         </Title>
-        <Space>
+        <Space wrap>
           <Text type="secondary">Filtrele:</Text>
           <Select
             value={statusFilter}
@@ -170,6 +177,7 @@ const IncomingDemandsPage: React.FC = () => {
         bordered
         locale={{ emptyText: 'Gösterilecek talep bulunamadı' }}
         pagination={{ pageSize: 15 }}
+        scroll={{ x: 'max-content' }}
       />
     </div>
   );

@@ -50,8 +50,16 @@
   }
 }
 
+/* ===== GLOBAL RESPONSIVE FIXES ===== */
+
+/* Sayfanın yatay taşmasını tamamen engelle */
+html, body, #root {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
 #root {
-  width: 1126px;
+  width: 100%;
   max-width: 100%;
   margin: 0 auto;
   text-align: center;
@@ -64,6 +72,17 @@
 
 body {
   margin: 0;
+}
+
+/* Ant Design Layout content area */
+.ant-layout-content {
+  overflow-x: hidden;
+}
+
+/* Sayfa başlıkları responsive */
+h1, h2, h3, .ant-typography h1, .ant-typography h2, .ant-typography h3 {
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 h1,
@@ -91,6 +110,106 @@ h2 {
     font-size: 20px;
   }
 }
+
+/* Mobil font boyutları */
+@media (max-width: 768px) {
+  h1, .ant-typography h1 {
+    font-size: 20px !important;
+    line-height: 1.3 !important;
+    margin-bottom: 12px !important;
+  }
+  
+  h2, .ant-typography h2 {
+    font-size: 18px !important;
+    line-height: 1.3 !important;
+    margin-bottom: 10px !important;
+  }
+  
+  h3, .ant-typography h3 {
+    font-size: 16px !important;
+    line-height: 1.3 !important;
+  }
+
+  /* Ant Design Card padding azalt */
+  .ant-card-body {
+    padding: 12px !important;
+  }
+
+  /* Ant Design page header spacing */
+  .ant-page-header {
+    padding: 12px !important;
+  }
+
+  /* Layout content padding */
+  .ant-layout-content {
+    padding: 8px !important;
+  }
+
+  /* Butonların mobilde minimum boyutu */
+  .ant-btn {
+    min-height: 36px;
+  }
+
+  /* Select ve Input mobilde rahat tıklanır */
+  .ant-select-selector, .ant-input {
+    min-height: 40px !important;
+  }
+
+  /* Modal mobilde tam genişlik */
+  .ant-modal {
+    max-width: calc(100vw - 16px) !important;
+    margin: 8px !important;
+  }
+  .ant-modal-body {
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+
+  /* Tablo font küçült */
+  .ant-table {
+    font-size: 13px !important;
+  }
+  .ant-table-thead > tr > th {
+    padding: 8px 6px !important;
+    font-size: 12px !important;
+    white-space: nowrap !important;
+  }
+  .ant-table-tbody > tr > td {
+    padding: 8px 6px !important;
+  }
+
+  /* Form label ve item spacing */
+  .ant-form-item {
+    margin-bottom: 12px !important;
+  }
+
+  /* Statistic kartları */
+  .ant-statistic-title {
+    font-size: 12px !important;
+  }
+  .ant-statistic-content {
+    font-size: 18px !important;
+  }
+}
+
+/* Tablet */
+@media (min-width: 769px) and (max-width: 991px) {
+  h1, .ant-typography h1 {
+    font-size: 24px !important;
+  }
+  h2, .ant-typography h2 {
+    font-size: 20px !important;
+  }
+}
+
+/* ===== TABLE SCROLL WRAPPER ===== */
+/* Tablolar kendi içinde scroll, sayfa kaymasın */
+.responsive-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 p {
   margin: 0;
 }

@@ -64,9 +64,14 @@ const SalesDashboard: React.FC = () => {
   if (loading) return <div style={{ textAlign: 'center', padding: '50px' }}><Spin size="large" /></div>;
 
   return (
-    <div>
-      <div style={{ marginBottom: 24 }}>
-        <Title level={3}>Hoş Geldiniz, {user?.fullName}</Title>
+    <div style={{ padding: '24px' }}>
+      <div style={{ 
+        marginBottom: 24,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 4
+      }}>
+        <Title level={3} style={{ margin: 0 }}>Hoş Geldiniz, {user?.fullName}</Title>
         <Text type="secondary">{user?.branchName} Şubesi Kontrol Paneli</Text>
       </div>
 
@@ -97,7 +102,7 @@ const SalesDashboard: React.FC = () => {
         </Col>
       </Row>
 
-      <Title level={4} style={{ marginTop: 32 }}>Hızlı İşlemler</Title>
+      <Title level={4} style={{ marginTop: 32, marginBottom: 16 }}>Hızlı İşlemler</Title>
       <Row gutter={[16, 16]}>
         <Col xs={24} sm={8}>
           <Button 

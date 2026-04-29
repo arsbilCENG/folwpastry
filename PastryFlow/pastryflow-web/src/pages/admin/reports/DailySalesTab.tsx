@@ -185,7 +185,7 @@ const DailySalesTab: React.FC = () => {
 
   return (
     <div style={{ padding: '24px 0' }}>
-      <Card bodyStyle={{ padding: '16px 24px' }} style={{ marginBottom: 24 }}>
+      <Card style={{ marginBottom: 24 }}>
         <Row gutter={[16, 16]} align="middle">
           <Col xs={24} md={6}>
             <DatePicker 
@@ -205,13 +205,14 @@ const DailySalesTab: React.FC = () => {
             />
           </Col>
           <Col xs={24} md={10}>
-            <Space>
+            <Space wrap>
               <Button 
                 type="primary" 
                 icon={<SearchOutlined />} 
                 loading={isLoading}
                 disabled={!branchId}
-                onClick={() => {}} // Hook handles params change
+                onClick={() => {}} 
+                block
               >
                 Göster
               </Button>
@@ -244,7 +245,7 @@ const DailySalesTab: React.FC = () => {
         <Empty description="Bu şube ve tarih için veri bulunamadı" />
       ) : (
         <>
-          <Row gutter={16} style={{ marginBottom: 24 }}>
+          <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
             <Col xs={24} sm={12} md={6}>
               <Card>
                 <Statistic
@@ -287,14 +288,14 @@ const DailySalesTab: React.FC = () => {
             </Col>
           </Row>
 
-          <Row gutter={24} style={{ marginBottom: 24 }}>
+          <Row gutter={[24, 24]} style={{ marginBottom: 24 }}>
             <Col xs={24} lg={16}>
               <Card title="Satış Detayları">
                 <Table
                   columns={columns}
                   dataSource={report.items}
                   rowKey="productId"
-                  scroll={{ x: 1000 }}
+                  scroll={{ x: 'max-content' }}
                   pagination={{ pageSize: 10 }}
                   bordered
                   summary={(pageData) => {

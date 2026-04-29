@@ -93,16 +93,18 @@ const ProductionDashboard: React.FC = () => {
     },
   ];
 
-  if (loading) return <Spin size="large" style={{ display: 'block', marginTop: 60 }} />;
+  if (loading) return <div style={{ textAlign: 'center', padding: '100px' }}><Spin size="large" /></div>;
 
   return (
-    <div>
-      <Title level={2} style={{ marginBottom: 4 }}>
-        🏭 {user?.branchName || 'Üretim Paneli'}
-      </Title>
-      <Text type="secondary" style={{ marginBottom: 24, display: 'block' }}>
-        {dayjs().format('DD MMMM YYYY, dddd')}
-      </Text>
+    <div style={{ padding: '24px' }}>
+      <div style={{ marginBottom: 24 }}>
+        <Title level={2} style={{ marginBottom: 4 }}>
+          🏭 {user?.branchName || 'Üretim Paneli'}
+        </Title>
+        <Text type="secondary">
+          {dayjs().format('DD MMMM YYYY, dddd')}
+        </Text>
+      </div>
 
       <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
         <Col xs={24} sm={8}>
@@ -182,6 +184,7 @@ const ProductionDashboard: React.FC = () => {
           pagination={false}
           size="small"
           locale={{ emptyText: 'Henüz talep yok' }}
+          scroll={{ x: 'max-content' }}
         />
       </Card>
     </div>

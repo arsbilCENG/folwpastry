@@ -8,7 +8,6 @@ import {
   Space,
   DatePicker,
   Image,
-  message,
 } from 'antd';
 import {
   RollbackOutlined,
@@ -125,15 +124,23 @@ const DeliveryReturnsPage: React.FC = () => {
 
   return (
     <div style={{ padding: '24px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
+        marginBottom: 24,
+        flexWrap: 'wrap',
+        gap: 16
+      }}>
         <Title level={2} style={{ margin: 0 }}>
           <RollbackOutlined style={{ marginRight: 12 }} />
           Sevkiyat İadeleri
         </Title>
-        <Space>
+        <Space wrap>
           <RangePicker 
             onChange={(vals) => setDates(vals as [dayjs.Dayjs, dayjs.Dayjs])} 
             placeholder={['Başlangıç', 'Bitiş']}
+            style={{ width: '100%', maxWidth: 300 }}
           />
         </Space>
       </div>
@@ -147,6 +154,7 @@ const DeliveryReturnsPage: React.FC = () => {
           bordered
           pagination={{ pageSize: 15 }}
           locale={{ emptyText: 'İade kaydı bulunamadı' }}
+          scroll={{ x: 'max-content' }}
         />
       </Card>
     </div>

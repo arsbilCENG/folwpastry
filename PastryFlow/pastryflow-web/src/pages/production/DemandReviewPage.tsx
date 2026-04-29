@@ -13,22 +13,19 @@ import {
   Spin,
   message,
   Divider,
-  Form,
 } from 'antd';
 import {
   CheckOutlined,
-  CloseOutlined,
   ArrowLeftOutlined,
   ExclamationCircleOutlined,
 } from '@ant-design/icons';
 import { useParams, useNavigate } from 'react-router-dom';
 import { demandApi } from '../../api/demandApi';
-import { Demand, DemandItem, ReviewDemandItemDto } from '../../types/demand';
+import { Demand, DemandItem } from '../../types/demand';
 import useAuth from '../../hooks/useAuth';
 import dayjs from 'dayjs';
 
 const { Title, Text } = Typography;
-const { TextArea } = Input;
 
 interface ItemReviewState {
   demandItemId: string;
@@ -219,6 +216,7 @@ const DemandReviewPage: React.FC = () => {
           value={record.status}
           onChange={(e) => updateItem(record.demandItemId, 'status', e.target.value)}
           buttonStyle="solid"
+          size="small"
         >
           <Radio.Button value="Approved">Onayla</Radio.Button>
           <Radio.Button value="Rejected">Reddet</Radio.Button>
@@ -247,7 +245,7 @@ const DemandReviewPage: React.FC = () => {
     },
   ];
 
-  if (loading) return <Spin size="large" style={{ display: 'block', marginTop: 100 }} />;
+  if (loading) return <div style={{ textAlign: 'center', padding: '100px' }}><Spin size="large" /></div>;
   if (!demand) return null;
 
   const isPending = demand.status === 1 || demand.status === 'Pending';
@@ -276,9 +274,9 @@ const DemandReviewPage: React.FC = () => {
         title="Talep Edilen Ürünler" 
         style={{ borderRadius: 12 }}
         extra={isPending && (
-          <Space>
-            <Button onClick={handleApproveAll}>Tümünü Onayla</Button>
-            <Button onClick={handleRejectAll} danger>Tümünü Reddet</Button>
+          <Space wrap>
+            <Button size="small" onClick={handleApproveAll}>Tümünü Onayla</Button>
+            <Button size="small" onClick={handleRejectAll} danger>Tümünü Reddet</Button>
           </Space>
         )}
       >
@@ -288,11 +286,12 @@ const DemandReviewPage: React.FC = () => {
           rowKey="demandItemId"
           pagination={false}
           bordered
+          scroll={{ x: 'max-content' }}
         />
         
         <Divider />
         
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, flexWrap: 'wrap' }}>
           <Button size="large" onClick={() => navigate('/production/demands')}>İptal</Button>
           {isPending && (
             <Button 

@@ -129,7 +129,14 @@ const CakeOptionsAdmin: React.FC = () => {
 
   return (
     <div style={{ padding: '24px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
+        marginBottom: 24,
+        flexWrap: 'wrap',
+        gap: 12
+      }}>
         <Title level={2} style={{ margin: 0 }}>🎂 Pasta Seçenekleri</Title>
         <Button type="primary" icon={<PlusOutlined />} onClick={() => handleOpenModal()} size="large">
           Yeni Seçenek
@@ -154,6 +161,7 @@ const CakeOptionsAdmin: React.FC = () => {
           loading={isLoading}
           pagination={false}
           size="middle"
+          scroll={{ x: 'max-content' }}
         />
       </Card>
 

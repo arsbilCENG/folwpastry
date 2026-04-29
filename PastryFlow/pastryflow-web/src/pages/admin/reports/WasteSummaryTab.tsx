@@ -165,8 +165,8 @@ const WasteSummaryTab: React.FC = () => {
             />
           </Col>
           <Col xs={24} md={8}>
-            <Space>
-              <Button type="primary" icon={<SearchOutlined />} loading={isLoading}>Göster</Button>
+            <Space wrap>
+              <Button type="primary" icon={<SearchOutlined />} loading={isLoading} block>Göster</Button>
               <Button icon={<FileExcelOutlined />} onClick={handleExportExcel} disabled={!report}>Excel</Button>
               <Button icon={<FilePdfOutlined />} onClick={handleExportPdf} disabled={!report}>PDF</Button>
             </Space>
@@ -180,7 +180,7 @@ const WasteSummaryTab: React.FC = () => {
         <Empty description="Veri bulunamadı" />
       ) : (
         <>
-          <Row gutter={16} style={{ marginBottom: 24 }}>
+          <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
             <Col xs={24} md={8}>
               <Card>
                 <Statistic
@@ -213,7 +213,7 @@ const WasteSummaryTab: React.FC = () => {
             </Col>
           </Row>
 
-          <Row gutter={24}>
+          <Row gutter={[24, 24]}>
             <Col xs={24} lg={14}>
               <Card title="Ürün Bazlı Zayiat">
                 <Table
@@ -221,6 +221,7 @@ const WasteSummaryTab: React.FC = () => {
                   dataSource={report.items}
                   rowKey="productId"
                   pagination={{ pageSize: 10 }}
+                  scroll={{ x: 'max-content' }}
                 />
               </Card>
             </Col>

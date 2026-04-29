@@ -121,9 +121,15 @@ const Branches: React.FC = () => {
   ];
 
   return (
-    <div>
+    <div style={{ padding: '24px' }}>
       <Card title={
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: 12
+        }}>
           <Title level={4} style={{ margin: 0 }}>🏪 Şube Yönetimi</Title>
         </div>
       } bordered={false}>
@@ -134,6 +140,7 @@ const Branches: React.FC = () => {
           loading={isLoading}
           pagination={false}
           locale={{ emptyText: 'Şube bulunamadı' }}
+          scroll={{ x: 'max-content' }}
         />
         <div style={{ marginTop: 16 }}>
            <Typography.Text type="secondary" style={{ fontSize: 12 }}>* Şube tipi ve eşleşme ayarları şu an için sadece veritabanı üzerinden değiştirilebilir.</Typography.Text>

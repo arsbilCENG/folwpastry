@@ -52,11 +52,16 @@ const ProductionCakeOrders: React.FC = () => {
 
   return (
     <div style={{ padding: '24px' }}>
-      <Row justify="space-between" align="middle" style={{ marginBottom: 24 }}>
-        <Col>
-          <Title level={2} style={{ margin: 0 }}>🎂 Özel Pasta Siparişleri</Title>
-        </Col>
-      </Row>
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
+        marginBottom: 24,
+        flexWrap: 'wrap',
+        gap: 12
+      }}>
+        <Title level={2} style={{ margin: 0 }}>🎂 Özel Pasta Siparişleri</Title>
+      </div>
 
       <div style={{ marginBottom: 24, overflowX: 'auto', paddingBottom: 8 }}>
         <Segmented 

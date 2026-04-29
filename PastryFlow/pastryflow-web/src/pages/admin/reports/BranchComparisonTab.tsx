@@ -161,8 +161,8 @@ const BranchComparisonTab: React.FC = () => {
             </Radio.Group>
           </Col>
           <Col xs={24} md={8}>
-            <Space>
-              <Button type="primary" icon={<SearchOutlined />} loading={isLoading}>Göster</Button>
+            <Space wrap>
+              <Button type="primary" icon={<SearchOutlined />} loading={isLoading} block>Göster</Button>
               <Button icon={<FileExcelOutlined />} onClick={handleExportExcel} disabled={!report}>Excel</Button>
               <Button icon={<FilePdfOutlined />} onClick={handleExportPdf} disabled={!report}>PDF</Button>
             </Space>
@@ -176,7 +176,7 @@ const BranchComparisonTab: React.FC = () => {
         <Empty description="Veri bulunamadı" />
       ) : (
         <>
-          <Row gutter={24} style={{ marginBottom: 24 }}>
+          <Row gutter={[24, 24]} style={{ marginBottom: 24 }}>
             <Col xs={24} lg={12}>
               <Card title="Şube Bazlı Toplam" extra={<BarChartOutlined />}>
                 <div style={{ height: 350 }}>
@@ -230,6 +230,7 @@ const BranchComparisonTab: React.FC = () => {
               rowKey="branchId"
               pagination={false}
               bordered
+              scroll={{ x: 'max-content' }}
             />
           </Card>
         </>
