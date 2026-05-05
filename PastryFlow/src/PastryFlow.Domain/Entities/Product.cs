@@ -9,6 +9,7 @@ public class Product : BaseEntity
     public Guid CategoryId { get; set; }
     public Guid? ProductionBranchId { get; set; }
     public ProductType ProductType { get; set; }
+    public TrackingType TrackingType { get; set; } = TrackingType.Production;
     public UnitType Unit { get; set; }
     public decimal? UnitPrice { get; set; }
     public int SortOrder { get; set; } = 0;

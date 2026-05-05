@@ -119,6 +119,29 @@ public class DayClosingService : IDayClosingService
                 nextDetail.OpeningStock = detail.CarryOverQuantity;
             }
 
+            // KURAL 1: Counter Ürünler Stock Kaydı ALMAZ
+            if (detail.Product.TrackingType != TrackingType.Counter)
+            {
+                var stock = await _context.Stocks
+                    .FirstOrDefaultAsync(s => s.BranchId == branchId && s.ProductId == detail.ProductId);
+
+                if (stock == null)
+                {
+                    stock = new Stock
+                    {
+                        BranchId = branchId,
+                        ProductId = detail.ProductId,
+                        CurrentQuantity = detail.CarryOverQuantity
+                    };
+                    _context.Stocks.Add(stock);
+                }
+                else
+                {
+                    stock.CurrentQuantity = detail.CarryOverQuantity;
+                    stock.UpdatedAt = DateTime.UtcNow;
+                }
+            }
+
             // Create EndOfDay Waste Records if > 0
             if (detail.EndOfDayWaste > 0)
             {

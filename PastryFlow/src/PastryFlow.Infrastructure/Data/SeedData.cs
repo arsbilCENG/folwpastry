@@ -47,7 +47,8 @@ public static class SeedData
             { "PASTALAR", Guid.Parse("22222222-2222-2222-2222-222222222205") },
             { "İÇECEK", Guid.Parse("22222222-2222-2222-2222-222222222206") },
             { "FIRIN", Guid.Parse("22222222-2222-2222-2222-222222222207") },
-            { "HAMMADDE", Guid.Parse("22222222-2222-2222-2222-222222222208") }
+            { "HAMMADDE", Guid.Parse("22222222-2222-2222-2222-222222222208") },
+            { "KAHVALTI", Guid.Parse("22222222-2222-2222-2222-222222222209") }
         };
 
         modelBuilder.Entity<Category>().HasData(
@@ -57,17 +58,18 @@ public static class SeedData
             new Category { Id = catIds["PASTALAR"], Name = "PASTALAR", SortOrder = 4 },
             new Category { Id = catIds["İÇECEK"], Name = "İÇECEK", SortOrder = 5 },
             new Category { Id = catIds["FIRIN"], Name = "FIRIN", SortOrder = 6 },
-            new Category { Id = catIds["HAMMADDE"], Name = "HAMMADDE", SortOrder = 7 }
+            new Category { Id = catIds["HAMMADDE"], Name = "HAMMADDE", SortOrder = 7 },
+            new Category { Id = catIds["KAHVALTI"], Name = "KAHVALTI", SortOrder = 8 }
         );
 
         var products = new List<Product>();
 
         int pCounter = 1;
 
-        void AddProduct(string name, UnitType unit, Guid? pBranchId, Guid cId, ProductType pType)
+        void AddProduct(string name, UnitType unit, Guid? pBranchId, Guid cId, ProductType pType, TrackingType tType = TrackingType.Production)
         {
             var idString = $"44444444-4444-4444-4444-{pCounter:D12}";
-            products.Add(new Product { Id = Guid.Parse(idString), Name = name, Unit = unit, ProductionBranchId = pBranchId, CategoryId = cId, ProductType = pType });
+            products.Add(new Product { Id = Guid.Parse(idString), Name = name, Unit = unit, ProductionBranchId = pBranchId, CategoryId = cId, ProductType = pType, TrackingType = tType });
             pCounter++;
         }
 
@@ -98,8 +100,22 @@ public static class SeedData
         AddProduct("PASTA KG", UnitType.Kg, p3BranchId, catIds["PASTALAR"], ProductType.FinishedProduct);
 
         // İÇECEK
-        var icecekler = new[] { "AYRAN", "ÇAY SATIŞ", "ESPRESSO", "GAZLI İÇECEK", "LİMONATA", "MEYVE SUYU", "SODA MEYVELİ", "SODA SADE", "SU 0.5 L", "TÜRK KAHVESİ", "BİTKİ ÇAYI", "PİKNİK ÜRÜNLER", "KAHVALTI TABAĞI" };
-        foreach (var n in icecekler) AddProduct(n, UnitType.Adet, p3BranchId, catIds["İÇECEK"], ProductType.FinishedProduct);
+        AddProduct("AYRAN", UnitType.Adet, p3BranchId, catIds["İÇECEK"], ProductType.FinishedProduct, TrackingType.Purchased);
+        AddProduct("ÇAY SATIŞ", UnitType.Adet, p3BranchId, catIds["İÇECEK"], ProductType.FinishedProduct, TrackingType.Counter);
+        AddProduct("ESPRESSO", UnitType.Adet, p3BranchId, catIds["İÇECEK"], ProductType.FinishedProduct, TrackingType.Counter);
+        AddProduct("GAZLI İÇECEK", UnitType.Adet, p3BranchId, catIds["İÇECEK"], ProductType.FinishedProduct, TrackingType.Purchased);
+        AddProduct("LİMONATA", UnitType.Adet, p3BranchId, catIds["İÇECEK"], ProductType.FinishedProduct, TrackingType.Purchased);
+        AddProduct("MEYVE SUYU", UnitType.Adet, p3BranchId, catIds["İÇECEK"], ProductType.FinishedProduct, TrackingType.Purchased);
+        AddProduct("SODA MEYVELİ", UnitType.Adet, p3BranchId, catIds["İÇECEK"], ProductType.FinishedProduct, TrackingType.Purchased);
+        AddProduct("SODA SADE", UnitType.Adet, p3BranchId, catIds["İÇECEK"], ProductType.FinishedProduct, TrackingType.Purchased);
+        AddProduct("SU 0.5 L", UnitType.Adet, p3BranchId, catIds["İÇECEK"], ProductType.FinishedProduct, TrackingType.Purchased);
+        AddProduct("TÜRK KAHVESİ", UnitType.Adet, p3BranchId, catIds["İÇECEK"], ProductType.FinishedProduct, TrackingType.Counter);
+        AddProduct("BİTKİ ÇAYI", UnitType.Adet, p3BranchId, catIds["İÇECEK"], ProductType.FinishedProduct, TrackingType.Counter);
+        AddProduct("PİKNİK ÜRÜNLER", UnitType.Adet, p3BranchId, catIds["İÇECEK"], ProductType.FinishedProduct);
+
+        // KAHVALTI
+        AddProduct("Kahvaltı Tabağı", UnitType.Adet, null, catIds["KAHVALTI"], ProductType.FinishedProduct, TrackingType.Counter);
+        AddProduct("Serpme Kahvaltı", UnitType.Adet, null, catIds["KAHVALTI"], ProductType.FinishedProduct, TrackingType.Counter);
 
         // FIRIN
         var firinlar = new[] { "GALETE", "EKMEK BEYAZ", "EKMEK ÇEŞİT", "EKMEK KEPEK", "EKMEK MISIR", "EKMEK SANDVİÇ", "TAHILLI EKMEK", "PİDE ÇİFTLİ", "TANDIR EKMEĞİ" };

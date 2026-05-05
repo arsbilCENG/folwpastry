@@ -18,7 +18,8 @@ public class MappingProfile : Profile
         CreateMap<Category, CategoryWithProductsDto>();
         CreateMap<Product, ProductDto>()
             .ForMember(d => d.CategoryName, o => o.MapFrom(s => s.Category.Name))
-            .ForMember(d => d.ProductionBranchName, o => o.MapFrom(s => s.ProductionBranch != null ? s.ProductionBranch.Name : null));
+            .ForMember(d => d.ProductionBranchName, o => o.MapFrom(s => s.ProductionBranch != null ? s.ProductionBranch.Name : null))
+            .ForMember(d => d.TrackingTypeName, o => o.MapFrom(s => s.TrackingType.ToString()));
         
         CreateMap<Demand, DemandDto>()
             .ForMember(d => d.SalesBranchName, o => o.MapFrom(s => s.SalesBranch.Name))

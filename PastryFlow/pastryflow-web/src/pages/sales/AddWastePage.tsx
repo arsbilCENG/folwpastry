@@ -19,6 +19,10 @@ import { wasteApi } from '../../api/wasteApi';
 import { Product } from '../../types/product';
 import PhotoUpload from '../../components/common/PhotoUpload';
 
+import { stockApi } from '../../api/stockApi';
+import { CurrentStock } from '../../types/stock';
+import dayjs from 'dayjs';
+
 const { Title, Text } = Typography;
 const { Option } = Select;
 
@@ -26,28 +30,31 @@ const AddWastePage: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [form] = Form.useForm();
-  const [products, setProducts] = useState<Product[]>([]);
+  const [stocks, setStocks] = useState<CurrentStock[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
 
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchStock = async () => {
+      if (!user?.branchId) return;
       setLoading(true);
       try {
-        const res = await productApi.getProducts();
+        const today = dayjs().format('YYYY-MM-DD');
+        const res = await stockApi.getCurrentStock(user.branchId, today);
         if (res.success && res.data) {
-          setProducts(res.data);
+          // Only show items with stock > 0
+          setStocks(res.data.filter(s => s.currentStock > 0));
         }
       } catch (err) {
-        message.error('Ürünler yüklenemedi.');
+        message.error('Stok bilgileri yüklenemedi.');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchProducts();
-  }, []);
+    fetchStock();
+  }, [user?.branchId]);
 
   const onFinish = async (values: any) => {
     if (!user?.branchId || !user?.id) return;
@@ -59,7 +66,8 @@ const AddWastePage: React.FC = () => {
       formData.append('recordedByUserId', user.id);
       formData.append('productId', values.productId);
       formData.append('quantity', values.quantity.toString());
-      formData.append('reason', values.reason);
+      formData.append('date', dayjs().format('YYYY-MM-DD'));
+      formData.append('notes', values.reason);
       
       if (photoFile) {
         formData.append('photo', photoFile);
@@ -68,7 +76,7 @@ const AddWastePage: React.FC = () => {
       const res = await wasteApi.createWaste(formData);
       if (res.success) {
         message.success('Zayiat kaydı başarıyla oluşturuldu.');
-        navigate('/sales/reports'); // Or wherever appropriate
+        navigate('/sales/reports');
       } else {
         message.error(res.message || 'Hata oluştu.');
       }
@@ -103,9 +111,12 @@ const AddWastePage: React.FC = () => {
               placeholder="Ürün seçin veya arayın"
               optionFilterProp="children"
               loading={loading}
+              onChange={() => form.validateFields(['quantity'])}
             >
-              {products.map(p => (
-                <Option key={p.id} value={p.id}>{p.name} ({p.unitName})</Option>
+              {stocks.map(s => (
+                <Option key={s.productId} value={s.productId}>
+                  {s.productName} (Mevcut: {s.currentStock} {s.unitName})
+                </Option>
               ))}
             </Select>
           </Form.Item>
@@ -113,7 +124,20 @@ const AddWastePage: React.FC = () => {
           <Form.Item
             label="Miktar"
             name="quantity"
-            rules={[{ required: true, message: 'Lütfen miktar giriniz' }]}
+            dependencies={['productId']}
+            rules={[
+              { required: true, message: 'Lütfen miktar giriniz' },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  const productId = getFieldValue('productId');
+                  const selectedStock = stocks.find(s => s.productId === productId);
+                  if (selectedStock && value > selectedStock.currentStock) {
+                    return Promise.reject(new Error(`Zayiat miktarı mevcut stoktan (${selectedStock.currentStock}) fazla olamaz.`));
+                  }
+                  return Promise.resolve();
+                },
+              }),
+            ]}
           >
             <InputNumber min={0.1} step={0.1} style={{ width: '100%' }} placeholder="Zayi olan miktar" />
           </Form.Item>

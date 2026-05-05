@@ -1,3 +1,5 @@
+import { TrackingType } from "./product";
+
 // ============ PAGINATION ============
 export interface PaginationParams {
   pageNumber?: number;
@@ -99,6 +101,7 @@ export interface ProductListDto {
   unitType: string;
   unitPrice: number | null;
   isRawMaterial: boolean;
+  trackingType: TrackingType;
   sortOrder: number;
   createdAt: string;
 }
@@ -110,6 +113,7 @@ export interface CreateProductDto {
   unitType: string;
   unitPrice: number | null;
   isRawMaterial: boolean;
+  trackingType: TrackingType;
   sortOrder: number;
 }
 
@@ -120,6 +124,7 @@ export interface UpdateProductDto {
   unitType: string;
   unitPrice: number | null;
   isRawMaterial: boolean;
+  trackingType: TrackingType;
   sortOrder: number;
 }
 

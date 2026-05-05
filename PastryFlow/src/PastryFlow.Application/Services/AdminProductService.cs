@@ -64,6 +64,7 @@ public class AdminProductService : IAdminProductService
             UnitType = p.Unit.ToString(),
             UnitPrice = p.UnitPrice,
             IsRawMaterial = p.ProductType == ProductType.RawMaterial,
+            TrackingType = p.TrackingType,
             SortOrder = p.SortOrder,
             CreatedAt = p.CreatedAt
         });
@@ -91,6 +92,7 @@ public class AdminProductService : IAdminProductService
             UnitType = p.Unit.ToString(),
             UnitPrice = p.UnitPrice,
             IsRawMaterial = p.ProductType == ProductType.RawMaterial,
+            TrackingType = p.TrackingType,
             SortOrder = p.SortOrder,
             CreatedAt = p.CreatedAt
         };
@@ -128,6 +130,7 @@ public class AdminProductService : IAdminProductService
             Unit = unitEnum,
             UnitPrice = dto.UnitPrice,
             ProductType = dto.IsRawMaterial ? ProductType.RawMaterial : ProductType.FinishedProduct,
+            TrackingType = dto.TrackingType,
             SortOrder = dto.SortOrder
         };
 
@@ -167,6 +170,7 @@ public class AdminProductService : IAdminProductService
         product.Unit = unitEnum;
         product.UnitPrice = dto.UnitPrice;
         product.ProductType = dto.IsRawMaterial ? ProductType.RawMaterial : ProductType.FinishedProduct;
+        product.TrackingType = dto.TrackingType;
         product.SortOrder = dto.SortOrder;
         product.UpdatedAt = DateTime.UtcNow;
 

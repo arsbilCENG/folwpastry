@@ -22,6 +22,7 @@ public interface IPastryFlowDbContext
     DbSet<DeliveryReturn> DeliveryReturns { get; }
     DbSet<CakeOption> CakeOptions { get; }
     DbSet<CustomCakeOrder> CustomCakeOrders { get; }
+    DbSet<Stock> Stocks { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

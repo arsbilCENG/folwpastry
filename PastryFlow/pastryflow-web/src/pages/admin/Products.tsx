@@ -12,7 +12,8 @@ import {
   ShoppingOutlined,
   AppstoreOutlined,
   ShopOutlined,
-  OrderedListOutlined
+  OrderedListOutlined,
+  InfoCircleOutlined
 } from '@ant-design/icons';
 import { 
   useAdminProducts, 
@@ -28,6 +29,7 @@ import type {
   UpdateProductDto, 
   ProductFilterParams 
 } from '../../types/admin';
+import { TrackingType, TRACKING_TYPE_LABELS, TRACKING_TYPE_COLORS } from '../../types/product';
 import { formatCurrency } from '../../utils/formatters';
 
 const { Title } = Typography;
@@ -61,7 +63,12 @@ const Products: React.FC = () => {
   const handleAdd = () => {
     setSelectedProduct(null);
     form.resetFields();
-    form.setFieldsValue({ unitType: 'Adet', isRawMaterial: false, sortOrder: 0 });
+    form.setFieldsValue({ 
+      unitType: 'Adet', 
+      isRawMaterial: false, 
+      sortOrder: 0,
+      trackingType: TrackingType.Production 
+    });
     setIsModalVisible(true);
   };
 
@@ -74,6 +81,7 @@ const Products: React.FC = () => {
       unitType: product.unitType,
       unitPrice: product.unitPrice,
       isRawMaterial: product.isRawMaterial,
+      trackingType: product.trackingType,
       sortOrder: product.sortOrder
     });
     setIsModalVisible(true);
@@ -110,6 +118,23 @@ const Products: React.FC = () => {
       dataIndex: 'categoryName',
       key: 'categoryName',
       render: (name: string) => <Tag icon={<AppstoreOutlined />}>{name}</Tag>,
+    },
+    {
+      title: 'Takip Tipi',
+      dataIndex: 'trackingType',
+      key: 'trackingType',
+      width: 120,
+      render: (type: TrackingType) => (
+        <Tag color={TRACKING_TYPE_COLORS[type]}>
+          {TRACKING_TYPE_LABELS[type]}
+        </Tag>
+      ),
+      filters: [
+        { text: 'Üretim', value: TrackingType.Production },
+        { text: 'Satın Alım', value: TrackingType.Purchased },
+        { text: 'Sayaç', value: TrackingType.Counter },
+      ],
+      onFilter: (value: any, record: ProductListDto) => record.trackingType === value,
     },
     {
       title: 'Üretim Şubesi',
@@ -259,6 +284,21 @@ const Products: React.FC = () => {
 
           <Row gutter={16}>
             <Col span={12}>
+              <Form.Item 
+                name="trackingType" 
+                label="Takip Tipi"
+                rules={[{ required: true, message: 'Takip tipi seçiniz' }]}
+                initialValue={TrackingType.Production}
+                tooltip="Üretim: Talep ile gelir. Satın Alım: Satın alınarak stoğa girer. Sayaç: Stok tutulmaz, satılan adet girilir."
+              >
+                <Select>
+                  <Select.Option value={TrackingType.Production}>Üretim (talep ile gelir)</Select.Option>
+                  <Select.Option value={TrackingType.Purchased}>Satın Alım (satın alım ile stoğa girer)</Select.Option>
+                  <Select.Option value={TrackingType.Counter}>Sayaç (stok tutulmaz, satılan girilir)</Select.Option>
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col span={12}>
               <Form.Item name="unitType" label="Birim Tipi" rules={[{ required: true }]}>
                 <Radio.Group>
                   <Radio.Button value="Adet">Adet</Radio.Button>
@@ -266,6 +306,9 @@ const Products: React.FC = () => {
                 </Radio.Group>
               </Form.Item>
             </Col>
+          </Row>
+
+          <Row gutter={16}>
             <Col span={12}>
               <Form.Item name="unitPrice" label="Birim Fiyat (Opsiyonel)">
                 <InputNumber 
@@ -277,24 +320,38 @@ const Products: React.FC = () => {
                 />
               </Form.Item>
             </Col>
+            <Col span={12}>
+              <Form.Item name="sortOrder" label="Görüntüleme Sırası" rules={[{ required: true }]}>
+                <InputNumber min={0} style={{ width: '100%' }} prefix={<OrderedListOutlined />} />
+              </Form.Item>
+            </Col>
           </Row>
 
           <Form.Item 
             noStyle 
-            shouldUpdate={(prev, curr) => prev.isRawMaterial !== curr.isRawMaterial}
+            shouldUpdate={(prev, curr) => prev.trackingType !== curr.trackingType || prev.isRawMaterial !== curr.isRawMaterial}
           >
-            {({ getFieldValue }) => {
+            {({ getFieldValue, setFieldsValue }) => {
+              const trackingType = getFieldValue('trackingType');
               const isRaw = getFieldValue('isRawMaterial');
+              
+              const showBranch = trackingType === TrackingType.Production && !isRaw;
+              
+              if (!showBranch && getFieldValue('productionBranchId')) {
+                setFieldsValue({ productionBranchId: null });
+              }
+
+              if (!showBranch) return null;
+
               return (
                 <Form.Item 
                   name="productionBranchId" 
                   label="Üretim Şubesi" 
-                  extra={isRaw ? "Hammadde ürünleri üretim şubesi gerektirmez." : "Boş bırakılırsa tüm üretim şubelerinden talep edilebilir."}
+                  extra="Boş bırakılırsa tüm üretim şubelerinden talep edilebilir."
                 >
                   <Select 
-                    disabled={isRaw}
                     allowClear 
-                    placeholder={isRaw ? "-" : "Şube Seçin (Opsiyonel)"}
+                    placeholder="Şube Seçin (Opsiyonel)"
                     options={branches?.filter(b => b.branchType === 'Production').map(b => ({ label: b.name, value: b.id }))} 
                   />
                 </Form.Item>
@@ -302,18 +359,9 @@ const Products: React.FC = () => {
             }}
           </Form.Item>
 
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item name="isRawMaterial" label="Hammadde Ürünü mü?" valuePropName="checked">
-                <Switch />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item name="sortOrder" label="Görüntüleme Sırası" rules={[{ required: true }]}>
-                <InputNumber min={0} style={{ width: '100%' }} prefix={<OrderedListOutlined />} />
-              </Form.Item>
-            </Col>
-          </Row>
+          <Form.Item name="isRawMaterial" label="Hammadde Ürünü mü?" valuePropName="checked">
+            <Switch />
+          </Form.Item>
 
           <Form.Item style={{ marginBottom: 0, textAlign: 'right', marginTop: 16 }}>
             <Space>

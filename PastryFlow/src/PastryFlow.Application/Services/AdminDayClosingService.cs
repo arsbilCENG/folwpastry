@@ -40,6 +40,7 @@ public class AdminDayClosingService : IAdminDayClosingService
     {
         var closing = await _context.DayClosings
             .Include(c => c.Details)
+                .ThenInclude(d => d.Product)
             .Include(c => c.Branch)
             .FirstOrDefaultAsync(c => c.Id == dayClosingId);
 
@@ -70,6 +71,19 @@ public class AdminDayClosingService : IAdminDayClosingService
                                  - (detail.OutgoingTransferQuantity + detail.EndOfDayCount + detail.DayWasteQuantity);
         
         detail.EndOfDayWaste = detail.EndOfDayCount - detail.CarryOverQuantity;
+
+        // KURAL 1: Counter Ürünler Stock Kaydı ALMAZ
+        if (detail.Product.TrackingType != TrackingType.Counter)
+        {
+            var stock = await _context.Stocks
+                .FirstOrDefaultAsync(s => s.BranchId == closing.BranchId && s.ProductId == detail.ProductId);
+
+            if (stock != null)
+            {
+                stock.CurrentQuantity = detail.CarryOverQuantity;
+                stock.UpdatedAt = DateTime.UtcNow;
+            }
+        }
 
         await _context.SaveChangesAsync();
 

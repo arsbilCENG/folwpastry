@@ -82,7 +82,7 @@ public class DemandsController : ControllerBase
         return Ok(result);
     }
 
-    [Authorize(Roles = "Production")]
+    [Authorize(Roles = "Production,Admin")]
     [HttpPost("{id}/ship")]
     public async Task<IActionResult> ShipDemand(Guid id, ShipDemandDto dto)
     {
@@ -94,19 +94,25 @@ public class DemandsController : ControllerBase
         return Ok(result);
     }
 
-    [Authorize(Roles = "Sales")]
+    [Authorize]
     [HttpPut("{id}/accept-delivery")]
     public async Task<IActionResult> AcceptDelivery(Guid id, AcceptDeliveryDto dto)
     {
         var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (!Guid.TryParse(userIdString, out var userId)) return Unauthorized();
 
+        var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
+        if (userRole != "Sales" && userRole != "Admin")
+        {
+            return StatusCode(403, new { success = false, message = $"Bu işlem için Sales veya Admin yetkisi gereklidir. Mevcut rolünüz: {userRole}" });
+        }
+
         var result = await _demandService.AcceptDeliveryAsync(id, dto, userId);
         if (!result.Success) return BadRequest(result);
         return Ok(result);
     }
 
-    [Authorize(Roles = "Sales")]
+    [Authorize(Roles = "Sales,Admin")]
     [HttpPost("{id}/items/{itemId}/rejection-photo")]
     public async Task<IActionResult> UploadRejectionPhoto(Guid id, Guid itemId, Microsoft.AspNetCore.Http.IFormFile photo)
     {

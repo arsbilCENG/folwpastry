@@ -13,6 +13,8 @@ public class ProductDto
     public string? ProductionBranchName { get; set; }
     public ProductType ProductType { get; set; }
     public string ProductTypeName => ProductType.ToString();
+    public TrackingType TrackingType { get; set; }
+    public string TrackingTypeName => TrackingType.ToString();
     public UnitType Unit { get; set; }
     public string UnitName => Unit.ToString();
     public decimal? UnitPrice { get; set; }

@@ -34,17 +34,25 @@ public class WasteService : IWasteService
 
     public async Task<ApiResponse<WasteDto>> CreateWasteAsync(CreateWasteDto dto, Guid createdByUserId)
     {
-        // Validation: quantity must not exceed current stock
-        var stockResponse = await _stockService.GetCurrentStockAsync(dto.BranchId, dto.Date);
-        if (!stockResponse.Success || stockResponse.Data == null)
-            return ApiResponse<WasteDto>.Fail("Stok bilgisi alınamadı.");
+        var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == dto.ProductId);
+        if (product == null)
+            return ApiResponse<WasteDto>.Fail("Ürün bulunamadı.");
 
-        var productStock = stockResponse.Data.FirstOrDefault(s => s.ProductId == dto.ProductId);
-        if (productStock == null)
-            return ApiResponse<WasteDto>.Fail("Ürüne ait günlük stok kaydı bulunamadı.");
+        // KURAL 1: Counter Ürünler Stock Kaydı ALMAZ
+        if (product.TrackingType != TrackingType.Counter)
+        {
+            var stock = await _context.Stocks
+                .FirstOrDefaultAsync(s => s.BranchId == dto.BranchId && s.ProductId == dto.ProductId);
 
-        if (dto.Quantity > productStock.CurrentStock)
-            return ApiResponse<WasteDto>.Fail($"Zayiat miktarı mevcut stoktan ( {productStock.CurrentStock} ) fazla olamaz.");
+            if (stock == null)
+                return ApiResponse<WasteDto>.Fail("Ürüne ait stok kaydı bulunamadı.");
+
+            if (dto.Quantity > stock.CurrentQuantity)
+                return ApiResponse<WasteDto>.Fail($"Zayiat miktarı mevcut stoktan ( {stock.CurrentQuantity} ) fazla olamaz.");
+
+            stock.CurrentQuantity -= dto.Quantity;
+            stock.UpdatedAt = DateTime.UtcNow;
+        }
 
         var waste = new Waste
         {
@@ -61,11 +69,42 @@ public class WasteService : IWasteService
         _context.Wastes.Add(waste);
 
         // Update DailyStockSummary
-        var detail = await _context.DayClosingDetails
-            .Include(d => d.DayClosing)
-            .FirstOrDefaultAsync(d => d.DayClosing.BranchId == dto.BranchId && d.ProductId == dto.ProductId && d.DayClosing.Date == dto.Date);
+        var closing = await _context.DayClosings
+            .Include(c => c.Details)
+            .FirstOrDefaultAsync(c => c.BranchId == dto.BranchId && c.Date == dto.Date);
 
-        if (detail != null)
+        if (closing == null)
+        {
+            closing = new DayClosing
+            {
+                BranchId = dto.BranchId,
+                Date = dto.Date,
+                IsOpened = true,
+                OpenedAt = DateTime.UtcNow
+            };
+            _context.DayClosings.Add(closing);
+            await _context.SaveChangesAsync();
+        }
+
+        var detail = closing.Details.FirstOrDefault(d => d.ProductId == dto.ProductId);
+        if (detail == null)
+        {
+            var previousDetail = await _context.DayClosingDetails
+                .Include(d => d.DayClosing)
+                .Where(d => d.DayClosing.BranchId == dto.BranchId && d.ProductId == dto.ProductId && d.DayClosing.Date < dto.Date && d.DayClosing.IsClosed)
+                .OrderByDescending(d => d.DayClosing.Date)
+                .FirstOrDefaultAsync();
+
+            detail = new DayClosingDetail
+            {
+                DayClosingId = closing.Id,
+                ProductId = dto.ProductId,
+                OpeningStock = previousDetail?.CarryOverQuantity ?? 0,
+                DayWasteQuantity = dto.Quantity
+            };
+            _context.DayClosingDetails.Add(detail);
+        }
+        else
         {
             detail.DayWasteQuantity += dto.Quantity;
         }

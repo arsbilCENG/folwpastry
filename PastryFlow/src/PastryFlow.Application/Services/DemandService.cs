@@ -329,6 +329,7 @@ public class DemandService : IDemandService
     {
         var demand = await _context.Demands
             .Include(d => d.Items)
+                .ThenInclude(i => i.Product)
             .Include(d => d.SalesBranch)
             .Include(d => d.ProductionBranch)
             .FirstOrDefaultAsync(d => d.Id == demandId);
@@ -416,6 +417,29 @@ public class DemandService : IDemandService
             else
             {
                 detail.ReceivedFromDemands += item.AcceptedQuantity.Value;
+            }
+
+            // KURAL 1: Counter Ürünler Stock Kaydı ALMAZ
+            if (item.Product.TrackingType != PastryFlow.Domain.Enums.TrackingType.Counter)
+            {
+                var stock = await _context.Stocks
+                    .FirstOrDefaultAsync(s => s.BranchId == demand.SalesBranchId && s.ProductId == item.ProductId);
+
+                if (stock == null)
+                {
+                    stock = new Stock
+                    {
+                        BranchId = demand.SalesBranchId,
+                        ProductId = item.ProductId,
+                        CurrentQuantity = item.AcceptedQuantity.Value
+                    };
+                    _context.Stocks.Add(stock);
+                }
+                else
+                {
+                    stock.CurrentQuantity += item.AcceptedQuantity.Value;
+                    stock.UpdatedAt = DateTime.UtcNow;
+                }
             }
         }
 

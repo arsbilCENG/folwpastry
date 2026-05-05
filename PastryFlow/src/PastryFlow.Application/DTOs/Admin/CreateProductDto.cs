@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using PastryFlow.Domain.Enums;
 
 namespace PastryFlow.Application.DTOs.Admin;
 
@@ -20,5 +21,6 @@ public class CreateProductDto
     public decimal? UnitPrice { get; set; }
     
     public bool IsRawMaterial { get; set; } = false;
+    public TrackingType TrackingType { get; set; } = TrackingType.Production;
     public int SortOrder { get; set; } = 0;
 }

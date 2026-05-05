@@ -50,9 +50,16 @@ const CurrentStockPage: React.FC = () => {
       title: 'Kategori',
       dataIndex: 'categoryName',
       key: 'categoryName',
-      onCell: (_, index) => {
-        // Group by category visual trick can be done here, simple version is just rendering it.
-        return {};
+      onCell: (record, index) => {
+        const filteredData = data.filter(item => item.currentStock > 0);
+        const currentCategory = record.categoryName;
+        
+        // Count how many items in this category
+        if (index !== undefined && (index === 0 || filteredData[index - 1].categoryName !== currentCategory)) {
+          const rowSpan = filteredData.slice(index).filter(item => item.categoryName === currentCategory).length;
+          return { rowSpan };
+        }
+        return { rowSpan: 0 };
       }
     },
     {
@@ -114,11 +121,12 @@ const CurrentStockPage: React.FC = () => {
       </div>
       <Table 
         columns={columns} 
-        dataSource={data} 
+        dataSource={data.filter(item => item.currentStock > 0)} 
         rowKey="productId" 
         loading={loading}
         pagination={false}
         scroll={{ x: 'max-content' }}
+        key={selectedDate.format('YYYY-MM-DD')} // Force re-render on date change for grouping
       />
     </div>
   );

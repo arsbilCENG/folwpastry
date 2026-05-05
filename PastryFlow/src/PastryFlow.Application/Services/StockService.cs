@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using PastryFlow.Application.Common;
 using PastryFlow.Application.DTOs.Stock;
 using PastryFlow.Application.Interfaces;
+using PastryFlow.Domain.Enums;
 
 namespace PastryFlow.Application.Services;
 
@@ -22,9 +23,13 @@ public class StockService : IStockService
     {
         var products = await _context.Products
             .Include(p => p.Category)
-            .Where(p => p.IsActive)
+            .Where(p => p.IsActive && p.TrackingType != TrackingType.Counter)
             .OrderBy(p => p.Category.SortOrder)
             .ThenBy(p => p.Name)
+            .ToListAsync();
+
+        var stocks = await _context.Stocks
+            .Where(s => s.BranchId == branchId)
             .ToListAsync();
 
         var summaries = await _context.DayClosingDetails
@@ -33,19 +38,21 @@ public class StockService : IStockService
             .ToListAsync();
 
         var result = products.Select(p => {
-            var s = summaries.FirstOrDefault(x => x.ProductId == p.Id);
+            var stock = stocks.FirstOrDefault(s => s.ProductId == p.Id);
+            var summary = summaries.FirstOrDefault(x => x.ProductId == p.Id);
+            
             return new CurrentStockDto
             {
                 ProductId = p.Id,
                 ProductName = p.Name,
                 CategoryName = p.Category.Name,
                 Unit = p.Unit,
-                OpeningStock = s?.OpeningStock ?? 0,
-                ReceivedFromDemands = s?.ReceivedFromDemands ?? 0,
-                IncomingTransfer = s?.IncomingTransferQuantity ?? 0,
-                OutgoingTransfer = s?.OutgoingTransferQuantity ?? 0,
-                DayWaste = s?.DayWasteQuantity ?? 0,
-                CurrentStock = (s?.OpeningStock ?? 0) + (s?.ReceivedFromDemands ?? 0) + (s?.IncomingTransferQuantity ?? 0) - (s?.OutgoingTransferQuantity ?? 0) - (s?.DayWasteQuantity ?? 0)
+                OpeningStock = summary?.OpeningStock ?? 0,
+                ReceivedFromDemands = summary?.ReceivedFromDemands ?? 0,
+                IncomingTransfer = summary?.IncomingTransferQuantity ?? 0,
+                OutgoingTransfer = summary?.OutgoingTransferQuantity ?? 0,
+                DayWaste = summary?.DayWasteQuantity ?? 0,
+                CurrentStock = stock?.CurrentQuantity ?? 0
             };
         }).ToList();
 
