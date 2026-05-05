@@ -9,7 +9,8 @@ import {
   BarChartOutlined,
   EditOutlined,
   LogoutOutlined,
-  MenuOutlined
+  MenuOutlined,
+  ShoppingCartOutlined
 } from '@ant-design/icons';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
@@ -42,6 +43,7 @@ const AdminLayout: React.FC = () => {
     { key: '/admin/categories', icon: <AppstoreOutlined />, label: 'Kategoriler' },
     { key: '/admin/products', icon: <ShoppingOutlined />, label: 'Ürünler' },
     { key: '/admin/branches', icon: <ShopOutlined />, label: 'Şubeler' },
+    { key: '/admin/purchases', icon: <ShoppingCartOutlined />, label: 'Satın Alımlar' },
     { key: '/admin/cake-options', icon: <AppstoreOutlined />, label: 'Pasta Seçenekleri' },
     { key: '/admin/reports', icon: <BarChartOutlined />, label: 'Raporlar' },
     { key: '/admin/day-correction', icon: <EditOutlined />, label: 'Gün Düzeltme' },

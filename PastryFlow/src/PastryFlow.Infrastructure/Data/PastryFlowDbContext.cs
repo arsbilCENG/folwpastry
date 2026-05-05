@@ -25,6 +25,8 @@ public class PastryFlowDbContext : DbContext, IPastryFlowDbContext
     public DbSet<CakeOption> CakeOptions => Set<CakeOption>();
     public DbSet<CustomCakeOrder> CustomCakeOrders => Set<CustomCakeOrder>();
     public DbSet<Stock> Stocks => Set<Stock>();
+    public DbSet<Purchase> Purchases => Set<Purchase>();
+    public DbSet<PurchaseItem> PurchaseItems => Set<PurchaseItem>();
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -42,6 +44,30 @@ public class PastryFlowDbContext : DbContext, IPastryFlowDbContext
         modelBuilder.Entity<Category>().HasQueryFilter(x => !x.IsDeleted);
         modelBuilder.Entity<Product>().HasQueryFilter(x => !x.IsDeleted);
         modelBuilder.Entity<User>().HasQueryFilter(x => !x.IsDeleted);
+
+        // Purchase
+        modelBuilder.Entity<Purchase>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.PurchaseNumber).HasMaxLength(20).IsRequired();
+            entity.Property(e => e.TotalAmount).HasPrecision(18, 2);
+            entity.HasOne(e => e.Branch).WithMany().HasForeignKey(e => e.BranchId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(e => e.CreatedByUser).WithMany().HasForeignKey(e => e.CreatedByUserId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasMany(e => e.Items).WithOne(i => i.Purchase).HasForeignKey(i => i.PurchaseId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasQueryFilter(e => !e.IsDeleted);
+            entity.HasIndex(e => e.PurchaseNumber).IsUnique();
+            entity.HasIndex(e => new { e.BranchId, e.PurchaseDate });
+        });
+
+        // PurchaseItem
+        modelBuilder.Entity<PurchaseItem>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.UnitPrice).HasPrecision(18, 2);
+            entity.Property(e => e.TotalPrice).HasPrecision(18, 2);
+            entity.HasOne(e => e.Product).WithMany().HasForeignKey(e => e.ProductId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasQueryFilter(e => !e.IsDeleted);
+        });
 
         modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         SeedData.Initialize(modelBuilder);

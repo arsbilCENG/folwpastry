@@ -20,13 +20,17 @@ public class ProductsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetProducts([FromQuery] Guid? branchId, [FromQuery] Guid? categoryId, [FromQuery] string? productType)
+    public async Task<IActionResult> GetProducts([FromQuery] Guid? branchId, [FromQuery] Guid? categoryId, [FromQuery] string? productType, [FromQuery] string? trackingType)
     {
         ProductType? pType = null;
         if (Enum.TryParse<ProductType>(productType, out var parsedType))
             pType = parsedType;
 
-        var result = await _productService.GetProductsAsync(branchId, categoryId, pType);
+        TrackingType? tType = null;
+        if (Enum.TryParse<TrackingType>(trackingType, out var parsedTType))
+            tType = parsedTType;
+
+        var result = await _productService.GetProductsAsync(branchId, categoryId, pType, tType);
         return Ok(result);
     }
 
