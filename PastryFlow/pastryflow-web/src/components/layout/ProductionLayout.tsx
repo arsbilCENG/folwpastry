@@ -7,7 +7,8 @@ import {
   LogoutOutlined,
   MenuOutlined,
   UserOutlined,
-  RollbackOutlined
+  RollbackOutlined,
+  ShoppingCartOutlined
 } from '@ant-design/icons';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
@@ -37,6 +38,7 @@ const ProductionLayout: React.FC = () => {
     { key: '/production/demands', icon: <InboxOutlined />, label: 'Gelen Talepler' },
     { key: '/production/cake-orders', icon: <InboxOutlined />, label: 'Özel Pasta Siparişleri' },
     { key: '/production/delivery-returns', icon: <RollbackOutlined />, label: 'İadeler' },
+    { key: '/production/purchases', icon: <ShoppingCartOutlined />, label: 'Satın Alımlar' },
     { key: '/production/reports', icon: <BarChartOutlined />, label: 'Raporlar' },
   ];
 

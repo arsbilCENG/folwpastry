@@ -41,6 +41,7 @@ builder.Services.AddScoped<IDemandService, DemandService>();
 builder.Services.AddScoped<IStockService, StockService>();
 builder.Services.AddScoped<IDayClosingService, DayClosingService>();
 builder.Services.AddScoped<IWasteService, WasteService>();
+builder.Services.AddScoped<IPurchaseService, PurchaseService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 
 // Admin & Report Services

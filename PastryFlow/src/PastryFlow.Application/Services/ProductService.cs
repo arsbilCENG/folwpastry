@@ -23,7 +23,7 @@ public class ProductService : IProductService
         _mapper = mapper;
     }
 
-    public async Task<ApiResponse<List<ProductDto>>> GetProductsAsync(Guid? branchId = null, Guid? categoryId = null, ProductType? productType = null)
+    public async Task<ApiResponse<List<ProductDto>>> GetProductsAsync(Guid? branchId = null, Guid? categoryId = null, ProductType? productType = null, TrackingType? trackingType = null)
     {
         var query = _context.Products
             .Include(p => p.Category)
@@ -43,6 +43,11 @@ public class ProductService : IProductService
         if (productType.HasValue)
         {
             query = query.Where(p => p.ProductType == productType.Value);
+        }
+
+        if (trackingType.HasValue)
+        {
+            query = query.Where(p => p.TrackingType == trackingType.Value);
         }
 
         var products = await query.OrderBy(p => p.Category.SortOrder).ThenBy(p => p.Name).ToListAsync();
