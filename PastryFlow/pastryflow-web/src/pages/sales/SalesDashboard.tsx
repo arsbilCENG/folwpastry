@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { Row, Col, Card, Statistic, Button, Typography, Space, Spin, message } from 'antd';
-import { PlusCircleOutlined, WarningOutlined, CalculatorOutlined } from '@ant-design/icons';
+import { PlusCircleOutlined, WarningOutlined, CalculatorOutlined, WalletOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
 import { stockApi } from '../../api/stockApi';
 import { demandApi } from '../../api/demandApi';
 import { wasteApi } from '../../api/wasteApi';
 import { dayClosingApi } from '../../api/dayClosingApi';
+import { useBranchCashSummary } from '../../hooks/useCashTransactions';
+import { formatCurrency } from '../../utils/formatters';
 
 const { Title, Text } = Typography;
 
@@ -20,6 +22,10 @@ const SalesDashboard: React.FC = () => {
   const [wasteCount, setWasteCount] = useState(0);
   const [isDayClosed, setIsDayClosed] = useState<boolean | null>(null);
 
+  // Kasa özeti hook'u
+  const { data: cashSummaryRes } = useBranchCashSummary();
+  const cashSummary = cashSummaryRes?.data;
+
   useEffect(() => {
     const fetchData = async () => {
       if (!user?.branchId) return;
@@ -28,7 +34,7 @@ const SalesDashboard: React.FC = () => {
         
         const [stockRes, demandRes, wasteRes, closingRes] = await Promise.all([
           stockApi.getCurrentStock(user.branchId, today),
-          demandApi.getDemands({ branchId: user.branchId, status: 'Pending', date: today }), // 'Pending' or 1 as string
+          demandApi.getDemands({ branchId: user.branchId, status: 'Pending', date: today }), 
           wasteApi.getWastes(user.branchId, today),
           dayClosingApi.getSummary(user.branchId, today)
         ]);
@@ -81,16 +87,31 @@ const SalesDashboard: React.FC = () => {
             <Statistic title="Bugünkü Aktif Stok Kalemi" value={stockCount} />
           </Card>
         </Col>
+        
+        {/* Beklenen Kasa Kartı */}
+        <Col xs={24} sm={12} lg={6}>
+          <Card bordered={false}>
+            <Statistic
+              title="Beklenen Kasa (Nakit)"
+              value={cashSummary?.expectedCashBalance ?? 0}
+              precision={2}
+              prefix="₺"
+              valueStyle={{ color: '#1890ff' }}
+            />
+            <div style={{ marginTop: 4 }}>
+              <Text type="secondary" style={{ fontSize: 12 }}>
+                Açılış: {formatCurrency(cashSummary?.openingCashBalance ?? 0)}
+              </Text>
+            </div>
+          </Card>
+        </Col>
+
         <Col xs={24} sm={12} lg={6}>
           <Card bordered={false}>
             <Statistic title="Bekleyen Talepler" value={pendingDemands} valueStyle={{ color: pendingDemands > 0 ? '#cf1322' : '#3f8600' }} />
           </Card>
         </Col>
-        <Col xs={24} sm={12} lg={6}>
-          <Card bordered={false}>
-            <Statistic title="Bugünkü Zayiat Kaydı" value={wasteCount} />
-          </Card>
-        </Col>
+        
         <Col xs={24} sm={12} lg={6}>
           <Card bordered={false} style={{ background: isDayClosed ? '#f6ffed' : '#fffbe6' }}>
             <Statistic 

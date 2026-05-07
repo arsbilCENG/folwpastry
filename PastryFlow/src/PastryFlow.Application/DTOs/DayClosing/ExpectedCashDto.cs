@@ -8,6 +8,14 @@ public class ExpectedCashDto
     public int ProductsWithPrice { get; set; }
     public int ProductsWithoutPrice { get; set; }
     public List<ExpectedCashItemDto> Items { get; set; } = new();
+
+    // YENİ ALANLAR
+    public decimal OpeningCashBalance { get; set; }
+    public decimal CashPurchases { get; set; }
+    public decimal CashWithdrawals { get; set; }
+    public decimal CashDeposits { get; set; }
+    public decimal TotalSalesRevenue { get; set; }
+    public decimal ExpectedCashAmount { get; set; }
 }
 
 public class ExpectedCashItemDto

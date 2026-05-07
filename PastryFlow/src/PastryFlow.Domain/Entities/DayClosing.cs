@@ -14,6 +14,9 @@ public class DayClosing : BaseEntity
     public DateTime? ClosedAt { get; set; }
     public Guid? ClosedByUserId { get; set; }
 
+    // Günün başındaki nakit bakiye (bir önceki günün kapanış nakitinden otomatik hesaplanır)
+    public decimal OpeningCashBalance { get; set; } = 0;
+
     // Kasa Sayımı
     public decimal? ExpectedCashAmount { get; set; }
     public decimal? CashAmount { get; set; }

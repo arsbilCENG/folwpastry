@@ -163,26 +163,33 @@ public class DayClosingService : IDayClosingService
         return await GetSummaryAsync(branchId, date);
     }
 
-    public async Task<ApiResponse<ExpectedCashDto>> CalculateExpectedCashAsync(Guid branchId, DateOnly date)
+    public async Task<ApiResponse<ExpectedCashDto>> CalculateExpectedCashAsync(Guid id)
     {
-        var closing = await _context.DayClosings
-            .Include(c => c.Details)
-            .ThenInclude(d => d.Product)
-            .FirstOrDefaultAsync(c => c.BranchId == branchId && c.Date == date);
+        var dayClosing = await _context.DayClosings
+            .Include(dc => dc.Details).ThenInclude(d => d.Product)
+            .FirstOrDefaultAsync(dc => dc.Id == id);
 
-        if (closing == null) return ApiResponse<ExpectedCashDto>.Fail("Gün sonu kaydı bulunamadı.");
+        if (dayClosing == null) return ApiResponse<ExpectedCashDto>.Fail("Gün kaydı bulunamadı.");
 
-        var response = new ExpectedCashDto();
-
-        foreach (var detail in closing.Details)
+        // 1. Satış geliri
+        decimal totalSalesRevenue = 0;
+        var response = new ExpectedCashDto
         {
+            OpeningCashBalance = dayClosing.OpeningCashBalance,
+            Items = new List<ExpectedCashItemDto>()
+        };
+
+        foreach (var detail in dayClosing.Details)
+        {
+            if (detail.Product == null) continue;
+
             var calculatedSales = (detail.OpeningStock + detail.ReceivedFromDemands + detail.IncomingTransferQuantity)
                                   - (detail.OutgoingTransferQuantity + detail.EndOfDayCount + detail.DayWasteQuantity);
 
             if (detail.Product.UnitPrice.HasValue)
             {
                 var salesValue = calculatedSales * detail.Product.UnitPrice.Value;
-                response.ExpectedAmount += salesValue;
+                totalSalesRevenue += salesValue;
                 response.ProductsWithPrice++;
 
                 response.Items.Add(new ExpectedCashItemDto
@@ -206,6 +213,48 @@ public class DayClosingService : IDayClosingService
             }
         }
 
+        response.TotalSalesRevenue = totalSalesRevenue;
+
+        // 2. Bugünkü nakit satın alımlar
+        var targetDate = DateTime.SpecifyKind(dayClosing.Date.ToDateTime(TimeOnly.MinValue), DateTimeKind.Utc);
+        var nextDate = targetDate.AddDays(1);
+
+        var cashPurchases = await _context.Purchases
+            .Where(p => p.BranchId == dayClosing.BranchId
+                     && p.PurchaseDate >= targetDate && p.PurchaseDate < nextDate
+                     && p.PaymentMethod == PaymentMethod.Cash)
+            .SumAsync(p => p.TotalAmount);
+
+        // 3. Bugünkü admin nakit çekimleri
+        var cashWithdrawals = await _context.CashTransactions
+            .Where(t => t.BranchId == dayClosing.BranchId
+                     && t.TransactionDate >= targetDate && t.TransactionDate < nextDate
+                     && t.TransactionType == TransactionType.AdminWithdrawal
+                     && t.Method == PaymentMethod.Cash)
+            .SumAsync(t => t.Amount);
+
+        // 4. Bugünkü admin nakit yatırımları
+        var cashDeposits = await _context.CashTransactions
+            .Where(t => t.BranchId == dayClosing.BranchId
+                     && t.TransactionDate >= targetDate && t.TransactionDate < nextDate
+                     && t.TransactionType == TransactionType.AdminDeposit
+                     && t.Method == PaymentMethod.Cash)
+            .SumAsync(t => t.Amount);
+
+        // Beklenen nakit = Açılış + (Gelir - POS) + Yatırım - Satın Alım - Çekim
+        var posAmount = dayClosing.PosAmount ?? 0;
+        var expectedCash = dayClosing.OpeningCashBalance
+            + (totalSalesRevenue - posAmount)
+            + cashDeposits
+            - cashPurchases
+            - cashWithdrawals;
+
+        response.CashPurchases = cashPurchases;
+        response.CashWithdrawals = cashWithdrawals;
+        response.CashDeposits = cashDeposits;
+        response.ExpectedCashAmount = Math.Max(0, expectedCash);
+        response.ExpectedAmount = totalSalesRevenue; // Backward compatibility if needed
+
         return ApiResponse<ExpectedCashDto>.Ok(response);
     }
 
@@ -221,13 +270,13 @@ public class DayClosingService : IDayClosingService
         if (!closing.Details.Any(d => d.EndOfDayCount > 0))
             return ApiResponse<DayClosingSummaryDto>.Fail("Önce ürün sayımını tamamlayınız.");
 
-        var expectedCashRes = await CalculateExpectedCashAsync(closing.BranchId, closing.Date);
+        var expectedCashRes = await CalculateExpectedCashAsync(closing.Id);
         if (!expectedCashRes.Success || expectedCashRes.Data == null)
             return ApiResponse<DayClosingSummaryDto>.Fail("Beklenen tutar hesaplanamadı.");
 
-        var expectedAmount = expectedCashRes.Data.ExpectedAmount;
+        var expectedAmount = expectedCashRes.Data.ExpectedCashAmount; // YENİ: Tam kasa denklemi sonucu
         var totalCounted = dto.CashAmount + dto.PosAmount;
-        var diff = totalCounted - expectedAmount;
+        var diff = dto.CashAmount - expectedAmount; // YENİ: Nakit farkı
 
         if (diff != 0 && string.IsNullOrWhiteSpace(dto.DifferenceNote))
             return ApiResponse<DayClosingSummaryDto>.Fail("Kasa farkı bulunmaktadır. Lütfen açıklama giriniz.");
@@ -300,7 +349,7 @@ public class DayClosingService : IDayClosingService
             ReceiptPhotoUrl = closing.ReceiptPhotoUrl,
             CounterPhotoUrl = closing.CounterPhotoUrl,
             Items = closing.Details
-                .Where(d => d.Product.IsActive)
+                .Where(d => d.Product != null && d.Product.IsActive)
                 .OrderBy(d => d.Product.Category.SortOrder)
                 .ThenBy(d => d.Product.Name)
                 .Select(d => new DailySummaryItemDto
@@ -343,12 +392,23 @@ public class DayClosingService : IDayClosingService
 
         if (closing == null)
         {
+            // Bir önceki günün kapanış nakitini bul
+            var previousClosing = await _context.DayClosings
+                .Where(dc => dc.BranchId == branchId
+                          && dc.IsClosed
+                          && dc.Date < date)
+                .OrderByDescending(dc => dc.Date)
+                .FirstOrDefaultAsync();
+
+            var openingCash = previousClosing?.CashAmount ?? 0;
+
             closing = new DayClosing
             {
                 BranchId = branchId,
                 Date = date,
                 IsOpened = true,
-                OpenedAt = DateTime.UtcNow
+                OpenedAt = DateTime.UtcNow,
+                OpeningCashBalance = openingCash
             };
             _context.DayClosings.Add(closing);
             await _context.SaveChangesAsync();

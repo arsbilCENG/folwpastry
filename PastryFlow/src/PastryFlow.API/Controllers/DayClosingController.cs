@@ -44,10 +44,16 @@ public class DayClosingController : ControllerBase
     [HttpGet("expected-cash")]
     public async Task<IActionResult> GetExpectedCash([FromQuery] Guid branchId, [FromQuery] string date)
     {
+        // NOT: Mevcut frontend branchId ve date gönderiyor. 
+        // Servis artık dayClosing.Id bekliyor. Önce kaydı bulmalıyız.
         if (!DateOnly.TryParse(date, out var parsedDate))
             return BadRequest("Geçersiz tarih formatı.");
 
-        var result = await _dayClosingService.CalculateExpectedCashAsync(branchId, parsedDate);
+        var summaryRes = await _dayClosingService.GetSummaryAsync(branchId, parsedDate);
+        if (!summaryRes.Success || summaryRes.Data == null || !summaryRes.Data.Id.HasValue || summaryRes.Data.Id == Guid.Empty)
+            return BadRequest("Gün sonu kaydı henüz oluşturulmamış.");
+
+        var result = await _dayClosingService.CalculateExpectedCashAsync(summaryRes.Data.Id.Value);
         if (!result.Success) return BadRequest(result);
         return Ok(result);
     }
