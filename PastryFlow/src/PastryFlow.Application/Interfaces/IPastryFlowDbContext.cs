@@ -25,7 +25,7 @@ public interface IPastryFlowDbContext
     DbSet<Stock> Stocks { get; }
     DbSet<Purchase> Purchases { get; }
     DbSet<PurchaseItem> PurchaseItems { get; }
-
+    DbSet<CashTransaction> CashTransactions { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

@@ -21,6 +21,7 @@ export interface DayClosingTotals {
 }
 
 export interface DayClosingSummary {
+  id: string; // YENİ
   branchName: string;
   date: string;
   isClosed: boolean;
@@ -52,6 +53,14 @@ export interface ExpectedCashDto {
   productsWithPrice: number;
   productsWithoutPrice: number;
   items: ExpectedCashItemDto[];
+  
+  // YENİ ALANLAR
+  openingCashBalance: number;
+  cashPurchases: number;
+  cashWithdrawals: number;
+  cashDeposits: number;
+  totalSalesRevenue: number;
+  expectedCashAmount: number;
 }
 
 export interface ExpectedCashItemDto {

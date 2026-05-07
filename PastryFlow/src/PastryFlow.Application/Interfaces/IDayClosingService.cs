@@ -11,7 +11,7 @@ public interface IDayClosingService
     Task<ApiResponse<string>> SaveCarryOverAsync(CarryOverInputDto dto);
     
     // Kasa Sayımı
-    Task<ApiResponse<ExpectedCashDto>> CalculateExpectedCashAsync(Guid branchId, DateOnly date);
+    Task<ApiResponse<ExpectedCashDto>> CalculateExpectedCashAsync(Guid id);
     Task<ApiResponse<DayClosingSummaryDto>> SubmitCashCountAsync(Guid dayClosingId, CashCountDto dto, Guid currentUserId);
     
     // Fotoğraflar

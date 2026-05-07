@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { 
   Button, InputNumber, Collapse, Typography, message, Spin, Row, Col, Space, 
-  Modal, Result, Tag, Steps, Card, Statistic, Alert, Input, Table, Form 
+  Modal, Result, Tag, Steps, Card, Statistic, Alert, Input, Table, Form, Divider
 } from 'antd';
 import { 
   CheckCircleOutlined, ExclamationCircleOutlined, InfoCircleOutlined,
-  DollarOutlined, CameraOutlined, ExceptionOutlined
+  DollarOutlined, CameraOutlined, ExceptionOutlined, CalculatorOutlined
 } from '@ant-design/icons';
 import { dayClosingApi } from '../../api/dayClosingApi';
 import { productApi } from '../../api/productApi';
@@ -160,9 +160,9 @@ const DayClosingPage: React.FC = () => {
       return;
     }
 
-    const expectedAmount = expectedCashQuery.data?.data?.expectedAmount || 0;
-    const totalCounted = cashAmount + posAmount;
-    const diff = totalCounted - expectedAmount;
+    // YENİ: expectedCashAmount alanını kullan
+    const expectedCashAmount = expectedCashQuery.data?.data?.expectedCashAmount || 0;
+    const diff = cashAmount - expectedCashAmount;
 
     if (Math.abs(diff) > 0.01 && (!differenceNote || differenceNote.trim() === '')) {
       message.error('Kasa farkı bulunmaktadır. Lütfen açıklama giriniz.');
@@ -277,13 +277,13 @@ const DayClosingPage: React.FC = () => {
   }
 
   // Calculate Cash Differences
-  const expectedAmount = expectedCashQuery.data?.data?.expectedAmount || 0;
-  const totalCounted = (cashAmount || 0) + (posAmount || 0);
-  const cashDifference = totalCounted - expectedAmount;
-  
+  const expectedInfo = expectedCashQuery.data?.data;
+  const expectedAmount = expectedInfo?.expectedCashAmount || 0;
+  const cashDifference = (cashAmount || 0) - expectedAmount;
   const hasCashDiff = Math.abs(cashDifference) > 0.01;
+  const missingPriceProducts = expectedInfo?.items?.filter(i => i.unitPrice === null || i.unitPrice === 0) || [];
 
-  const missingPriceProducts = expectedCashQuery.data?.data?.items?.filter(i => i.unitPrice === null || i.unitPrice === 0) || [];
+  const formatCurrency = (val: number) => `₺${val.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}`;
 
   return (
     <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
@@ -367,37 +367,62 @@ const DayClosingPage: React.FC = () => {
         ) : (
           <Row gutter={[24, 24]}>
             <Col xs={24} md={10}>
-              <Card style={{ background: '#f0f5ff', borderColor: '#adc6ff', borderRadius: 12, height: '100%' }}>
-                <Statistic 
-                  title={<Text strong style={{ fontSize: 16 }}>Beklenen Kasa Tutarı</Text>}
-                  value={expectedAmount}
-                  precision={2}
-                  prefix="₺"
-                  valueStyle={{ color: '#1d39c4', fontSize: 32, fontWeight: 'bold' }}
-                />
-                <div style={{ marginTop: 12 }}>
-                  <Text type="secondary">
-                    ({expectedCashQuery.data?.data?.items?.length || 0} üründen hesaplandı, 
-                    {expectedCashQuery.data?.data?.productsWithoutPrice || 0} ürünün fiyatı yok)
-                  </Text>
-                </div>
-                
-                {(expectedCashQuery.data?.data?.productsWithoutPrice || 0) > 0 && (
-                  <Alert 
-                    type="warning" 
-                    showIcon 
-                    style={{ marginTop: 16 }}
-                    message={
-                      <div>
-                        <Text strong>{expectedCashQuery.data?.data?.productsWithoutPrice} ürünün birim fiyatı tanımlı değil.</Text><br/>
-                        <Text style={{ fontSize: 12 }}>Beklenen tutar eksik hesaplanmış olabilir.</Text>
-                        <div style={{ marginTop: 8 }}>
-                          <Button size="small" onClick={() => setIsMissingPricesModalVisible(true)}>Fiyatsız Ürünleri Gör</Button>
-                        </div>
-                      </div>
-                    }
+              <Card 
+                title={<Space><CalculatorOutlined /> Kasa Denklemi</Space>}
+                style={{ background: '#f9f9f9', borderRadius: 12, height: '100%' }}
+              >
+                <Space direction="vertical" style={{ width: '100%' }} size={12}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Text type="secondary">Açılış Bakiyesi:</Text>
+                    <Text>{formatCurrency(expectedInfo?.openingCashBalance || 0)}</Text>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Text type="secondary">Nakit Satış Geliri:</Text>
+                    <Text style={{ color: '#52c41a' }}>+{formatCurrency((expectedInfo?.totalSalesRevenue || 0) - (posAmount || 0))}</Text>
+                  </div>
+                  {expectedInfo?.cashDeposits! > 0 && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <Text type="secondary">Admin Yatırım:</Text>
+                      <Text style={{ color: '#52c41a' }}>+{formatCurrency(expectedInfo?.cashDeposits || 0)}</Text>
+                    </div>
+                  )}
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Text type="secondary">Nakit Satın Alımlar:</Text>
+                    <Text style={{ color: '#ff4d4f' }}>-{formatCurrency(expectedInfo?.cashPurchases || 0)}</Text>
+                  </div>
+                  {expectedInfo?.cashWithdrawals! > 0 && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <Text type="secondary">Admin Çekim:</Text>
+                      <Text style={{ color: '#ff4d4f' }}>-{formatCurrency(expectedInfo?.cashWithdrawals || 0)}</Text>
+                    </div>
+                  )}
+                  
+                  <Divider style={{ margin: '8px 0' }} />
+                  
+                  <Statistic 
+                    title={<Text strong style={{ fontSize: 16 }}>Beklenen Nakit Kasa</Text>}
+                    value={expectedAmount}
+                    precision={2}
+                    prefix="₺"
+                    valueStyle={{ color: '#1d39c4', fontSize: 32, fontWeight: 'bold' }}
                   />
-                )}
+                  
+                  {(expectedInfo?.productsWithoutPrice || 0) > 0 && (
+                    <Alert 
+                      type="warning" 
+                      showIcon 
+                      style={{ marginTop: 16 }}
+                      message={
+                        <div style={{ fontSize: 12 }}>
+                          <Text strong>{expectedInfo?.productsWithoutPrice} ürünün fiyatı tanımlı değil.</Text>
+                          <div style={{ marginTop: 4 }}>
+                            <Button size="small" type="link" onClick={() => setIsMissingPricesModalVisible(true)}>Ürünleri Gör</Button>
+                          </div>
+                        </div>
+                      }
+                    />
+                  )}
+                </Space>
               </Card>
             </Col>
             
@@ -406,20 +431,24 @@ const DayClosingPage: React.FC = () => {
                 <Form layout="vertical">
                   <Row gutter={16}>
                     <Col xs={24} sm={12}>
-                      <Form.Item label="Kasadaki Nakit" required>
+                      <Form.Item 
+                        label={<Text strong>Sayılan Nakit (Elde Kalan)</Text>} 
+                        required
+                      >
                         <InputNumber 
-                          style={{ width: '100%' }} 
+                          style={{ width: '100%', borderColor: '#1890ff' }} 
                           size="large" 
                           addonBefore="₺" 
                           precision={2} 
                           min={0}
                           value={cashAmount}
                           onChange={val => setCashAmount(val)}
+                          placeholder="Kasada ne kadar nakit var?"
                         />
                       </Form.Item>
                     </Col>
                     <Col xs={24} sm={12}>
-                      <Form.Item label="POS / Kredi Kartı Toplamı" required>
+                      <Form.Item label="Günlük POS (Z Raporu)" required>
                         <InputNumber 
                           style={{ width: '100%' }} 
                           size="large" 
@@ -433,29 +462,22 @@ const DayClosingPage: React.FC = () => {
                     </Col>
                   </Row>
                   
-                  <div style={{ padding: '16px', background: '#fafafa', borderRadius: 8, marginTop: 8, marginBottom: 16 }}>
-                    <Row justify="space-between" style={{ marginBottom: 8 }}>
-                      <Col><Text>Toplam Sayılan:</Text></Col>
-                      <Col><Text strong>₺ {totalCounted.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}</Text></Col>
-                    </Row>
-                    <Row justify="space-between" style={{ marginBottom: 8 }}>
-                      <Col><Text>Beklenen:</Text></Col>
-                      <Col><Text strong>₺ {expectedAmount.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}</Text></Col>
-                    </Row>
-                    <div style={{ height: 1, background: '#d9d9d9', margin: '8px 0' }}></div>
-                    <Row justify="space-between">
-                      <Col><Text strong>FARK:</Text></Col>
+                  <div style={{ padding: '16px', background: '#f0f5ff', borderRadius: 8, marginTop: 8, marginBottom: 16 }}>
+                    <Row justify="space-between" align="middle">
                       <Col>
-                        {cashAmount !== null && posAmount !== null ? (
+                        <Text strong style={{ fontSize: 16 }}>Kasa Farkı:</Text>
+                      </Col>
+                      <Col>
+                        {cashAmount !== null ? (
                           <Text strong style={{ 
                             color: diffColor(cashDifference), 
-                            fontSize: 18 
+                            fontSize: 24 
                           }}>
                             {cashDifference > 0 ? '+' : ''}₺ {cashDifference.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}
                             {' '}{diffIcon(cashDifference)}
                           </Text>
                         ) : (
-                          <Text type="secondary">Tutar giriniz</Text>
+                          <Text type="secondary">Tutar bekleniyor...</Text>
                         )}
                       </Col>
                     </Row>
@@ -464,7 +486,7 @@ const DayClosingPage: React.FC = () => {
                   {hasCashDiff && (
                     <Form.Item 
                       label={
-                        <span>Açıklama <Text type="danger">* (Kasa farkı olduğu için zorunlu)</Text></span>
+                        <span>Fark Açıklaması <Text type="danger">* Zorunlu</Text></span>
                       }
                     >
                       <TextArea 
@@ -490,9 +512,9 @@ const DayClosingPage: React.FC = () => {
                   )}
                   
                   <Collapse ghost style={{ marginTop: 16 }}>
-                    <Panel header={<Text style={{ color: '#1890ff' }}>Satış Detaylarını Gör</Text>} key="1">
+                    <Panel header={<Text style={{ color: '#1890ff' }}>Ürün Bazlı Satış Detaylarını Gör</Text>} key="1">
                       <Table 
-                        dataSource={expectedCashQuery.data?.data?.items || []} 
+                        dataSource={expectedInfo?.items || []} 
                         size="small"
                         rowKey="productName"
                         pagination={{ pageSize: 10 }}
@@ -519,7 +541,6 @@ const DayClosingPage: React.FC = () => {
           </Button>
         </div>
         
-        {/* Missing Prices Modal */}
         <Modal 
           title="Fiyatı Tanımlı Olmayan Ürünler" 
           open={isMissingPricesModalVisible} 
