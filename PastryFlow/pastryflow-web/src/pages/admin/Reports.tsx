@@ -4,29 +4,53 @@ import {
   BarChartOutlined, 
   ShoppingOutlined, 
   DeleteOutlined, 
-  SwapOutlined 
+  SwapOutlined,
+  ShoppingCartOutlined,
+  TransactionOutlined
 } from '@ant-design/icons';
 import DailySalesTab from './reports/DailySalesTab';
 import WasteSummaryTab from './reports/WasteSummaryTab';
 import DemandSummaryTab from './reports/DemandSummaryTab';
 import BranchComparisonTab from './reports/BranchComparisonTab';
+import PurchasesTab from '../../components/reports/PurchasesTab';
+import CashTransactionsTab from '../../components/reports/CashTransactionsTab';
 
 const { Title } = Typography;
 
 const Reports: React.FC = () => {
   const items = [
     {
-      key: '1',
+      key: 'daily-sales',
       label: (
         <span>
-          <ShoppingOutlined />
+          <ShoppingCartOutlined />
           Günlük Satış
         </span>
       ),
       children: <DailySalesTab />,
     },
     {
-      key: '2',
+      key: 'purchases',
+      label: (
+        <span>
+          <ShoppingOutlined />
+          Satın Alımlar
+        </span>
+      ),
+      children: <PurchasesTab showBranchFilter={true} />,
+    },
+    {
+      key: 'cash-transactions',
+      label: (
+        <span>
+          <TransactionOutlined />
+          Kasa Hareketleri
+        </span>
+      ),
+      children: <CashTransactionsTab showBranchFilter={true} />,
+    },
+    {
+      key: 'waste-summary',
       label: (
         <span>
           <DeleteOutlined />
@@ -36,7 +60,7 @@ const Reports: React.FC = () => {
       children: <WasteSummaryTab />,
     },
     {
-      key: '3',
+      key: 'demand-summary',
       label: (
         <span>
           <SwapOutlined />
@@ -46,7 +70,7 @@ const Reports: React.FC = () => {
       children: <DemandSummaryTab />,
     },
     {
-      key: '4',
+      key: 'branch-comparison',
       label: (
         <span>
           <BarChartOutlined />
@@ -62,7 +86,7 @@ const Reports: React.FC = () => {
       <Title level={2}>📋 Raporlar</Title>
       <Card bodyStyle={{ padding: 0 }}>
         <Tabs
-          defaultActiveKey="1"
+          defaultActiveKey="daily-sales"
           items={items}
           size="large"
           tabBarStyle={{ padding: '0 24px', backgroundColor: '#fafafa', marginBottom: 0 }}

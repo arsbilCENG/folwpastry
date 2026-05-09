@@ -20,8 +20,25 @@ export interface DayClosingTotals {
   totalCarryOver: number;
 }
 
+// Counter ürün — GET /day-closing/summary'den gelir, Step 1'de gösterilir
+export interface CounterProductDto {
+  productId: string;
+  productName: string;
+  categoryName: string;
+  unitPrice: number | null;
+  unit: string;
+}
+
+// Gün kapatma isteğinde gönderilen Counter ürün satış kaydı
+export interface DayClosingCounterItem {
+  productId: string;
+  productName: string;
+  unitPrice: number | null;
+  counterSoldQuantity: number;
+}
+
 export interface DayClosingSummary {
-  id: string; // YENİ
+  id: string;
   branchName: string;
   date: string;
   isClosed: boolean;
@@ -40,6 +57,9 @@ export interface DayClosingSummary {
 
   items: DailySummaryItem[];
   totals: DayClosingTotals;
+
+  // Counter ürünler — Step 1'de kullanıcıya gösterilir
+  counterProducts: CounterProductDto[];
 }
 
 export interface CashCountDto {
@@ -54,13 +74,16 @@ export interface ExpectedCashDto {
   productsWithoutPrice: number;
   items: ExpectedCashItemDto[];
   
-  // YENİ ALANLAR
+  // Kasa denklemi alanları
   openingCashBalance: number;
   cashPurchases: number;
   cashWithdrawals: number;
   cashDeposits: number;
   totalSalesRevenue: number;
   expectedCashAmount: number;
+
+  // Counter satış toplamı (0 ise Counter ürün yok demektir)
+  counterSalesTotal: number;
 }
 
 export interface ExpectedCashItemDto {

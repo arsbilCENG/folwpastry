@@ -21,6 +21,9 @@ public class DayClosingDetail : BaseEntity
     // (Opening + ReceivedFromDemands + IncomingTransfer) - (OutgoingTransfer + EndOfDayCount + DayWaste)
     public decimal CalculatedSales { get; set; } = 0;
     
+    // Counter ürün satış miktarı (sadece TrackingType.Counter ürünler için doldurulur)
+    public decimal? CounterSoldQuantity { get; set; }
+
     // Correction fields
     public decimal? OriginalEndOfDayCount { get; set; }
     public decimal? OriginalCarryOverQuantity { get; set; }

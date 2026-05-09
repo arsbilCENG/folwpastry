@@ -18,6 +18,6 @@ public interface IDayClosingService
     Task<ApiResponse<string>> UpdateReceiptPhotoAsync(Guid dayClosingId, string photoUrl);
     Task<ApiResponse<string>> UpdateCounterPhotoAsync(Guid dayClosingId, string photoUrl);
 
-    Task<ApiResponse<DayClosingSummaryDto>> CloseDayAsync(Guid branchId, DateOnly date, Guid closedByUserId);
+    Task<ApiResponse<DayClosingSummaryDto>> CloseDayAsync(Guid branchId, DateOnly date, Guid closedByUserId, List<DayClosingCounterItemDto>? counterItems = null);
     Task<ApiResponse<DayClosingSummaryDto>> GetSummaryAsync(Guid branchId, DateOnly date);
 }

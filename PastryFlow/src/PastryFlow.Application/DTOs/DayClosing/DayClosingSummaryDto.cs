@@ -24,6 +24,9 @@ public class DayClosingSummaryDto
     
     public List<DailySummaryItemDto> Items { get; set; } = new();
     public DayClosingTotals Totals { get; set; } = new();
+
+    // Counter ürün listesi — Step 1'de kullanıcıya gösterilir
+    public List<CounterProductDto> CounterProducts { get; set; } = new();
 }
 
 public class DailySummaryItemDto

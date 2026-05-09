@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -92,6 +93,7 @@ public class DayClosingController : ControllerBase
         public Guid BranchId { get; set; }
         public DateOnly Date { get; set; }
         public Guid ClosedByUserId { get; set; }
+        public List<DayClosingCounterItemDto> CounterItems { get; set; } = new();
     }
 
     [HttpPost("close")]
@@ -102,7 +104,7 @@ public class DayClosingController : ControllerBase
 
         var closedBy = request.ClosedByUserId == Guid.Empty ? userId : request.ClosedByUserId;
 
-        var result = await _dayClosingService.CloseDayAsync(request.BranchId, request.Date, closedBy);
+        var result = await _dayClosingService.CloseDayAsync(request.BranchId, request.Date, closedBy, request.CounterItems);
         if (!result.Success) return BadRequest(result);
         return Ok(result);
     }
@@ -116,5 +118,11 @@ public class DayClosingController : ControllerBase
         var result = await _dayClosingService.GetSummaryAsync(branchId, parsedDate);
         if (!result.Success) return BadRequest(result);
         return Ok(result);
+    }
+
+    [HttpGet("status")]
+    public async Task<IActionResult> GetStatus([FromQuery] Guid branchId, [FromQuery] string date)
+    {
+        return await GetSummary(branchId, date);
     }
 }

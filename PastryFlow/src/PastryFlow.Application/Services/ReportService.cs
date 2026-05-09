@@ -19,12 +19,12 @@ public class ReportService : IReportService
         _context = context;
     }
 
-    public async Task<ApiResponse<DailySalesReportDto>> GetDailySalesReportAsync(DateOnly date, Guid? branchId)
+    public async Task<ApiResponse<DailyReportDto>> GetDailySalesReportAsync(DateOnly date, Guid? branchId)
     {
-        if (!branchId.HasValue) return ApiResponse<DailySalesReportDto>.Fail("Şube belirtilmelidir.");
+        if (!branchId.HasValue) return ApiResponse<DailyReportDto>.Fail("Şube belirtilmelidir.");
 
         var branch = await _context.Branches.FindAsync(branchId.Value);
-        if (branch == null) return ApiResponse<DailySalesReportDto>.Fail("Şube bulunamadı.");
+        if (branch == null) return ApiResponse<DailyReportDto>.Fail("Şube bulunamadı.");
 
         var closing = await _context.DayClosings
             .Include(c => c.Details)
@@ -32,7 +32,7 @@ public class ReportService : IReportService
             .ThenInclude(p => p.Category)
             .FirstOrDefaultAsync(c => c.BranchId == branchId.Value && c.Date == date);
 
-        if (closing == null) return ApiResponse<DailySalesReportDto>.Fail("Bu tarihe ait gün kapanış verisi bulunamadı.");
+        if (closing == null) return ApiResponse<DailyReportDto>.Fail("Bu tarihe ait gün kapanış verisi bulunamadı.");
 
         var demandItems = await _context.DemandItems
             .Include(i => i.Demand)
@@ -43,14 +43,14 @@ public class ReportService : IReportService
             .Where(w => w.BranchId == branchId.Value && w.Date == date)
             .ToListAsync();
 
-        var report = new DailySalesReportDto
+        var dto = new DailyReportDto
         {
             Date = date.ToDateTime(TimeOnly.MinValue),
             BranchId = branchId.Value,
             BranchName = branch.Name
         };
 
-        foreach (var detail in closing.Details)
+        foreach (var detail in closing.Details.Where(d => d.Product.TrackingType != TrackingType.Counter))
         {
             var item = new DailySalesItemDto
             {
@@ -66,14 +66,58 @@ public class ReportService : IReportService
                 UnitPrice = detail.Product.UnitPrice,
                 SalesValue = detail.Product.UnitPrice.HasValue ? detail.CalculatedSales * detail.Product.UnitPrice : null
             };
-            report.Items.Add(item);
+            dto.Items.Add(item);
         }
 
-        report.TotalCalculatedSales = report.Items.Sum(i => i.CalculatedSales);
-        report.TotalWaste = report.Items.Sum(i => i.WasteQuantity);
-        report.TotalSalesValue = report.Items.Sum(i => i.SalesValue);
+        dto.TotalCalculatedSales = dto.Items.Sum(i => i.CalculatedSales);
+        dto.TotalWaste = dto.Items.Sum(i => i.WasteQuantity);
+        dto.TotalSalesValue = dto.Items.Sum(i => i.SalesValue);
 
-        return ApiResponse<DailySalesReportDto>.Ok(report);
+        // Counter satış geliri — DayClosingDetail üzerinden
+        var counterSalesRevenue = await _context.DayClosingDetails
+            .Where(d => d.DayClosing.BranchId == branchId
+                     && d.DayClosing.Date == date
+                     && d.Product.TrackingType == TrackingType.Counter
+                     && d.CounterSoldQuantity.HasValue)
+            .SumAsync(d => d.CounterSoldQuantity!.Value * (d.Product.UnitPrice ?? 0));
+
+        // Satın alım giderleri
+        var purchases = await _context.Purchases
+            .Where(p => p.BranchId == branchId
+                     && DateOnly.FromDateTime(p.PurchaseDate) == date
+                     && !p.IsDeleted)
+            .ToListAsync();
+
+        var totalPurchaseExpense = purchases.Sum(p => p.TotalAmount);
+        var cashPurchaseExpense = purchases
+            .Where(p => p.PaymentMethod == PaymentMethod.Cash)
+            .Sum(p => p.TotalAmount);
+        var cardPurchaseExpense = purchases
+            .Where(p => p.PaymentMethod == PaymentMethod.CreditCard)
+            .Sum(p => p.TotalAmount);
+
+        // Kasa hareketleri
+        var cashTransactions = await _context.CashTransactions
+            .Where(t => t.BranchId == branchId
+                     && DateOnly.FromDateTime(t.TransactionDate) == date)
+            .ToListAsync();
+
+        var totalDeposits = cashTransactions
+            .Where(t => t.TransactionType == TransactionType.AdminDeposit)
+            .Sum(t => t.Amount);
+        var totalWithdrawals = cashTransactions
+            .Where(t => t.TransactionType == TransactionType.AdminWithdrawal)
+            .Sum(t => t.Amount);
+
+        // DTO'ya ekle
+        dto.CounterSalesRevenue = counterSalesRevenue;
+        dto.TotalPurchaseExpense = totalPurchaseExpense;
+        dto.CashPurchaseExpense = cashPurchaseExpense;
+        dto.CardPurchaseExpense = cardPurchaseExpense;
+        dto.TotalCashDeposits = totalDeposits;
+        dto.TotalCashWithdrawals = totalWithdrawals;
+
+        return ApiResponse<DailyReportDto>.Ok(dto);
     }
 
     public async Task<ApiResponse<WasteSummaryReportDto>> GetWasteSummaryReportAsync(DateOnly startDate, DateOnly endDate, Guid? branchId, Guid? categoryId)
@@ -229,5 +273,107 @@ public class ReportService : IReportService
         }
 
         return ApiResponse<BranchComparisonReportDto>.Ok(report);
+    }
+
+    public async Task<PurchaseReportDto> GetPurchaseReportAsync(
+        Guid? branchId, DateTime startDate, DateTime endDate)
+    {
+        var query = _context.Purchases
+            .Include(p => p.Branch)
+            .Include(p => p.Items)
+            .Where(p => p.PurchaseDate.Date >= startDate.Date
+                     && p.PurchaseDate.Date <= endDate.Date
+                     && !p.IsDeleted);
+
+        if (branchId.HasValue)
+            query = query.Where(p => p.BranchId == branchId.Value);
+
+        var purchases = await query
+            .OrderByDescending(p => p.PurchaseDate)
+            .ToListAsync();
+
+        return new PurchaseReportDto
+        {
+            StartDate = startDate,
+            EndDate = endDate,
+            BranchName = branchId.HasValue
+                ? purchases.FirstOrDefault()?.Branch?.Name
+                : null,
+            TotalExpense = purchases.Sum(p => p.TotalAmount),
+            CashExpense = purchases
+                .Where(p => p.PaymentMethod == PaymentMethod.Cash)
+                .Sum(p => p.TotalAmount),
+            CardExpense = purchases
+                .Where(p => p.PaymentMethod == PaymentMethod.CreditCard)
+                .Sum(p => p.TotalAmount),
+            Purchases = purchases.Select(p => new PurchaseReportItemDto
+            {
+                PurchaseId = p.Id,
+                PurchaseNumber = p.PurchaseNumber,
+                PurchaseDate = p.PurchaseDate,
+                BranchName = p.Branch?.Name ?? string.Empty,
+                PaymentMethodLabel = p.PaymentMethod == PaymentMethod.Cash
+                    ? "Nakit" : "Kredi Kartı",
+                TotalAmount = p.TotalAmount,
+                Notes = p.Notes,
+                Items = p.Items.Select(i => new PurchaseReportItemDetailDto
+                {
+                    ItemName = i.ItemName,
+                    Quantity = i.Quantity,
+                    Unit = i.Unit,
+                    UnitPrice = i.UnitPrice,
+                    TotalPrice = i.TotalPrice
+                }).ToList()
+            }).ToList()
+        };
+    }
+
+    public async Task<CashTransactionReportDto> GetCashTransactionReportAsync(
+        Guid? branchId, DateTime startDate, DateTime endDate)
+    {
+        var query = _context.CashTransactions
+            .Include(t => t.Branch)
+            .Include(t => t.CreatedByUser)
+            .Where(t => t.TransactionDate.Date >= startDate.Date
+                     && t.TransactionDate.Date <= endDate.Date);
+
+        if (branchId.HasValue)
+            query = query.Where(t => t.BranchId == branchId.Value);
+
+        var transactions = await query
+            .OrderByDescending(t => t.TransactionDate)
+            .ToListAsync();
+
+        var totalDeposits = transactions
+            .Where(t => t.TransactionType == TransactionType.AdminDeposit)
+            .Sum(t => t.Amount);
+        var totalWithdrawals = transactions
+            .Where(t => t.TransactionType == TransactionType.AdminWithdrawal)
+            .Sum(t => t.Amount);
+
+        return new CashTransactionReportDto
+        {
+            StartDate = startDate,
+            EndDate = endDate,
+            BranchName = branchId.HasValue
+                ? transactions.FirstOrDefault()?.Branch?.Name
+                : null,
+            TotalDeposits = totalDeposits,
+            TotalWithdrawals = totalWithdrawals,
+            NetFlow = totalDeposits - totalWithdrawals,
+            Transactions = transactions.Select(t => new CashTransactionReportItemDto
+            {
+                TransactionId = t.Id,
+                TransactionDate = t.TransactionDate,
+                BranchName = t.Branch?.Name ?? string.Empty,
+                TransactionTypeLabel = t.TransactionType == TransactionType.AdminDeposit
+                    ? "Para Yatırma" : "Para Çekme",
+                MethodLabel = t.Method == PaymentMethod.Cash
+                    ? "Nakit" : "Banka",
+                Amount = t.Amount,
+                Description = t.Description,
+                CreatedByName = t.CreatedByUser?.Email ?? string.Empty
+            }).ToList()
+        };
     }
 }

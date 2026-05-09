@@ -1,5 +1,5 @@
-// ============ DAILY SALES REPORT ============
-export interface DailySalesReportDto {
+// ============ DAILY REPORT ============
+export interface DailyReportDto {
   date: string;
   branchId: string;
   branchName: string;
@@ -7,6 +7,12 @@ export interface DailySalesReportDto {
   totalCalculatedSales: number;
   totalWaste: number;
   totalSalesValue: number | null;
+  counterSalesRevenue: number;
+  totalPurchaseExpense: number;
+  cashPurchaseExpense: number;
+  cardPurchaseExpense: number;
+  totalCashDeposits: number;
+  totalCashWithdrawals: number;
 }
 
 export interface DailySalesItemDto {
@@ -23,6 +29,58 @@ export interface DailySalesItemDto {
   calculatedSales: number;
   unitPrice: number | null;
   salesValue: number | null;
+}
+
+// ============ PURCHASE REPORT ============
+export interface PurchaseReportItemDetail {
+  itemName: string;
+  quantity: number;
+  unit: string;
+  unitPrice: number;
+  totalPrice: number;
+}
+
+export interface PurchaseReportItem {
+  purchaseId: string;
+  purchaseNumber: string;
+  purchaseDate: string;
+  branchName: string;
+  paymentMethodLabel: string;
+  totalAmount: number;
+  notes?: string;
+  items: PurchaseReportItemDetail[];
+}
+
+export interface PurchaseReport {
+  startDate: string;
+  endDate: string;
+  branchName?: string;
+  totalExpense: number;
+  cashExpense: number;
+  cardExpense: number;
+  purchases: PurchaseReportItem[];
+}
+
+// ============ CASH TRANSACTION REPORT ============
+export interface CashTransactionReportItem {
+  transactionId: string;
+  transactionDate: string;
+  branchName: string;
+  transactionTypeLabel: string;
+  methodLabel: string;
+  amount: number;
+  description?: string;
+  createdByName: string;
+}
+
+export interface CashTransactionReport {
+  startDate: string;
+  endDate: string;
+  branchName?: string;
+  totalDeposits: number;
+  totalWithdrawals: number;
+  netFlow: number;
+  transactions: CashTransactionReportItem[];
 }
 
 // ============ WASTE SUMMARY REPORT ============
