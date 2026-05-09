@@ -11,10 +11,12 @@ namespace PastryFlow.Application.Services;
 public class PurchaseService : IPurchaseService
 {
     private readonly IPastryFlowDbContext _context;
+    private readonly IWalletService _walletService;
 
-    public PurchaseService(IPastryFlowDbContext context)
+    public PurchaseService(IPastryFlowDbContext context, IWalletService walletService)
     {
         _context = context;
+        _walletService = walletService;
     }
 
     public async Task<PagedResult<PurchaseDto>> GetPurchasesAsync(
@@ -157,6 +159,18 @@ public class PurchaseService : IPurchaseService
         _context.Purchases.Add(purchase);
         await _context.SaveChangesAsync();
 
+        // Ödeme yöntemine göre wallet tipi belirle
+        var walletType = purchase.PaymentMethod == PaymentMethod.Cash
+            ? WalletType.Cash
+            : WalletType.Bank;
+
+        await _walletService.ApplyPurchaseDeductionAsync(
+            purchase.BranchId,
+            walletType,
+            purchase.TotalAmount,
+            purchase.PurchaseNumber,
+            userId);
+
         return await GetPurchaseByIdAsync(purchase.Id);
     }
 
@@ -209,6 +223,17 @@ public class PurchaseService : IPurchaseService
         purchase.UpdatedAt = DateTime.UtcNow;
 
         await _context.SaveChangesAsync();
+
+        var walletType = purchase.PaymentMethod == PaymentMethod.Cash
+            ? WalletType.Cash
+            : WalletType.Bank;
+
+        await _walletService.RevertPurchaseDeductionAsync(
+            purchase.BranchId,
+            walletType,
+            purchase.TotalAmount,
+            purchase.PurchaseNumber,
+            userId);
     }
 
     public async Task<PagedResult<PurchaseDto>> GetAllPurchasesAsync(

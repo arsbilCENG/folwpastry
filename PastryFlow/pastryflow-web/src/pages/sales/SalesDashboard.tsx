@@ -7,7 +7,7 @@ import { stockApi } from '../../api/stockApi';
 import { demandApi } from '../../api/demandApi';
 import { wasteApi } from '../../api/wasteApi';
 import { dayClosingApi } from '../../api/dayClosingApi';
-import { useBranchCashSummary } from '../../hooks/useCashTransactions';
+import { useBranchWallet } from '../../hooks/useWallet';
 import { formatCurrency } from '../../utils/formatters';
 
 const { Title, Text } = Typography;
@@ -22,9 +22,7 @@ const SalesDashboard: React.FC = () => {
   const [wasteCount, setWasteCount] = useState(0);
   const [isDayClosed, setIsDayClosed] = useState<boolean | null>(null);
 
-  // Kasa özeti hook'u
-  const { data: cashSummaryRes } = useBranchCashSummary();
-  const cashSummary = cashSummaryRes?.data;
+  const { data: branchWallet } = useBranchWallet(user?.branchId || undefined);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -92,15 +90,15 @@ const SalesDashboard: React.FC = () => {
         <Col xs={24} sm={12} lg={6}>
           <Card bordered={false}>
             <Statistic
-              title="Beklenen Kasa (Nakit)"
-              value={cashSummary?.expectedCashBalance ?? 0}
+              title="Kasa Bakiyesi (Nakit)"
+              value={branchWallet?.cashBalance ?? 0}
               precision={2}
               prefix="₺"
               valueStyle={{ color: '#1890ff' }}
             />
             <div style={{ marginTop: 4 }}>
               <Text type="secondary" style={{ fontSize: 12 }}>
-                Açılış: {formatCurrency(cashSummary?.openingCashBalance ?? 0)}
+                Banka: {formatCurrency(branchWallet?.bankBalance ?? 0)}
               </Text>
             </div>
           </Card>

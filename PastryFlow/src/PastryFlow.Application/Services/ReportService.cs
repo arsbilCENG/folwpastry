@@ -97,16 +97,17 @@ public class ReportService : IReportService
             .Sum(p => p.TotalAmount);
 
         // Kasa hareketleri
-        var cashTransactions = await _context.CashTransactions
-            .Where(t => t.BranchId == branchId
-                     && DateOnly.FromDateTime(t.TransactionDate) == date)
+        var cashTransactions = await _context.WalletTransactions
+            .Where(t => (t.SourceBranchId == branchId || t.TargetBranchId == branchId)
+                     && DateOnly.FromDateTime(t.TransactionDate) == date
+                     && t.WalletType == WalletType.Cash)
             .ToListAsync();
 
         var totalDeposits = cashTransactions
-            .Where(t => t.TransactionType == TransactionType.AdminDeposit)
+            .Where(t => t.TransactionType == WalletTransactionType.AdminToBranch)
             .Sum(t => t.Amount);
         var totalWithdrawals = cashTransactions
-            .Where(t => t.TransactionType == TransactionType.AdminWithdrawal)
+            .Where(t => t.TransactionType == WalletTransactionType.BranchToAdmin)
             .Sum(t => t.Amount);
 
         // DTO'ya ekle
@@ -331,24 +332,27 @@ public class ReportService : IReportService
     public async Task<CashTransactionReportDto> GetCashTransactionReportAsync(
         Guid? branchId, DateTime startDate, DateTime endDate)
     {
-        var query = _context.CashTransactions
-            .Include(t => t.Branch)
-            .Include(t => t.CreatedByUser)
+        var query = _context.WalletTransactions
+            .Include(t => t.SourceBranch)
+            .Include(t => t.TargetBranch)
+            .Include(t => t.CreatedBy)
             .Where(t => t.TransactionDate.Date >= startDate.Date
-                     && t.TransactionDate.Date <= endDate.Date);
+                     && t.TransactionDate.Date <= endDate.Date
+                     && (t.TransactionType == WalletTransactionType.AdminToBranch || t.TransactionType == WalletTransactionType.BranchToAdmin)
+                     && t.WalletType == WalletType.Cash);
 
         if (branchId.HasValue)
-            query = query.Where(t => t.BranchId == branchId.Value);
+            query = query.Where(t => t.SourceBranchId == branchId.Value || t.TargetBranchId == branchId.Value);
 
         var transactions = await query
             .OrderByDescending(t => t.TransactionDate)
             .ToListAsync();
 
         var totalDeposits = transactions
-            .Where(t => t.TransactionType == TransactionType.AdminDeposit)
+            .Where(t => t.TransactionType == WalletTransactionType.AdminToBranch)
             .Sum(t => t.Amount);
         var totalWithdrawals = transactions
-            .Where(t => t.TransactionType == TransactionType.AdminWithdrawal)
+            .Where(t => t.TransactionType == WalletTransactionType.BranchToAdmin)
             .Sum(t => t.Amount);
 
         return new CashTransactionReportDto
@@ -356,7 +360,7 @@ public class ReportService : IReportService
             StartDate = startDate,
             EndDate = endDate,
             BranchName = branchId.HasValue
-                ? transactions.FirstOrDefault()?.Branch?.Name
+                ? transactions.FirstOrDefault(t => t.TargetBranch != null)?.TargetBranch?.Name ?? transactions.FirstOrDefault(t => t.SourceBranch != null)?.SourceBranch?.Name
                 : null,
             TotalDeposits = totalDeposits,
             TotalWithdrawals = totalWithdrawals,
@@ -365,14 +369,13 @@ public class ReportService : IReportService
             {
                 TransactionId = t.Id,
                 TransactionDate = t.TransactionDate,
-                BranchName = t.Branch?.Name ?? string.Empty,
-                TransactionTypeLabel = t.TransactionType == TransactionType.AdminDeposit
+                BranchName = t.TargetBranch?.Name ?? t.SourceBranch?.Name ?? string.Empty,
+                TransactionTypeLabel = t.TransactionType == WalletTransactionType.AdminToBranch
                     ? "Para Yatırma" : "Para Çekme",
-                MethodLabel = t.Method == PaymentMethod.Cash
-                    ? "Nakit" : "Banka",
+                MethodLabel = "Nakit",
                 Amount = t.Amount,
                 Description = t.Description,
-                CreatedByName = t.CreatedByUser?.Email ?? string.Empty
+                CreatedByName = t.CreatedBy?.Email ?? string.Empty
             }).ToList()
         };
     }

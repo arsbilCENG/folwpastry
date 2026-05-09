@@ -27,7 +27,9 @@ public class PastryFlowDbContext : DbContext, IPastryFlowDbContext
     public DbSet<Stock> Stocks => Set<Stock>();
     public DbSet<Purchase> Purchases => Set<Purchase>();
     public DbSet<PurchaseItem> PurchaseItems => Set<PurchaseItem>();
-    public DbSet<CashTransaction> CashTransactions { get; set; }
+    public DbSet<BranchWallet> BranchWallets { get; set; }
+    public DbSet<AdminWallet> AdminWallets { get; set; }
+    public DbSet<WalletTransaction> WalletTransactions { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -46,23 +48,54 @@ public class PastryFlowDbContext : DbContext, IPastryFlowDbContext
         modelBuilder.Entity<Product>().HasQueryFilter(x => !x.IsDeleted);
         modelBuilder.Entity<User>().HasQueryFilter(x => !x.IsDeleted);
 
-        // CashTransaction
-        modelBuilder.Entity<CashTransaction>(entity =>
-        {
-            entity.HasKey(e => e.Id);
-            entity.Property(e => e.Amount).HasPrecision(18, 2);
-            entity.Property(e => e.Description).HasMaxLength(500);
-            entity.HasOne(e => e.Branch)
-                .WithMany()
-                .HasForeignKey(e => e.BranchId)
-                .OnDelete(DeleteBehavior.Restrict);
-            entity.HasOne(e => e.CreatedByUser)
-                .WithMany()
-                .HasForeignKey(e => e.CreatedByUserId)
-                .OnDelete(DeleteBehavior.Restrict);
-            entity.HasQueryFilter(e => !e.IsDeleted);
-            entity.HasIndex(e => new { e.BranchId, e.TransactionDate });
-        });
+        // BranchWallet — şube başına 2 kayıt (Cash + Bank), unique index
+        modelBuilder.Entity<BranchWallet>()
+            .HasIndex(w => new { w.BranchId, w.WalletType })
+            .IsUnique();
+
+        modelBuilder.Entity<BranchWallet>()
+            .Property(w => w.CurrentBalance)
+            .HasPrecision(18, 2);
+
+        // AdminWallet — 2 kayıt (Cash + Bank), unique index
+        modelBuilder.Entity<AdminWallet>()
+            .HasIndex(w => w.WalletType)
+            .IsUnique();
+
+        modelBuilder.Entity<AdminWallet>()
+            .Property(w => w.CurrentBalance)
+            .HasPrecision(18, 2);
+
+        // WalletTransaction
+        modelBuilder.Entity<WalletTransaction>()
+            .Property(w => w.Amount)
+            .HasPrecision(18, 2);
+
+        // Navigation property'ler için DeleteBehavior.Restrict
+        // (cascade delete döngüsü engellemek için)
+        modelBuilder.Entity<WalletTransaction>()
+            .HasOne(t => t.SourceBranchWallet)
+            .WithMany()
+            .HasForeignKey(t => t.SourceBranchWalletId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<WalletTransaction>()
+            .HasOne(t => t.TargetBranchWallet)
+            .WithMany()
+            .HasForeignKey(t => t.TargetBranchWalletId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<WalletTransaction>()
+            .HasOne(t => t.SourceAdminWallet)
+            .WithMany()
+            .HasForeignKey(t => t.SourceAdminWalletId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<WalletTransaction>()
+            .HasOne(t => t.TargetAdminWallet)
+            .WithMany()
+            .HasForeignKey(t => t.TargetAdminWalletId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         // DayClosing
         modelBuilder.Entity<DayClosing>(entity =>
