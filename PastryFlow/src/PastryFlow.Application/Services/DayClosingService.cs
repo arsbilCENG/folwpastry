@@ -67,7 +67,9 @@ public class DayClosingService : IDayClosingService
         return ApiResponse<string>.Ok("Devir miktarları kaydedildi.");
     }
 
-    public async Task<ApiResponse<DayClosingSummaryDto>> CloseDayAsync(Guid branchId, DateOnly date, Guid closedByUserId)
+    public async Task<ApiResponse<DayClosingSummaryDto>> CloseDayAsync(
+        Guid branchId, DateOnly date, Guid closedByUserId,
+        List<DayClosingCounterItemDto>? counterItems = null)
     {
         var closing = await _context.DayClosings
             .Include(c => c.Details)
@@ -96,7 +98,8 @@ public class DayClosingService : IDayClosingService
         var nextDay = date.AddDays(1);
         var nextClosing = await GetOrCreateDayClosingAsync(branchId, nextDay);
 
-        foreach (var detail in closing.Details)
+        // Mevcut normal ürün detayları (Production/Purchased — TrackingType != Counter)
+        foreach (var detail in closing.Details.Where(d => d.Product.TrackingType != TrackingType.Counter))
         {
             // CalculatedSales = (Opening + ReceivedFromDemands + IncomingTransfer) - (OutgoingTransfer + EndOfDayCount + DayWaste)
             detail.CalculatedSales = (detail.OpeningStock + detail.ReceivedFromDemands + detail.IncomingTransferQuantity)
@@ -119,27 +122,24 @@ public class DayClosingService : IDayClosingService
                 nextDetail.OpeningStock = detail.CarryOverQuantity;
             }
 
-            // KURAL 1: Counter Ürünler Stock Kaydı ALMAZ
-            if (detail.Product.TrackingType != TrackingType.Counter)
-            {
-                var stock = await _context.Stocks
-                    .FirstOrDefaultAsync(s => s.BranchId == branchId && s.ProductId == detail.ProductId);
+            // Normal ürünler Stock kaydı alır
+            var stock = await _context.Stocks
+                .FirstOrDefaultAsync(s => s.BranchId == branchId && s.ProductId == detail.ProductId);
 
-                if (stock == null)
+            if (stock == null)
+            {
+                stock = new Stock
                 {
-                    stock = new Stock
-                    {
-                        BranchId = branchId,
-                        ProductId = detail.ProductId,
-                        CurrentQuantity = detail.CarryOverQuantity
-                    };
-                    _context.Stocks.Add(stock);
-                }
-                else
-                {
-                    stock.CurrentQuantity = detail.CarryOverQuantity;
-                    stock.UpdatedAt = DateTime.UtcNow;
-                }
+                    BranchId = branchId,
+                    ProductId = detail.ProductId,
+                    CurrentQuantity = detail.CarryOverQuantity
+                };
+                _context.Stocks.Add(stock);
+            }
+            else
+            {
+                stock.CurrentQuantity = detail.CarryOverQuantity;
+                stock.UpdatedAt = DateTime.UtcNow;
             }
 
             // Create EndOfDay Waste Records if > 0
@@ -159,6 +159,58 @@ public class DayClosingService : IDayClosingService
             }
         }
 
+        // Counter ürün satış kayıtları
+        decimal counterSalesTotal = 0;
+        if (counterItems != null && counterItems.Count > 0)
+        {
+            foreach (var counterItem in counterItems)
+            {
+                if (counterItem.CounterSoldQuantity <= 0) continue;
+
+                var product = await _context.Products
+                    .Include(p => p.Category)
+                    .FirstOrDefaultAsync(p => p.Id == counterItem.ProductId);
+
+                if (product == null || product.TrackingType != TrackingType.Counter) continue;
+
+                var revenue = counterItem.CounterSoldQuantity * (product.UnitPrice ?? 0);
+                counterSalesTotal += revenue;
+
+                // Mevcut bir Counter detail kaydı var mı kontrol et
+                var existingDetail = closing.Details.FirstOrDefault(d => d.ProductId == counterItem.ProductId);
+                if (existingDetail != null)
+                {
+                    // Güncelle
+                    existingDetail.CounterSoldQuantity = counterItem.CounterSoldQuantity;
+                    existingDetail.CalculatedSales = revenue;
+                }
+                else
+                {
+                    // Yeni kayıt — Counter ürünler için tüm stok alanları 0
+                    var detail = new DayClosingDetail
+                    {
+                        DayClosingId = closing.Id,
+                        ProductId = counterItem.ProductId,
+                        OpeningStock = 0,
+                        ReceivedFromDemands = 0,
+                        IncomingTransferQuantity = 0,
+                        OutgoingTransferQuantity = 0,
+                        DayWasteQuantity = 0,
+                        EndOfDayCount = 0,
+                        CarryOverQuantity = 0,
+                        EndOfDayWaste = 0,
+                        CounterSoldQuantity = counterItem.CounterSoldQuantity,
+                        CalculatedSales = revenue
+                    };
+                    _context.DayClosingDetails.Add(detail);
+                }
+            }
+        }
+
+        // KURAL: Counter ürünler Stock tablosuna kayıt almaz, CarryOver'a dahil edilmez.
+        // Beklenen nakit: Counter satışları da toplam gelire dahil edilir.
+        // (ExpectedCashAmount zaten SubmitCashCount'da hesaplandığı için burada güncellemiyoruz.)
+
         await _context.SaveChangesAsync();
         return await GetSummaryAsync(branchId, date);
     }
@@ -171,7 +223,7 @@ public class DayClosingService : IDayClosingService
 
         if (dayClosing == null) return ApiResponse<ExpectedCashDto>.Fail("Gün kaydı bulunamadı.");
 
-        // 1. Satış geliri
+        // 1. Normal ürün satış geliri (Production/Purchased)
         decimal totalSalesRevenue = 0;
         var response = new ExpectedCashDto
         {
@@ -179,7 +231,7 @@ public class DayClosingService : IDayClosingService
             Items = new List<ExpectedCashItemDto>()
         };
 
-        foreach (var detail in dayClosing.Details)
+        foreach (var detail in dayClosing.Details.Where(d => d.Product != null && d.Product.TrackingType != TrackingType.Counter))
         {
             if (detail.Product == null) continue;
 
@@ -213,9 +265,17 @@ public class DayClosingService : IDayClosingService
             }
         }
 
-        response.TotalSalesRevenue = totalSalesRevenue;
+        // 2. Counter satış geliri — o güne ait Counter DayClosingDetail'larından
+        var counterSalesTotal = dayClosing.Details
+            .Where(d => d.Product != null
+                     && d.Product.TrackingType == TrackingType.Counter
+                     && d.CounterSoldQuantity.HasValue)
+            .Sum(d => d.CounterSoldQuantity!.Value * (d.Product.UnitPrice ?? 0));
 
-        // 2. Bugünkü nakit satın alımlar
+        response.CounterSalesTotal = counterSalesTotal;
+        response.TotalSalesRevenue = totalSalesRevenue + counterSalesTotal;
+
+        // 3. Bugünkü nakit satın alımlar
         var targetDate = DateTime.SpecifyKind(dayClosing.Date.ToDateTime(TimeOnly.MinValue), DateTimeKind.Utc);
         var nextDate = targetDate.AddDays(1);
 
@@ -225,7 +285,7 @@ public class DayClosingService : IDayClosingService
                      && p.PaymentMethod == PaymentMethod.Cash)
             .SumAsync(p => p.TotalAmount);
 
-        // 3. Bugünkü admin nakit çekimleri
+        // 4. Bugünkü admin nakit çekimleri
         var cashWithdrawals = await _context.CashTransactions
             .Where(t => t.BranchId == dayClosing.BranchId
                      && t.TransactionDate >= targetDate && t.TransactionDate < nextDate
@@ -233,7 +293,7 @@ public class DayClosingService : IDayClosingService
                      && t.Method == PaymentMethod.Cash)
             .SumAsync(t => t.Amount);
 
-        // 4. Bugünkü admin nakit yatırımları
+        // 5. Bugünkü admin nakit yatırımları
         var cashDeposits = await _context.CashTransactions
             .Where(t => t.BranchId == dayClosing.BranchId
                      && t.TransactionDate >= targetDate && t.TransactionDate < nextDate
@@ -241,10 +301,10 @@ public class DayClosingService : IDayClosingService
                      && t.Method == PaymentMethod.Cash)
             .SumAsync(t => t.Amount);
 
-        // Beklenen nakit = Açılış + (Gelir - POS) + Yatırım - Satın Alım - Çekim
+        // Beklenen nakit = Açılış + (TümGelir - POS) + Yatırım - Satın Alım - Çekim
         var posAmount = dayClosing.PosAmount ?? 0;
         var expectedCash = dayClosing.OpeningCashBalance
-            + (totalSalesRevenue - posAmount)
+            + (response.TotalSalesRevenue - posAmount)
             + cashDeposits
             - cashPurchases
             - cashWithdrawals;
@@ -253,7 +313,7 @@ public class DayClosingService : IDayClosingService
         response.CashWithdrawals = cashWithdrawals;
         response.CashDeposits = cashDeposits;
         response.ExpectedCashAmount = Math.Max(0, expectedCash);
-        response.ExpectedAmount = totalSalesRevenue; // Backward compatibility if needed
+        response.ExpectedAmount = response.TotalSalesRevenue; // Backward compatibility
 
         return ApiResponse<ExpectedCashDto>.Ok(response);
     }
@@ -274,9 +334,9 @@ public class DayClosingService : IDayClosingService
         if (!expectedCashRes.Success || expectedCashRes.Data == null)
             return ApiResponse<DayClosingSummaryDto>.Fail("Beklenen tutar hesaplanamadı.");
 
-        var expectedAmount = expectedCashRes.Data.ExpectedCashAmount; // YENİ: Tam kasa denklemi sonucu
+        var expectedAmount = expectedCashRes.Data.ExpectedCashAmount; // Tam kasa denklemi sonucu
         var totalCounted = dto.CashAmount + dto.PosAmount;
-        var diff = dto.CashAmount - expectedAmount; // YENİ: Nakit farkı
+        var diff = dto.CashAmount - expectedAmount; // Nakit farkı
 
         if (diff != 0 && string.IsNullOrWhiteSpace(dto.DifferenceNote))
             return ApiResponse<DayClosingSummaryDto>.Fail("Kasa farkı bulunmaktadır. Lütfen açıklama giriniz.");
@@ -323,6 +383,22 @@ public class DayClosingService : IDayClosingService
             .ThenInclude(p => p.Category)
             .FirstOrDefaultAsync(c => c.BranchId == branchId && c.Date == date);
 
+        // Counter ürün listesi — her zaman DB'den taze çekilir
+        var counterProducts = await _context.Products
+            .Include(p => p.Category)
+            .Where(p => p.TrackingType == TrackingType.Counter && p.IsActive && !p.IsDeleted)
+            .OrderBy(p => p.Category.SortOrder)
+            .ThenBy(p => p.SortOrder)
+            .Select(p => new CounterProductDto
+            {
+                ProductId = p.Id,
+                ProductName = p.Name,
+                CategoryName = p.Category.Name,
+                UnitPrice = p.UnitPrice,
+                Unit = p.Unit.ToString()
+            })
+            .ToListAsync();
+
         if (closing == null)
         {
             return ApiResponse<DayClosingSummaryDto>.Ok(new DayClosingSummaryDto
@@ -330,7 +406,8 @@ public class DayClosingService : IDayClosingService
                 BranchName = branch.Name,
                 Date = date,
                 IsClosed = false,
-                Items = new List<DailySummaryItemDto>()
+                Items = new List<DailySummaryItemDto>(),
+                CounterProducts = counterProducts
             });
         }
 
@@ -348,8 +425,9 @@ public class DayClosingService : IDayClosingService
             DifferenceNote = closing.DifferenceNote,
             ReceiptPhotoUrl = closing.ReceiptPhotoUrl,
             CounterPhotoUrl = closing.CounterPhotoUrl,
+            CounterProducts = counterProducts,
             Items = closing.Details
-                .Where(d => d.Product != null && d.Product.IsActive)
+                .Where(d => d.Product != null && d.Product.IsActive && d.Product.TrackingType != TrackingType.Counter)
                 .OrderBy(d => d.Product.Category.SortOrder)
                 .ThenBy(d => d.Product.Name)
                 .Select(d => new DailySummaryItemDto

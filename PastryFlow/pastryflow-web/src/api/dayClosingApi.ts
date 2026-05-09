@@ -1,6 +1,13 @@
 import axiosClient from './axiosClient';
 import { ApiResponse } from '../types/api';
-import { DayClosingSummary, CountInputDto, CarryOverInputDto, CashCountDto, ExpectedCashDto } from '../types/dayClosing';
+import {
+  DayClosingSummary,
+  CountInputDto,
+  CarryOverInputDto,
+  CashCountDto,
+  ExpectedCashDto,
+  DayClosingCounterItem,
+} from '../types/dayClosing';
 
 export const dayClosingApi = {
   saveCount: async (data: CountInputDto): Promise<ApiResponse<string>> => {
@@ -9,8 +16,16 @@ export const dayClosingApi = {
   saveCarryOver: async (data: CarryOverInputDto): Promise<ApiResponse<string>> => {
     return axiosClient.post('/day-closing/carry-over', data);
   },
-  closeDay: async (data: { branchId: string; date: string; closedByUserId: string }): Promise<ApiResponse<DayClosingSummary>> => {
-    return axiosClient.post('/day-closing/close', data);
+  closeDay: async (data: {
+    branchId: string;
+    date: string;
+    closedByUserId: string;
+    counterItems?: DayClosingCounterItem[];
+  }): Promise<ApiResponse<DayClosingSummary>> => {
+    return axiosClient.post('/day-closing/close', {
+      ...data,
+      counterItems: data.counterItems ?? [],
+    });
   },
   getSummary: async (branchId: string, date: string): Promise<ApiResponse<DayClosingSummary>> => {
     return axiosClient.get('/day-closing/summary', { params: { branchId, date } });
@@ -34,5 +49,5 @@ export const dayClosingApi = {
     return axiosClient.post(`/day-closing/${dayClosingId}/counter-photo`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
-  }
+  },
 };

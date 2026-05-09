@@ -5,8 +5,9 @@ import {
 } from 'antd';
 import { 
   CheckCircleOutlined, ExclamationCircleOutlined, InfoCircleOutlined,
-  DollarOutlined, CameraOutlined, ExceptionOutlined, CalculatorOutlined
+  DollarOutlined, CameraOutlined, ExceptionOutlined, CalculatorOutlined, ShopOutlined
 } from '@ant-design/icons';
+import { DayClosingCounterItem } from '../../types/dayClosing';
 import { dayClosingApi } from '../../api/dayClosingApi';
 import { productApi } from '../../api/productApi';
 import { stockApi } from '../../api/stockApi';
@@ -38,6 +39,7 @@ const DayClosingPage: React.FC = () => {
 
   // Step 1: Sayım
   const [counts, setCounts] = useState<Record<string, number>>({});
+  const [counterItems, setCounterItems] = useState<DayClosingCounterItem[]>([]);
   
   // Step 2: Kasa
   const [cashAmount, setCashAmount] = useState<number | null>(null);
@@ -100,6 +102,18 @@ const DayClosingPage: React.FC = () => {
           });
           setCounts(newCounts);
           setCarryOvers(newCarryOvers);
+
+          // Counter ürünleri başlat
+          if (summaryRes.data.counterProducts && summaryRes.data.counterProducts.length > 0) {
+            setCounterItems(
+              summaryRes.data.counterProducts.map((p: any) => ({
+                productId: p.productId,
+                productName: p.productName,
+                unitPrice: p.unitPrice ?? null,
+                counterSoldQuantity: 0,
+              }))
+            );
+          }
 
           if (summaryRes.data.cashAmount !== null) setCashAmount(summaryRes.data.cashAmount);
           if (summaryRes.data.posAmount !== null) setPosAmount(summaryRes.data.posAmount);
@@ -234,7 +248,12 @@ const DayClosingPage: React.FC = () => {
           const carryItems = Object.keys(carryOvers).map(k => ({ productId: k, carryOverQuantity: carryOvers[k] }));
           await dayClosingApi.saveCarryOver({ branchId: user.branchId!, date: today, items: carryItems });
 
-          const res = await dayClosingApi.closeDay({ branchId: user.branchId!, date: today, closedByUserId: user.id! });
+          const res = await dayClosingApi.closeDay({
+            branchId: user.branchId!,
+            date: today,
+            closedByUserId: user.id!,
+            counterItems: counterItems.filter(ci => ci.counterSoldQuantity > 0),
+          });
           if (res.success) {
             message.success('Gün başarıyla kapatıldı! Z Raporu oluşturuldu.');
             setIsClosed(true);
@@ -352,6 +371,50 @@ const DayClosingPage: React.FC = () => {
             </Panel>
           ))}
         </Collapse>
+
+        {/* SAYAÇ ÜRÜNLERİ */}
+        {counterItems.length > 0 && (
+          <Card
+            style={{ marginTop: 24, borderRadius: 8, border: '1px solid #d9f7be', background: '#f6ffed' }}
+            title={
+              <Space>
+                <ShopOutlined style={{ color: '#52c41a' }} />
+                <span style={{ color: '#135200', fontWeight: 600 }}>🎫 Sayaç Ürünleri</span>
+                <Tag color="green" style={{ marginLeft: 4 }}>Bugün kaç adet sattınız?</Tag>
+              </Space>
+            }
+          >
+            <div style={{ marginBottom: 12 }}>
+              <Text type="secondary">Boş bırakılan ürünler 0 satış olarak kaydedilir.</Text>
+            </div>
+            {counterItems.map((ci) => (
+              <Row key={ci.productId} align="middle" style={{ marginBottom: 12, padding: '8px 12px', background: '#fff', borderRadius: 6, border: '1px solid #b7eb8f' }}>
+                <Col flex="auto">
+                  <Text strong>{ci.productName}</Text>
+                  {ci.unitPrice != null && (
+                    <Text type="secondary" style={{ fontSize: 11, marginLeft: 8 }}>₺{ci.unitPrice.toLocaleString('tr-TR', { minimumFractionDigits: 2 })} / adet</Text>
+                  )}
+                </Col>
+                <Col>
+                  <InputNumber
+                    min={0}
+                    step={1}
+                    precision={0}
+                    value={ci.counterSoldQuantity}
+                    onChange={val => setCounterItems(prev =>
+                      prev.map(item => item.productId === ci.productId
+                        ? { ...item, counterSoldQuantity: val ?? 0 }
+                        : item
+                      )
+                    )}
+                    style={{ width: 120 }}
+                    addonAfter="adet"
+                  />
+                </Col>
+              </Row>
+            ))}
+          </Card>
+        )}
         
         <div style={{ textAlign: 'right', marginTop: 24 }}>
           <Button type="primary" size="large" onClick={handleSaveCountsAndNext} loading={saving}>
@@ -377,9 +440,15 @@ const DayClosingPage: React.FC = () => {
                     <Text>{formatCurrency(expectedInfo?.openingCashBalance || 0)}</Text>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Text type="secondary">Nakit Satış Geliri:</Text>
-                    <Text style={{ color: '#52c41a' }}>+{formatCurrency((expectedInfo?.totalSalesRevenue || 0) - (posAmount || 0))}</Text>
+                    <Text type="secondary">Ürün Satışları:</Text>
+                    <Text style={{ color: '#52c41a' }}>+{formatCurrency((expectedInfo?.totalSalesRevenue || 0) - (expectedInfo?.counterSalesTotal || 0))}</Text>
                   </div>
+                  {(expectedInfo?.counterSalesTotal || 0) > 0 && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <Text type="secondary">🎫 Sayaç Satışları:</Text>
+                      <Text style={{ color: '#52c41a' }}>+{formatCurrency(expectedInfo?.counterSalesTotal || 0)}</Text>
+                    </div>
+                  )}
                   {expectedInfo?.cashDeposits! > 0 && (
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                       <Text type="secondary">Admin Yatırım:</Text>

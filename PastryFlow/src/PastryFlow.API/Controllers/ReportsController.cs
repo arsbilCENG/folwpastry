@@ -3,6 +3,8 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using PastryFlow.Application.Common;
+using PastryFlow.Application.DTOs.Reports;
 using PastryFlow.Application.Interfaces;
 using PastryFlow.Domain.Enums;
 
@@ -89,6 +91,43 @@ public class ReportsController : ControllerBase
 
         var result = await _reportService.GetBranchComparisonReportAsync(start, end, metric);
         return Ok(result);
+    }
+
+    // GET /api/reports/purchases?branchId=...&startDate=...&endDate=...
+    [HttpGet("purchases")]
+    [Authorize(Roles = "Admin,Sales,Production")]
+    public async Task<IActionResult> GetPurchaseReport(
+        [FromQuery] Guid? branchId,
+        [FromQuery] DateTime? startDate,
+        [FromQuery] DateTime? endDate)
+    {
+        var start = startDate ?? new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+        var end = endDate ?? DateTime.Today;
+        
+        var currentUserBranchId = GetUserBranchId();
+        var userRole = GetUserRole();
+
+        if (userRole != UserRole.Admin)
+        {
+            branchId = currentUserBranchId;
+        }
+
+        var result = await _reportService.GetPurchaseReportAsync(branchId, start, end);
+        return Ok(ApiResponse<PurchaseReportDto>.Ok(result));
+    }
+
+    // GET /api/reports/cash-transactions?branchId=...&startDate=...&endDate=...
+    [HttpGet("cash-transactions")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> GetCashTransactionReport(
+        [FromQuery] Guid? branchId,
+        [FromQuery] DateTime? startDate,
+        [FromQuery] DateTime? endDate)
+    {
+        var start = startDate ?? new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+        var end = endDate ?? DateTime.Today;
+        var result = await _reportService.GetCashTransactionReportAsync(branchId, start, end);
+        return Ok(ApiResponse<CashTransactionReportDto>.Ok(result));
     }
 
     private Guid? GetUserBranchId()

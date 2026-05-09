@@ -16,6 +16,7 @@ public class ExpectedCashDto
     public decimal CashDeposits { get; set; }
     public decimal TotalSalesRevenue { get; set; }
     public decimal ExpectedCashAmount { get; set; }
+    public decimal CounterSalesTotal { get; set; }
 }
 
 public class ExpectedCashItemDto

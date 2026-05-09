@@ -218,8 +218,8 @@ const SalesDailySalesTab: React.FC = () => {
         <Empty description="Bu tarih için veri bulunamadı" />
       ) : (
         <>
-          <Row gutter={16} style={{ marginBottom: 24 }}>
-            <Col xs={24} sm={12} md={6}>
+          <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
+            <Col xs={24} sm={12} md={report?.counterSalesRevenue > 0 && report?.totalPurchaseExpense > 0 ? 4 : report?.counterSalesRevenue > 0 || report?.totalPurchaseExpense > 0 ? 6 : 8}>
               <Card>
                 <Statistic
                   title="Toplam Satış"
@@ -227,9 +227,43 @@ const SalesDailySalesTab: React.FC = () => {
                   prefix={<ShoppingCartOutlined />}
                   valueStyle={{ color: '#3f8600' }}
                 />
+                <div style={{ fontSize: '12px', color: '#8c8c8c' }}>(üretim+counter)</div>
               </Card>
             </Col>
-            <Col xs={24} sm={12} md={6}>
+            {report.counterSalesRevenue > 0 && (
+              <Col xs={24} sm={12} md={report?.totalPurchaseExpense > 0 ? 4 : 6}>
+                <Card>
+                  <Statistic
+                    title="Counter Satışlar"
+                    value={report.counterSalesRevenue}
+                    precision={2}
+                    prefix={<DollarOutlined />}
+                    suffix="₺"
+                    valueStyle={{ color: '#1890ff' }}
+                  />
+                  <div style={{ fontSize: '12px', color: '#8c8c8c' }}>(çay/kahve vb.)</div>
+                </Card>
+              </Col>
+            )}
+            {report.totalPurchaseExpense > 0 && (
+              <Col xs={24} sm={12} md={report?.counterSalesRevenue > 0 ? 4 : 6}>
+                <Card>
+                  <Statistic
+                    title="Satın Alım Gid."
+                    value={report.totalPurchaseExpense}
+                    precision={2}
+                    prefix={<DollarOutlined />}
+                    suffix="₺"
+                    valueStyle={{ color: '#cf1322' }}
+                  />
+                  <div style={{ fontSize: '12px', color: '#8c8c8c' }}>
+                    Nakit: ₺{report.cashPurchaseExpense.toLocaleString('tr-TR', { minimumFractionDigits: 2 })} | 
+                    Kart: ₺{report.cardPurchaseExpense.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}
+                  </div>
+                </Card>
+              </Col>
+            )}
+            <Col xs={24} sm={12} md={report?.counterSalesRevenue > 0 && report?.totalPurchaseExpense > 0 ? 4 : report?.counterSalesRevenue > 0 || report?.totalPurchaseExpense > 0 ? 6 : 8}>
               <Card>
                 <Statistic
                   title="Toplam Zayiat"
@@ -239,7 +273,7 @@ const SalesDailySalesTab: React.FC = () => {
                 />
               </Card>
             </Col>
-            <Col xs={24} sm={12} md={6}>
+            <Col xs={24} sm={12} md={report?.counterSalesRevenue > 0 && report?.totalPurchaseExpense > 0 ? 4 : report?.counterSalesRevenue > 0 || report?.totalPurchaseExpense > 0 ? 6 : 8}>
               <Card>
                 <Statistic
                   title="Satış Tutarı"
@@ -247,15 +281,6 @@ const SalesDailySalesTab: React.FC = () => {
                   precision={2}
                   prefix={<DollarOutlined />}
                   suffix="₺"
-                />
-              </Card>
-            </Col>
-            <Col xs={24} sm={12} md={6}>
-              <Card>
-                <Statistic
-                  title="Ürün Sayısı"
-                  value={report.items.length}
-                  prefix={<ProductOutlined />}
                 />
               </Card>
             </Col>

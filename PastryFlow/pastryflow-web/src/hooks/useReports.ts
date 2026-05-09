@@ -38,3 +38,23 @@ export const useBranchComparisonReport = (params: BranchComparisonFilterParams, 
     enabled: enabled && !!params.startDate && !!params.endDate,
   });
 };
+
+export const usePurchaseReport = (
+  branchId?: string,
+  startDate?: string,
+  endDate?: string
+) => useQuery({
+  queryKey: ['purchaseReport', branchId, startDate, endDate],
+  queryFn: () => reportApi.getPurchaseReport(branchId, startDate, endDate),
+  enabled: true,
+});
+
+export const useCashTransactionReport = (
+  branchId?: string,
+  startDate?: string,
+  endDate?: string
+) => useQuery({
+  queryKey: ['cashTransactionReport', branchId, startDate, endDate],
+  queryFn: () => reportApi.getCashTransactionReport(branchId, startDate, endDate),
+  enabled: true,
+});
