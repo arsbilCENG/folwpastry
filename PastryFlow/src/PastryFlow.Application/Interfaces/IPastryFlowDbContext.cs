@@ -25,7 +25,11 @@ public interface IPastryFlowDbContext
     DbSet<Stock> Stocks { get; }
     DbSet<Purchase> Purchases { get; }
     DbSet<PurchaseItem> PurchaseItems { get; }
-    DbSet<CashTransaction> CashTransactions { get; }
+    DbSet<BranchWallet> BranchWallets { get; }
+    DbSet<AdminWallet> AdminWallets { get; }
+    DbSet<WalletTransaction> WalletTransactions { get; }
+    Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade Database { get; }
+    Microsoft.EntityFrameworkCore.ChangeTracking.ChangeTracker ChangeTracker { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

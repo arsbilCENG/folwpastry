@@ -46,9 +46,9 @@ const AdminLayout: React.FC = () => {
     { key: '/admin/branches', icon: <ShopOutlined />, label: 'Şubeler' },
     { key: '/admin/purchases', icon: <ShoppingCartOutlined />, label: 'Satın Alımlar' },
     { 
-      key: '/admin/cash-management', 
+      key: '/admin/wallet-management', 
       icon: <WalletOutlined />, 
-      label: 'Kasa Yönetimi' 
+      label: 'Cüzdan Yönetimi' 
     },
     { key: '/admin/cake-options', icon: <AppstoreOutlined />, label: 'Pasta Seçenekleri' },
     { key: '/admin/reports', icon: <BarChartOutlined />, label: 'Raporlar' },

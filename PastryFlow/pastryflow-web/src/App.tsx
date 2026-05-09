@@ -47,7 +47,7 @@ import AdminCakeOptions from './pages/admin/CakeOptions';
 import AdminReports from './pages/admin/Reports';
 import AdminDayCorrection from './pages/admin/DayCorrection';
 import AdminPurchases from './pages/admin/Purchases';
-import AdminCashManagementPage from './pages/admin/CashManagement';
+import AdminWalletManagementPage from './pages/admin/WalletManagement';
 
 
 // Cake Orders
@@ -92,7 +92,7 @@ const App: React.FC = () => {
                       <Route path="reports" element={<AdminReports />} />
                       <Route path="day-correction" element={<AdminDayCorrection />} />
                       <Route path="purchases" element={<AdminPurchases />} />
-                      <Route path="cash-management" element={<AdminCashManagementPage />} />
+                      <Route path="wallet-management" element={<AdminWalletManagementPage />} />
 
                       <Route path="notifications" element={<NotificationList />} />
                     </Route>

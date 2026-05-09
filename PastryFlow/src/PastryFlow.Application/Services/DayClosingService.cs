@@ -14,10 +14,12 @@ namespace PastryFlow.Application.Services;
 public class DayClosingService : IDayClosingService
 {
     private readonly IPastryFlowDbContext _context;
+    private readonly IWalletService _walletService;
 
-    public DayClosingService(IPastryFlowDbContext context)
+    public DayClosingService(IPastryFlowDbContext context, IWalletService walletService)
     {
         _context = context;
+        _walletService = walletService;
     }
 
     public async Task<ApiResponse<string>> SaveCountAsync(CountInputDto dto)
@@ -212,6 +214,19 @@ public class DayClosingService : IDayClosingService
         // (ExpectedCashAmount zaten SubmitCashCount'da hesaplandığı için burada güncellemiyoruz.)
 
         await _context.SaveChangesAsync();
+
+        var expectedCashRes = await CalculateExpectedCashAsync(closing.Id);
+        var totalSalesRevenue = expectedCashRes.Data?.TotalSalesRevenue ?? 0;
+        
+        var cashRevenueTotal = totalSalesRevenue - (closing.PosAmount ?? 0);
+        var bankRevenueTotal = closing.PosAmount ?? 0;
+
+        await _walletService.ApplyDayClosingRevenueAsync(
+            branchId,
+            cashRevenueTotal,
+            bankRevenueTotal,
+            closedByUserId);
+
         return await GetSummaryAsync(branchId, date);
     }
 
@@ -285,21 +300,21 @@ public class DayClosingService : IDayClosingService
                      && p.PaymentMethod == PaymentMethod.Cash)
             .SumAsync(p => p.TotalAmount);
 
-        // 4. Bugünkü admin nakit çekimleri
-        var cashWithdrawals = await _context.CashTransactions
-            .Where(t => t.BranchId == dayClosing.BranchId
-                     && t.TransactionDate >= targetDate && t.TransactionDate < nextDate
-                     && t.TransactionType == TransactionType.AdminWithdrawal
-                     && t.Method == PaymentMethod.Cash)
-            .SumAsync(t => t.Amount);
+        // 4 & 5. Bugünkü admin nakit çekim ve yatırımları
+        var walletTransactions = await _context.WalletTransactions
+            .Where(t => (t.SourceBranchId == dayClosing.BranchId || t.TargetBranchId == dayClosing.BranchId)
+                     && t.TransactionDate >= targetDate && t.TransactionDate < nextDate)
+            .ToListAsync();
 
-        // 5. Bugünkü admin nakit yatırımları
-        var cashDeposits = await _context.CashTransactions
-            .Where(t => t.BranchId == dayClosing.BranchId
-                     && t.TransactionDate >= targetDate && t.TransactionDate < nextDate
-                     && t.TransactionType == TransactionType.AdminDeposit
-                     && t.Method == PaymentMethod.Cash)
-            .SumAsync(t => t.Amount);
+        var cashDeposits = walletTransactions
+            .Where(t => t.TransactionType == WalletTransactionType.AdminToBranch
+                     && t.WalletType == WalletType.Cash)
+            .Sum(t => t.Amount);
+
+        var cashWithdrawals = walletTransactions
+            .Where(t => t.TransactionType == WalletTransactionType.BranchToAdmin
+                     && t.WalletType == WalletType.Cash)
+            .Sum(t => t.Amount);
 
         // Beklenen nakit = Açılış + (TümGelir - POS) + Yatırım - Satın Alım - Çekim
         var posAmount = dayClosing.PosAmount ?? 0;
