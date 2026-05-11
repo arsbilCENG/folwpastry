@@ -88,9 +88,11 @@ export interface ExpectedCashDto {
 
 export interface ExpectedCashItemDto {
   productName: string;
+  categoryName: string;
   calculatedSales: number;
   unitPrice: number | null;
   salesValue: number | null;
+  isCounter: boolean;
 }
 
 export interface CountItemDto {

@@ -7,7 +7,9 @@ export type NotificationType =
   | 'DeliveryReceived'
   | 'WasteRecorded'
   | 'DayClosingCorrected'
-  | 'Info';
+  | 'Info'
+  | 'TransferShipped'
+  | 'TransferReceived';
 
 export interface NotificationDto {
   id: string;

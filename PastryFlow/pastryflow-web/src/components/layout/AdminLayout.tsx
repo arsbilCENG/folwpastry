@@ -11,7 +11,8 @@ import {
   LogoutOutlined,
   MenuOutlined,
   ShoppingCartOutlined,
-  WalletOutlined
+  WalletOutlined,
+  SwapOutlined
 } from '@ant-design/icons';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
@@ -45,6 +46,7 @@ const AdminLayout: React.FC = () => {
     { key: '/admin/products', icon: <ShoppingOutlined />, label: 'Ürünler' },
     { key: '/admin/branches', icon: <ShopOutlined />, label: 'Şubeler' },
     { key: '/admin/purchases', icon: <ShoppingCartOutlined />, label: 'Satın Alımlar' },
+    { key: '/admin/transfers', icon: <SwapOutlined />, label: 'Transferler' },
     { 
       key: '/admin/wallet-management', 
       icon: <WalletOutlined />, 

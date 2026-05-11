@@ -57,7 +57,7 @@ const DayClosingPage: React.FC = () => {
   // UI State
   const [currentStep, setCurrentStep] = useState(0);
   
-  const today = new Date().toISOString().split('T')[0];
+  const today = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD in local time
   
   // Hooks
   const expectedCashQuery = useExpectedCash(user?.branchId || '', today, currentStep === 1 && !!user?.branchId);
@@ -174,9 +174,17 @@ const DayClosingPage: React.FC = () => {
       return;
     }
 
-    // YENİ: expectedCashAmount alanını kullan
-    const expectedCashAmount = expectedCashQuery.data?.data?.expectedCashAmount || 0;
-    const diff = cashAmount - expectedCashAmount;
+    // YENİ: dynamicExpectedCash mantığını kullan
+    const expectedInfo = expectedCashQuery.data?.data;
+    const dynamicExpectedCash = Math.max(0, 
+      (expectedInfo?.openingCashBalance || 0) + 
+      (expectedInfo?.totalSalesRevenue || 0) + 
+      (expectedInfo?.cashDeposits || 0) - 
+      (expectedInfo?.cashPurchases || 0) - 
+      (expectedInfo?.cashWithdrawals || 0) - 
+      (posAmount || 0)
+    );
+    const diff = cashAmount - dynamicExpectedCash;
 
     if (Math.abs(diff) > 0.01 && (!differenceNote || differenceNote.trim() === '')) {
       message.error('Kasa farkı bulunmaktadır. Lütfen açıklama giriniz.');
@@ -260,9 +268,9 @@ const DayClosingPage: React.FC = () => {
           } else {
             message.error(res.message);
           }
-        } catch(e: any) {
-          message.error(e.response?.data?.message || 'Zaten kapatılmış olabilir veya bir hata oluştu.');
-        } finally {
+          } catch(e: any) {
+            message.error(e.message || 'Zaten kapatılmış olabilir veya bir hata oluştu.');
+          } finally {
           setSaving(false);
         }
       }
@@ -295,10 +303,18 @@ const DayClosingPage: React.FC = () => {
     );
   }
 
-  // Calculate Cash Differences
   const expectedInfo = expectedCashQuery.data?.data;
-  const expectedAmount = expectedInfo?.expectedCashAmount || 0;
-  const cashDifference = (cashAmount || 0) - expectedAmount;
+  
+  const dynamicExpectedCash = Math.max(0, 
+    (expectedInfo?.openingCashBalance || 0) + 
+    (expectedInfo?.totalSalesRevenue || 0) + 
+    (expectedInfo?.cashDeposits || 0) - 
+    (expectedInfo?.cashPurchases || 0) - 
+    (expectedInfo?.cashWithdrawals || 0) - 
+    (posAmount || 0)
+  );
+
+  const cashDifference = (cashAmount || 0) - dynamicExpectedCash;
   const hasCashDiff = Math.abs(cashDifference) > 0.01;
   const missingPriceProducts = expectedInfo?.items?.filter(i => i.unitPrice === null || i.unitPrice === 0) || [];
 
@@ -465,12 +481,18 @@ const DayClosingPage: React.FC = () => {
                       <Text style={{ color: '#ff4d4f' }}>-{formatCurrency(expectedInfo?.cashWithdrawals || 0)}</Text>
                     </div>
                   )}
+                  {(posAmount || 0) > 0 && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <Text type="secondary">Günlük POS (Z Raporu):</Text>
+                      <Text style={{ color: '#ff4d4f' }}>-{formatCurrency(posAmount || 0)}</Text>
+                    </div>
+                  )}
                   
                   <Divider style={{ margin: '8px 0' }} />
                   
                   <Statistic 
                     title={<Text strong style={{ fontSize: 16 }}>Beklenen Nakit Kasa</Text>}
-                    value={expectedAmount}
+                    value={dynamicExpectedCash}
                     precision={2}
                     prefix="₺"
                     valueStyle={{ color: '#1d39c4', fontSize: 32, fontWeight: 'bold' }}
@@ -582,19 +604,51 @@ const DayClosingPage: React.FC = () => {
                   
                   <Collapse ghost style={{ marginTop: 16 }}>
                     <Panel header={<Text style={{ color: '#1890ff' }}>Ürün Bazlı Satış Detaylarını Gör</Text>} key="1">
+                      <style>{`
+                        .counter-row {
+                          background-color: #f0f5ff;
+                        }
+                      `}</style>
                       <Table 
                         dataSource={expectedInfo?.items || []} 
                         size="small"
-                        rowKey="productName"
+                        rowKey={(record) => `${record.productName}-${record.isCounter}`}
                         pagination={{ pageSize: 10 }}
                         scroll={{ x: 'max-content' }}
+                        rowClassName={(record) => record.isCounter ? 'counter-row' : ''}
                         columns={[
+                          { title: 'Kategori', dataIndex: 'categoryName' },
                           { title: 'Ürün', dataIndex: 'productName' },
-                          { title: 'Satış', dataIndex: 'calculatedSales', align: 'right' },
+                          { title: 'Satış Miktarı', dataIndex: 'calculatedSales', align: 'right' },
                           { title: 'Birim Fiyat', dataIndex: 'unitPrice', align: 'right', render: v => v ? `₺${v.toFixed(2)}` : '-' },
-                          { title: 'Toplam', dataIndex: 'salesValue', align: 'right', render: v => v ? `₺${v.toFixed(2)}` : '-' }
+                          { title: 'Gelir', dataIndex: 'salesValue', align: 'right', render: v => v ? `₺${v.toFixed(2)}` : '-' },
+                          { 
+                            title: 'Tür', 
+                            key: 'type', 
+                            render: (_, record) => 
+                              record.isCounter 
+                                ? <Tag color="blue">Sayaç</Tag> 
+                                : <Tag color="green">Stok</Tag> 
+                          }
                         ]}
                       />
+                      <div style={{ marginTop: 16, padding: '16px', background: '#fafafa', border: '1px solid #f0f0f0', borderRadius: 8 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                          <Text>Ürün Satışları :</Text>
+                          <Text>₺ {((expectedInfo?.totalSalesRevenue || 0) - (expectedInfo?.counterSalesTotal || 0)).toLocaleString('tr-TR', { minimumFractionDigits: 2 })}</Text>
+                        </div>
+                        {(expectedInfo?.counterSalesTotal || 0) > 0 && (
+                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                            <Text>Sayaç Satışları :</Text>
+                            <Text>₺ {(expectedInfo?.counterSalesTotal || 0).toLocaleString('tr-TR', { minimumFractionDigits: 2 })}</Text>
+                          </div>
+                        )}
+                        <Divider style={{ margin: '8px 0' }} />
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <Text strong>Toplam Satış :</Text>
+                          <Text strong>₺ {(expectedInfo?.totalSalesRevenue || 0).toLocaleString('tr-TR', { minimumFractionDigits: 2 })}</Text>
+                        </div>
+                      </div>
                     </Panel>
                   </Collapse>
                 </Form>

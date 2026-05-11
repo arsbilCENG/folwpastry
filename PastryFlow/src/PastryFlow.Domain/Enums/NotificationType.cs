@@ -12,5 +12,7 @@ public enum NotificationType
     DayClosingCorrected = 7,
     Info = 8,
     CakeOrderCreated = 9,
-    CakeOrderStatusChanged = 10
+    CakeOrderStatusChanged = 10,
+    TransferShipped = 11,
+    TransferReceived = 12
 }

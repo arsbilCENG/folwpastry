@@ -24,6 +24,7 @@ public class DayClosing : BaseEntity
     public decimal? TotalCounted { get; set; }
     public decimal? CashDifference { get; set; }
     public string? DifferenceNote { get; set; }
+    public decimal TotalSalesRevenue { get; set; }
 
     // Fotoğraflar
     public string? ReceiptPhotoUrl { get; set; }

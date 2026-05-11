@@ -294,7 +294,10 @@ public class WalletService : IWalletService
             var wallet = await GetOrCreateBranchWalletAsync(branchId, walletType);
 
             if (wallet.CurrentBalance < amount)
+            {
+                wallet.CurrentBalance -= amount;
                 throw new Exception($"Yetersiz {walletType} bakiyesi. Mevcut: ₺{wallet.CurrentBalance:N2}");
+            }
 
             wallet.CurrentBalance -= amount;
             wallet.UpdatedAt = DateTime.UtcNow;

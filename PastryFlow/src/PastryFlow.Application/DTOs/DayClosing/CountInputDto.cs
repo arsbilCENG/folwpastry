@@ -6,7 +6,7 @@ namespace PastryFlow.Application.DTOs.DayClosing;
 public class CountInputDto
 {
     public Guid BranchId { get; set; }
-    public DateOnly Date { get; set; }
+    public string Date { get; set; } = string.Empty;
     public List<CountItemDto> Items { get; set; } = new();
 }
 
