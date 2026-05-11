@@ -243,6 +243,8 @@ public class DayClosingService : IDayClosingService
 
         var expectedCashRes = await CalculateExpectedCashAsync(closing.Id);
         var totalSalesRevenue = expectedCashRes.Data?.TotalSalesRevenue ?? 0;
+        closing.TotalSalesRevenue = totalSalesRevenue;
+        await _context.SaveChangesAsync();
         
         var cashRevenueTotal = totalSalesRevenue - (closing.PosAmount ?? 0);
         var bankRevenueTotal = closing.PosAmount ?? 0;
