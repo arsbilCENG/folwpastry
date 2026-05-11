@@ -25,6 +25,7 @@ import DayClosingPage from './pages/sales/DayClosingPage';
 import DailySummaryPage from './pages/sales/DailySummaryPage';
 import SalesReports from './pages/sales/Reports';
 import SalesPurchases from './pages/sales/Purchases';
+import SalesTransfers from './pages/sales/Transfers';
 
 
 // Production pages
@@ -35,6 +36,7 @@ import ShipDemandPage from './pages/production/ShipDemandPage';
 import DeliveryReturnsPage from './pages/production/DeliveryReturnsPage';
 import ProductionReports from './pages/production/Reports';
 import ProductionPurchases from './pages/production/Purchases';
+import ProductionTransfers from './pages/sales/Transfers'; // same component
 
 
 // Admin pages
@@ -48,6 +50,7 @@ import AdminReports from './pages/admin/Reports';
 import AdminDayCorrection from './pages/admin/DayCorrection';
 import AdminPurchases from './pages/admin/Purchases';
 import AdminWalletManagementPage from './pages/admin/WalletManagement';
+import AdminTransfers from './pages/admin/Transfers';
 
 
 // Cake Orders
@@ -92,6 +95,7 @@ const App: React.FC = () => {
                       <Route path="reports" element={<AdminReports />} />
                       <Route path="day-correction" element={<AdminDayCorrection />} />
                       <Route path="purchases" element={<AdminPurchases />} />
+                      <Route path="transfers" element={<AdminTransfers />} />
                       <Route path="wallet-management" element={<AdminWalletManagementPage />} />
 
                       <Route path="notifications" element={<NotificationList />} />
@@ -113,6 +117,7 @@ const App: React.FC = () => {
                       <Route path="reports/daily" element={<DailySummaryPage />} />
                       <Route path="reports" element={<SalesReports />} />
                       <Route path="purchases" element={<SalesPurchases />} />
+                      <Route path="transfers" element={<SalesTransfers />} />
 
                       <Route path="notifications" element={<NotificationList />} />
                       {/* Backward compatibility route if needed */}
@@ -132,6 +137,7 @@ const App: React.FC = () => {
                       <Route path="cake-orders" element={<ProductionCakeOrders />} />
                       <Route path="reports" element={<ProductionReports />} />
                       <Route path="purchases" element={<ProductionPurchases />} />
+                      <Route path="transfers" element={<ProductionTransfers />} />
 
                       <Route path="notifications" element={<NotificationList />} />
                     </Route>

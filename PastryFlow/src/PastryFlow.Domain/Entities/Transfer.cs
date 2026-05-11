@@ -7,20 +7,42 @@ namespace PastryFlow.Domain.Entities;
 public class Transfer : BaseEntity
 {
     public string TransferNumber { get; set; } = string.Empty;
-    public Guid FromBranchId { get; set; }
-    public Guid ToBranchId { get; set; }
-    public TransferStatus Status { get; set; } = TransferStatus.Pending;
-    public string? Notes { get; set; }
-    public Guid CreatedByUserId { get; set; }
-    public Guid? ApprovedByUserId { get; set; }
-    public Guid? DriverUserId { get; set; }
-    public Guid? ReceivedByUserId { get; set; }
-    public DateTime? ApprovedAt { get; set; }
-    public DateTime? DeliveredAt { get; set; }
-    public DateTime? ReceivedAt { get; set; }
+    // Format: TRF-2026-0001
 
-    // Navigation properties
-    public virtual Branch FromBranch { get; set; } = null!;
-    public virtual Branch ToBranch { get; set; } = null!;
-    public virtual ICollection<TransferItem> Items { get; set; } = new List<TransferItem>();
+    public Guid SenderBranchId { get; set; }
+    public Branch SenderBranch { get; set; } = null!;
+
+    public Guid ReceiverBranchId { get; set; }
+    public Branch ReceiverBranch { get; set; } = null!;
+
+    public TransferStatus Status { get; set; } = TransferStatus.Shipped;
+
+    public DateTime ShippedAt { get; set; }
+    public DateTime? ReceivedAt { get; set; }
+    public DateTime? CancelledAt { get; set; }
+
+    public string? Notes { get; set; }
+    public string? CancellationReason { get; set; }
+
+    public Guid CreatedByUserId { get; set; }
+    public User CreatedBy { get; set; } = null!;
+
+    public Guid? ReceivedByUserId { get; set; }
+    public User? ReceivedBy { get; set; }
+
+    public Guid? CancelledByUserId { get; set; }
+    public User? CancelledBy { get; set; }
+
+    public ICollection<TransferItem> Items { get; set; } = new List<TransferItem>();
+}
+
+public class TransferItem : BaseEntity
+{
+    public Guid TransferId { get; set; }
+    public Transfer Transfer { get; set; } = null!;
+
+    public Guid ProductId { get; set; }
+    public Product Product { get; set; } = null!;
+
+    public decimal Quantity { get; set; }
 }

@@ -12,7 +12,8 @@ import {
   LogoutOutlined,
   MenuOutlined,
   UserOutlined,
-  ShoppingCartOutlined
+  ShoppingCartOutlined,
+  SwapOutlined
 } from '@ant-design/icons';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
@@ -46,6 +47,7 @@ const SalesLayout: React.FC = () => {
     { key: '/sales/demands/receive', icon: <CheckCircleOutlined />, label: 'Teslimat Kabul' },
     { key: '/sales/wastes/add', icon: <WarningOutlined />, label: 'Zayiat Ekle' },
     { key: '/sales/purchases', icon: <ShoppingCartOutlined />, label: 'Satın Alımlar' },
+    { key: '/sales/transfers', icon: <SwapOutlined />, label: 'Transferler' },
     { key: '/sales/day-closing', icon: <CalculatorOutlined />, label: 'Gün Sonu Sayım' },
     { key: '/sales/reports', icon: <BarChartOutlined />, label: 'Raporlar' },
   ];

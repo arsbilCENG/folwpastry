@@ -44,6 +44,7 @@ builder.Services.AddScoped<IWasteService, WasteService>();
 builder.Services.AddScoped<IPurchaseService, PurchaseService>();
 builder.Services.AddScoped<IWalletService, WalletService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<ITransferService, TransferService>();
 
 // Admin & Report Services
 builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();

@@ -116,6 +116,7 @@ public class DayClosingController : ControllerBase
             return BadRequest("Geçersiz tarih formatı.");
 
         var result = await _dayClosingService.GetSummaryAsync(branchId, parsedDate);
+        Console.WriteLine($"GetSummary for {branchId} on {parsedDate}: Success={result.Success}, IsClosed={result.Data?.IsClosed}");
         if (!result.Success) return BadRequest(result);
         return Ok(result);
     }

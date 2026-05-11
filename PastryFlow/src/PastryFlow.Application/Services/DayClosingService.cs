@@ -8,6 +8,7 @@ using PastryFlow.Application.DTOs.DayClosing;
 using PastryFlow.Application.Interfaces;
 using PastryFlow.Domain.Entities;
 using PastryFlow.Domain.Enums;
+using Microsoft.Extensions.Logging;
 
 namespace PastryFlow.Application.Services;
 
@@ -15,16 +16,21 @@ public class DayClosingService : IDayClosingService
 {
     private readonly IPastryFlowDbContext _context;
     private readonly IWalletService _walletService;
+    private readonly ILogger<DayClosingService> _logger;
 
-    public DayClosingService(IPastryFlowDbContext context, IWalletService walletService)
+    public DayClosingService(IPastryFlowDbContext context, IWalletService walletService, ILogger<DayClosingService> logger)
     {
         _context = context;
         _walletService = walletService;
+        _logger = logger;
     }
 
     public async Task<ApiResponse<string>> SaveCountAsync(CountInputDto dto)
     {
-        var closing = await GetOrCreateDayClosingAsync(dto.BranchId, dto.Date);
+        if (!DateOnly.TryParse(dto.Date, out var date))
+            return ApiResponse<string>.Fail("Geçersiz tarih formatı.");
+
+        var closing = await GetOrCreateDayClosingAsync(dto.BranchId, date);
         if (closing.IsClosed) return ApiResponse<string>.Fail("Bu gün zaten kapatılmış.");
 
         foreach (var item in dto.Items)
@@ -52,8 +58,21 @@ public class DayClosingService : IDayClosingService
 
     public async Task<ApiResponse<string>> SaveCarryOverAsync(CarryOverInputDto dto)
     {
-        var closing = await GetOrCreateDayClosingAsync(dto.BranchId, dto.Date);
-        if (closing.IsClosed) return ApiResponse<string>.Fail("Bu gün zaten kapatılmış.");
+        _logger.LogInformation("SaveCarryOverAsync called for BranchId: {BranchId}, DateString: {Date}", dto.BranchId, dto.Date);
+        
+        if (!DateOnly.TryParse(dto.Date, out var date))
+        {
+            _logger.LogWarning("Invalid date format: {Date}", dto.Date);
+            return ApiResponse<string>.Fail("Geçersiz tarih formatı.");
+        }
+
+        var closing = await GetOrCreateDayClosingAsync(dto.BranchId, date);
+        
+        if (closing.IsClosed) 
+        {
+            _logger.LogWarning("DayClosing already closed for BranchId: {BranchId}, Date: {Date}", dto.BranchId, date);
+            return ApiResponse<string>.Fail("Bu gün zaten kapatılmış.");
+        }
 
         foreach (var item in dto.Items)
         {
@@ -100,12 +119,21 @@ public class DayClosingService : IDayClosingService
         var nextDay = date.AddDays(1);
         var nextClosing = await GetOrCreateDayClosingAsync(branchId, nextDay);
 
-        // Mevcut normal ürün detayları (Production/Purchased — TrackingType != Counter)
+        // ADIM 1: Stock.CurrentQuantity'yi ÖNCE oku (güncelleme öncesi)
+        var stocks = await _context.Stocks
+            .Where(s => s.BranchId == branchId)
+            .ToDictionaryAsync(s => s.ProductId);
+
+        // ADIM 2: Normal ürün detayları (Production/Purchased)
         foreach (var detail in closing.Details.Where(d => d.Product.TrackingType != TrackingType.Counter))
         {
-            // CalculatedSales = (Opening + ReceivedFromDemands + IncomingTransfer) - (OutgoingTransfer + EndOfDayCount + DayWaste)
-            detail.CalculatedSales = (detail.OpeningStock + detail.ReceivedFromDemands + detail.IncomingTransferQuantity)
-                                     - (detail.OutgoingTransferQuantity + detail.EndOfDayCount + detail.DayWasteQuantity);
+            var currentStock = stocks.GetValueOrDefault(detail.ProductId);
+            var currentQty = currentStock?.CurrentQuantity ?? 0;
+
+            var soldQty = currentQty - detail.EndOfDayCount;
+            if (soldQty < 0) soldQty = 0;
+
+            detail.CalculatedSales = soldQty;
 
             // Carry Over to next day
             var nextDetail = nextClosing.Details.FirstOrDefault(d => d.ProductId == detail.ProductId);
@@ -122,26 +150,6 @@ public class DayClosingService : IDayClosingService
             else
             {
                 nextDetail.OpeningStock = detail.CarryOverQuantity;
-            }
-
-            // Normal ürünler Stock kaydı alır
-            var stock = await _context.Stocks
-                .FirstOrDefaultAsync(s => s.BranchId == branchId && s.ProductId == detail.ProductId);
-
-            if (stock == null)
-            {
-                stock = new Stock
-                {
-                    BranchId = branchId,
-                    ProductId = detail.ProductId,
-                    CurrentQuantity = detail.CarryOverQuantity
-                };
-                _context.Stocks.Add(stock);
-            }
-            else
-            {
-                stock.CurrentQuantity = detail.CarryOverQuantity;
-                stock.UpdatedAt = DateTime.UtcNow;
             }
 
             // Create EndOfDay Waste Records if > 0
@@ -161,7 +169,7 @@ public class DayClosingService : IDayClosingService
             }
         }
 
-        // Counter ürün satış kayıtları
+        // ADIM 3: Counter ürün satış kayıtları
         decimal counterSalesTotal = 0;
         if (counterItems != null && counterItems.Count > 0)
         {
@@ -184,11 +192,11 @@ public class DayClosingService : IDayClosingService
                 {
                     // Güncelle
                     existingDetail.CounterSoldQuantity = counterItem.CounterSoldQuantity;
-                    existingDetail.CalculatedSales = revenue;
+                    existingDetail.CalculatedSales = counterItem.CounterSoldQuantity;
                 }
                 else
                 {
-                    // Yeni kayıt — Counter ürünler için tüm stok alanları 0
+                    // Yeni kayıt
                     var detail = new DayClosingDetail
                     {
                         DayClosingId = closing.Id,
@@ -202,16 +210,34 @@ public class DayClosingService : IDayClosingService
                         CarryOverQuantity = 0,
                         EndOfDayWaste = 0,
                         CounterSoldQuantity = counterItem.CounterSoldQuantity,
-                        CalculatedSales = revenue
+                        CalculatedSales = counterItem.CounterSoldQuantity
                     };
                     _context.DayClosingDetails.Add(detail);
                 }
             }
         }
 
-        // KURAL: Counter ürünler Stock tablosuna kayıt almaz, CarryOver'a dahil edilmez.
-        // Beklenen nakit: Counter satışları da toplam gelire dahil edilir.
-        // (ExpectedCashAmount zaten SubmitCashCount'da hesaplandığı için burada güncellemiyoruz.)
+        // ADIM 4: Stock tablosunu güncelle (hesaptan SONRA)
+        foreach (var detail in closing.Details.Where(d => d.Product.TrackingType != TrackingType.Counter))
+        {
+            var stock = stocks.GetValueOrDefault(detail.ProductId);
+            if (stock == null)
+            {
+                stock = new Stock
+                {
+                    BranchId = branchId,
+                    ProductId = detail.ProductId,
+                    CurrentQuantity = detail.CarryOverQuantity
+                };
+                _context.Stocks.Add(stock);
+            }
+            else
+            {
+                stock.CurrentQuantity = detail.CarryOverQuantity;
+                stock.UpdatedAt = DateTime.UtcNow;
+                _context.Stocks.Update(stock);
+            }
+        }
 
         await _context.SaveChangesAsync();
 
@@ -233,62 +259,92 @@ public class DayClosingService : IDayClosingService
     public async Task<ApiResponse<ExpectedCashDto>> CalculateExpectedCashAsync(Guid id)
     {
         var dayClosing = await _context.DayClosings
-            .Include(dc => dc.Details).ThenInclude(d => d.Product)
+            .Include(dc => dc.Details).ThenInclude(d => d.Product).ThenInclude(p => p.Category)
             .FirstOrDefaultAsync(dc => dc.Id == id);
 
         if (dayClosing == null) return ApiResponse<ExpectedCashDto>.Fail("Gün kaydı bulunamadı.");
 
-        // 1. Normal ürün satış geliri (Production/Purchased)
-        decimal totalSalesRevenue = 0;
-        var response = new ExpectedCashDto
+        // Production + Purchased ürünler
+        var stocks = await _context.Stocks
+            .Include(s => s.Product)
+                .ThenInclude(p => p.Category)
+            .Where(s => s.BranchId == dayClosing.BranchId
+                     && s.Product.TrackingType != TrackingType.Counter
+                     && s.Product.IsActive)
+            .ToListAsync();
+
+        var productItems = new List<ExpectedCashItemDto>();
+        decimal productSalesTotal = 0;
+        int productsWithPrice = 0;
+        int productsWithoutPrice = 0;
+
+        foreach (var stock in stocks)
         {
-            OpeningCashBalance = dayClosing.OpeningCashBalance,
-            Items = new List<ExpectedCashItemDto>()
-        };
+            var detail = dayClosing.Details.FirstOrDefault(d => d.ProductId == stock.ProductId);
+            var endOfDayCount = detail?.EndOfDayCount ?? 0;
 
-        foreach (var detail in dayClosing.Details.Where(d => d.Product != null && d.Product.TrackingType != TrackingType.Counter))
-        {
-            if (detail.Product == null) continue;
+            var soldQty = stock.CurrentQuantity - endOfDayCount;
+            if (soldQty < 0) soldQty = 0;
 
-            var calculatedSales = (detail.OpeningStock + detail.ReceivedFromDemands + detail.IncomingTransferQuantity)
-                                  - (detail.OutgoingTransferQuantity + detail.EndOfDayCount + detail.DayWasteQuantity);
-
-            if (detail.Product.UnitPrice.HasValue)
+            decimal revenue = 0;
+            if (stock.Product.UnitPrice.HasValue)
             {
-                var salesValue = calculatedSales * detail.Product.UnitPrice.Value;
-                totalSalesRevenue += salesValue;
-                response.ProductsWithPrice++;
-
-                response.Items.Add(new ExpectedCashItemDto
-                {
-                    ProductName = detail.Product.Name,
-                    CalculatedSales = calculatedSales,
-                    UnitPrice = detail.Product.UnitPrice.Value,
-                    SalesValue = salesValue
-                });
+                revenue = soldQty * stock.Product.UnitPrice.Value;
+                productSalesTotal += revenue;
+                productsWithPrice++;
             }
             else
             {
-                response.ProductsWithoutPrice++;
-                response.Items.Add(new ExpectedCashItemDto
+                productsWithoutPrice++;
+            }
+
+            productItems.Add(new ExpectedCashItemDto
+            {
+                ProductName = stock.Product.Name,
+                CategoryName = stock.Product.Category.Name,
+                CalculatedSales = soldQty,
+                UnitPrice = stock.Product.UnitPrice,
+                SalesValue = stock.Product.UnitPrice.HasValue ? revenue : null,
+                IsCounter = false
+            });
+        }
+
+        // Counter ürünler
+        var counterItems = await _context.Products
+            .Include(p => p.Category)
+            .Where(p => p.TrackingType == TrackingType.Counter && p.IsActive)
+            .ToListAsync();
+
+        decimal counterSalesTotal = 0;
+        var counterItemDtos = new List<ExpectedCashItemDto>();
+
+        foreach (var product in counterItems)
+        {
+            var detail = dayClosing.Details.FirstOrDefault(d => d.ProductId == product.Id);
+            var counterSoldQty = detail?.CounterSoldQuantity ?? 0;
+            
+            decimal revenue = 0;
+            if (product.UnitPrice.HasValue)
+            {
+                revenue = counterSoldQty * product.UnitPrice.Value;
+                counterSalesTotal += revenue;
+            }
+
+            if (counterSoldQty > 0)
+            {
+                counterItemDtos.Add(new ExpectedCashItemDto
                 {
-                    ProductName = detail.Product.Name,
-                    CalculatedSales = calculatedSales,
-                    UnitPrice = null,
-                    SalesValue = null
+                    ProductName = product.Name,
+                    CategoryName = product.Category.Name,
+                    CalculatedSales = counterSoldQty,
+                    UnitPrice = product.UnitPrice,
+                    SalesValue = product.UnitPrice.HasValue ? revenue : null,
+                    IsCounter = true
                 });
             }
         }
 
-        // 2. Counter satış geliri — o güne ait Counter DayClosingDetail'larından
-        var counterSalesTotal = dayClosing.Details
-            .Where(d => d.Product != null
-                     && d.Product.TrackingType == TrackingType.Counter
-                     && d.CounterSoldQuantity.HasValue)
-            .Sum(d => d.CounterSoldQuantity!.Value * (d.Product.UnitPrice ?? 0));
-
-        response.CounterSalesTotal = counterSalesTotal;
-        response.TotalSalesRevenue = totalSalesRevenue + counterSalesTotal;
+        var totalSalesRevenue = productSalesTotal + counterSalesTotal;
 
         // 3. Bugünkü nakit satın alımlar
         var targetDate = DateTime.SpecifyKind(dayClosing.Date.ToDateTime(TimeOnly.MinValue), DateTimeKind.Utc);
@@ -319,16 +375,28 @@ public class DayClosingService : IDayClosingService
         // Beklenen nakit = Açılış + (TümGelir - POS) + Yatırım - Satın Alım - Çekim
         var posAmount = dayClosing.PosAmount ?? 0;
         var expectedCash = dayClosing.OpeningCashBalance
-            + (response.TotalSalesRevenue - posAmount)
+            + (totalSalesRevenue - posAmount)
             + cashDeposits
             - cashPurchases
             - cashWithdrawals;
 
-        response.CashPurchases = cashPurchases;
-        response.CashWithdrawals = cashWithdrawals;
-        response.CashDeposits = cashDeposits;
-        response.ExpectedCashAmount = Math.Max(0, expectedCash);
-        response.ExpectedAmount = response.TotalSalesRevenue; // Backward compatibility
+        var response = new ExpectedCashDto
+        {
+            OpeningCashBalance = dayClosing.OpeningCashBalance,
+            CashPurchases = cashPurchases,
+            CashWithdrawals = cashWithdrawals,
+            CashDeposits = cashDeposits,
+            TotalSalesRevenue = totalSalesRevenue,
+            CounterSalesTotal = counterSalesTotal,
+            ExpectedCashAmount = Math.Max(0, expectedCash),
+            ExpectedAmount = totalSalesRevenue, // Backward compatibility
+            ProductsWithPrice = productsWithPrice,
+            ProductsWithoutPrice = productsWithoutPrice,
+            Items = productItems.Concat(counterItemDtos)
+                                .OrderBy(i => i.CategoryName)
+                                .ThenBy(i => i.ProductName)
+                                .ToList()
+        };
 
         return ApiResponse<ExpectedCashDto>.Ok(response);
     }
@@ -349,7 +417,15 @@ public class DayClosingService : IDayClosingService
         if (!expectedCashRes.Success || expectedCashRes.Data == null)
             return ApiResponse<DayClosingSummaryDto>.Fail("Beklenen tutar hesaplanamadı.");
 
-        var expectedAmount = expectedCashRes.Data.ExpectedCashAmount; // Tam kasa denklemi sonucu
+        // The backend `CalculateExpectedCashAsync` already subtracted `closing.PosAmount` from the DB (which is typically 0 at this point).
+        // Since we are overriding it with `dto.PosAmount`, we need to adjust the expected cash.
+        var baseExpectedAmount = expectedCashRes.Data.ExpectedCashAmount;
+        var oldPosAmount = closing.PosAmount ?? 0;
+        var newPosAmount = dto.PosAmount;
+        
+        var adjustedExpectedAmount = baseExpectedAmount + oldPosAmount - newPosAmount;
+        var expectedAmount = Math.Max(0, adjustedExpectedAmount); // Tam kasa denklemi sonucu
+        
         var totalCounted = dto.CashAmount + dto.PosAmount;
         var diff = dto.CashAmount - expectedAmount; // Nakit farkı
 
@@ -426,6 +502,11 @@ public class DayClosingService : IDayClosingService
             });
         }
 
+        // ADIM 1: Stock tablosunu oku (Anlık stok durumu için)
+        var stocks = await _context.Stocks
+            .Where(s => s.BranchId == branchId)
+            .ToDictionaryAsync(s => s.ProductId);
+
         var response = new DayClosingSummaryDto
         {
             Id = closing.Id,
@@ -445,28 +526,32 @@ public class DayClosingService : IDayClosingService
                 .Where(d => d.Product != null && d.Product.IsActive && d.Product.TrackingType != TrackingType.Counter)
                 .OrderBy(d => d.Product.Category.SortOrder)
                 .ThenBy(d => d.Product.Name)
-                .Select(d => new DailySummaryItemDto
-                {
-                    Id = d.Id,
-                    ProductId = d.ProductId,
-                    ProductName = d.Product.Name,
-                    CategoryName = d.Product.Category.Name,
-                    Unit = d.Product.Unit.ToString(),
-                    OpeningStock = d.OpeningStock,
-                    ReceivedFromDemands = d.ReceivedFromDemands,
-                    IncomingTransfer = d.IncomingTransferQuantity,
-                    OutgoingTransfer = d.OutgoingTransferQuantity,
-                    DayWaste = d.DayWasteQuantity,
-                    EndOfDayCount = d.EndOfDayCount,
-                    CarryOver = d.CarryOverQuantity,
-                    EndOfDayWaste = d.EndOfDayWaste,
-                    CalculatedSales = d.CalculatedSales == 0 && !closing.IsClosed ? 
-                        ((d.OpeningStock + d.ReceivedFromDemands + d.IncomingTransferQuantity) - (d.OutgoingTransferQuantity + d.EndOfDayCount + d.DayWasteQuantity)) : 
-                        d.CalculatedSales,
-                    IsCorrected = d.OriginalEndOfDayCount.HasValue,
-                    OriginalEndOfDayCount = d.OriginalEndOfDayCount,
-                    OriginalCarryOverQuantity = d.OriginalCarryOverQuantity,
-                    LastCorrectionReason = d.CorrectionReason
+                .Select(d => {
+                    var currentStock = stocks.GetValueOrDefault(d.ProductId);
+                    var currentQty = currentStock?.CurrentQuantity ?? 0;
+                    
+                    return new DailySummaryItemDto
+                    {
+                        Id = d.Id,
+                        ProductId = d.ProductId,
+                        ProductName = d.Product.Name,
+                        CategoryName = d.Product.Category.Name,
+                        Unit = d.Product.Unit.ToString(),
+                        OpeningStock = d.OpeningStock,
+                        ReceivedFromDemands = d.ReceivedFromDemands,
+                        IncomingTransfer = d.IncomingTransferQuantity,
+                        OutgoingTransfer = d.OutgoingTransferQuantity,
+                        DayWaste = d.DayWasteQuantity,
+                        EndOfDayCount = d.EndOfDayCount,
+                        CarryOver = d.CarryOverQuantity,
+                        EndOfDayWaste = d.EndOfDayWaste,
+                        // Açık günlerde satış henüz hesaplanmaz, sadece stok durumunu gösterir
+                        CalculatedSales = closing.IsClosed ? d.CalculatedSales : 0,
+                        IsCorrected = d.OriginalEndOfDayCount.HasValue,
+                        OriginalEndOfDayCount = d.OriginalEndOfDayCount,
+                        OriginalCarryOverQuantity = d.OriginalCarryOverQuantity,
+                        LastCorrectionReason = d.CorrectionReason
+                    };
                 }).ToList()
         };
 

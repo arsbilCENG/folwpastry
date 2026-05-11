@@ -13,6 +13,7 @@ import notificationSound from '../utils/notificationSound';
 import { notificationApi } from '../api/notificationApi';
 import useAuth from '../hooks/useAuth';
 import type { NotificationDto, NotificationType } from '../types/notification';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface NotificationContextType {
   unreadCount: number;
@@ -50,6 +51,7 @@ const getNotificationConfig = (type: NotificationType) => {
 
 export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, token } = useAuth();
+  const queryClient = useQueryClient();
   const [unreadCount, setUnreadCount] = useState(0);
   const [isConnected, setIsConnected] = useState(false);
   const connectionCheckInterval = useRef<any>(null);
@@ -139,10 +141,17 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
       // 4. Browser masaüstü bildirimi göster
       notificationSound.showBrowserNotification(notification.title, notification.message);
+
+      // 5. Transfer bildirimleri için verileri yenile
+      if (notification.type === 'TransferShipped') {
+        queryClient.invalidateQueries({ queryKey: ['transfers', 'incoming'] });
+      } else if (notification.type === 'TransferReceived') {
+        queryClient.invalidateQueries({ queryKey: ['transfers', 'outgoing'] });
+      }
     });
 
     return unsubscribe;
-  }, [token, markAsRead]);
+  }, [token, markAsRead, queryClient]);
 
   // İlk yüklemede unread count çek
   useEffect(() => {

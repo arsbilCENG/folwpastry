@@ -22,7 +22,9 @@ public class ExpectedCashDto
 public class ExpectedCashItemDto
 {
     public string ProductName { get; set; } = string.Empty;
+    public string CategoryName { get; set; } = string.Empty;
     public decimal CalculatedSales { get; set; }
     public decimal? UnitPrice { get; set; }
     public decimal? SalesValue { get; set; }
+    public bool IsCounter { get; set; } = false;
 }

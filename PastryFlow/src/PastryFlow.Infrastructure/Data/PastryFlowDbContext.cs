@@ -135,6 +135,45 @@ public class PastryFlowDbContext : DbContext, IPastryFlowDbContext
             entity.HasQueryFilter(e => !e.IsDeleted);
         });
 
+        // Transfer
+        modelBuilder.Entity<Transfer>()
+            .HasOne(t => t.SenderBranch)
+            .WithMany()
+            .HasForeignKey(t => t.SenderBranchId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Transfer>()
+            .HasOne(t => t.ReceiverBranch)
+            .WithMany()
+            .HasForeignKey(t => t.ReceiverBranchId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Transfer>()
+            .HasOne(t => t.CreatedBy)
+            .WithMany()
+            .HasForeignKey(t => t.CreatedByUserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Transfer>()
+            .HasOne(t => t.ReceivedBy)
+            .WithMany()
+            .HasForeignKey(t => t.ReceivedByUserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Transfer>()
+            .HasOne(t => t.CancelledBy)
+            .WithMany()
+            .HasForeignKey(t => t.CancelledByUserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<TransferItem>()
+            .Property(i => i.Quantity)
+            .HasPrecision(18, 2);
+
+        // Soft delete global filter
+        modelBuilder.Entity<Transfer>()
+            .HasQueryFilter(t => !t.IsDeleted);
+
         modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         SeedData.Initialize(modelBuilder);
     }
