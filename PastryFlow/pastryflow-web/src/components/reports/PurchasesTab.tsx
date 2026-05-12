@@ -9,9 +9,9 @@ import {
 } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
-import { usePurchaseReport } from '../../hooks/useReports';
+import { usePurchaseReport } from '../../hooks/useReportsLegacy';
 import { useAdminBranches } from '../../hooks/useAdmin';
-import type { PurchaseReportItem, PurchaseReportItemDetail } from '../../types/report';
+import type { PurchaseReportItem, PurchaseReportItemDetail } from '../../types/reportLegacy';
 
 const { RangePicker } = DatePicker;
 const { Text, Title } = Typography;

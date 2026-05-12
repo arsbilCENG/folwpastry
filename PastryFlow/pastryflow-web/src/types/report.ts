@@ -1,173 +1,122 @@
-// ============ DAILY REPORT ============
-export interface DailyReportDto {
+// ─── Günlük Özet ───────────────────────────────────────────
+
+export interface DailyProductSaleDto {
+  categoryName: string;
+  productName: string;
+  unit: string;
+  soldQuantity: number;
+  unitPrice?: number;
+  revenue: number;
+  isCounter: boolean;
+}
+
+export interface DailyWasteDto {
+  productName: string;
+  categoryName: string;
+  quantity: number;
+  unit: string;
+  reason?: string;
+  wasteTypeLabel: string;
+}
+
+export interface DailySummaryReport {
   date: string;
-  branchId: string;
   branchName: string;
-  items: DailySalesItemDto[];
-  totalCalculatedSales: number;
-  totalWaste: number;
-  totalSalesValue: number | null;
+  isClosed: boolean;
+  productSalesRevenue: number;
   counterSalesRevenue: number;
+  totalSalesRevenue: number;
   totalPurchaseExpense: number;
   cashPurchaseExpense: number;
   cardPurchaseExpense: number;
-  totalCashDeposits: number;
-  totalCashWithdrawals: number;
+  expectedCashAmount: number;
+  actualCashAmount: number;
+  posAmount: number;
+  cashDifference: number;
+  wasteItemCount: number;
+  totalWasteQuantity: number;
+  productSales: DailyProductSaleDto[];
+  wastes: DailyWasteDto[];
 }
 
-export interface DailySalesItemDto {
-  productId: string;
-  productName: string;
+// ─── Dönem Raporu ──────────────────────────────────────────
+
+export interface PeriodDailyRow {
+  date: string;
+  productSalesRevenue: number;
+  counterSalesRevenue: number;
+  totalSalesRevenue: number;
+  purchaseExpense: number;
+  cashDifference: number;
+}
+
+export interface PeriodProductSummary {
   categoryName: string;
-  unitType: string;
-  openingStock: number;
-  receivedFromDemand: number;
-  receivedFromTransfer: number;
-  sentByTransfer: number;
-  wasteQuantity: number;
-  endOfDayCount: number;
-  calculatedSales: number;
-  unitPrice: number | null;
-  salesValue: number | null;
-}
-
-// ============ PURCHASE REPORT ============
-export interface PurchaseReportItemDetail {
-  itemName: string;
-  quantity: number;
+  productName: string;
   unit: string;
-  unitPrice: number;
-  totalPrice: number;
+  totalSoldQuantity: number;
+  totalRevenue: number;
+  isCounter: boolean;
 }
 
-export interface PurchaseReportItem {
-  purchaseId: string;
-  purchaseNumber: string;
-  purchaseDate: string;
-  branchName: string;
-  paymentMethodLabel: string;
-  totalAmount: number;
-  notes?: string;
-  items: PurchaseReportItemDetail[];
-}
-
-export interface PurchaseReport {
+export interface PeriodSummaryReport {
   startDate: string;
   endDate: string;
-  branchName?: string;
-  totalExpense: number;
-  cashExpense: number;
-  cardExpense: number;
-  purchases: PurchaseReportItem[];
+  branchName: string;
+  closedDayCount: number;
+  totalSalesRevenue: number;
+  totalCounterRevenue: number;
+  totalPurchaseExpense: number;
+  totalCashDifference: number;
+  totalWasteQuantity: number;
+  dailyRows: PeriodDailyRow[];
+  productSummaries: PeriodProductSummary[];
 }
 
-// ============ CASH TRANSACTION REPORT ============
-export interface CashTransactionReportItem {
-  transactionId: string;
+// ─── Yönetim Paneli ────────────────────────────────────────
+
+export interface BranchComparisonDto {
+  branchName: string;
+  totalSalesRevenue: number;
+  totalPurchaseExpense: number;
+  totalCashDifference: number;
+  netRevenue: number;
+  closedDayCount: number;
+}
+
+export interface BranchWalletSummaryDto {
+  branchName: string;
+  cashBalance: number;
+  bankBalance: number;
+  totalBalance: number;
+}
+
+export interface WalletMovementDto {
   transactionDate: string;
   branchName: string;
   transactionTypeLabel: string;
-  methodLabel: string;
+  walletTypeLabel: string;
   amount: number;
   description?: string;
   createdByName: string;
 }
 
-export interface CashTransactionReport {
+export interface ManagementReport {
   startDate: string;
   endDate: string;
-  branchName?: string;
-  totalDeposits: number;
-  totalWithdrawals: number;
-  netFlow: number;
-  transactions: CashTransactionReportItem[];
+  branchComparisons: BranchComparisonDto[];
+  walletBalances: BranchWalletSummaryDto[];
+  walletMovements: WalletMovementDto[];
+  grandTotalRevenue: number;
+  grandTotalExpense: number;
+  grandTotalCashBalance: number;
+  grandTotalBankBalance: number;
 }
 
-// ============ WASTE SUMMARY REPORT ============
-export interface WasteSummaryReportDto {
-  startDate: string;
-  endDate: string;
-  branchId: string | null;
-  branchName: string | null;
-  items: WasteSummaryItemDto[];
-  totalWasteQuantity: number;
-  totalEstimatedLoss: number | null;
-}
+// ─── Dönem seçici ──────────────────────────────────────────
 
-export interface WasteSummaryItemDto {
-  productId: string;
-  productName: string;
-  categoryName: string;
-  unitType: string;
-  totalQuantity: number;
-  wasteCount: number;
-  estimatedLoss: number | null;
-}
-
-// ============ DEMAND SUMMARY REPORT ============
-export interface DemandSummaryReportDto {
-  startDate: string;
-  endDate: string;
-  items: DemandSummaryItemDto[];
-  totalDemands: number;
-  totalApproved: number;
-  totalRejected: number;
-  approvalRate: number;
-}
-
-export interface DemandSummaryItemDto {
-  date: string;
-  fromBranchId: string;
-  fromBranchName: string;
-  toBranchId: string;
-  toBranchName: string;
-  totalItems: number;
-  approvedItems: number;
-  rejectedItems: number;
-  status: string;
-}
-
-// ============ BRANCH COMPARISON REPORT ============
-export interface BranchComparisonReportDto {
-  startDate: string;
-  endDate: string;
-  metric: string;
-  items: BranchComparisonItemDto[];
-}
-
-export interface BranchComparisonItemDto {
-  branchId: string;
-  branchName: string;
-  dailyData: DailyMetricDto[];
-  total: number;
-}
-
-export interface DailyMetricDto {
-  date: string;
-  value: number;
-}
-
-// ============ FILTER PARAMS ============
-export interface DailySalesFilterParams {
-  date: string;
-  branchId?: string;
-}
-
-export interface WasteSummaryFilterParams {
-  startDate: string;
-  endDate: string;
-  branchId?: string;
-  categoryId?: string;
-}
-
-export interface DemandSummaryFilterParams {
-  startDate: string;
-  endDate: string;
-  branchId?: string;
-}
-
-export interface BranchComparisonFilterParams {
-  startDate: string;
-  endDate: string;
-  metric: 'sales' | 'waste' | 'demand';
-}
+export type PeriodPreset =
+  | 'this_week'
+  | 'this_month'
+  | 'last_month'
+  | 'custom';

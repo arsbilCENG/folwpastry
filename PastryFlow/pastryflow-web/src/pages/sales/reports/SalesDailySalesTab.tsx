@@ -13,11 +13,11 @@ import {
 } from 'recharts';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
-import { useDailySalesReport } from '../../../hooks/useReports';
+import { useDailySalesReport } from '../../../hooks/useReportsLegacy';
 import useAuth from '../../../hooks/useAuth';
-import { exportToExcel, exportToPdf, formatDateForExport } from '../../../utils/exportUtils';
+import { exportToExcel, exportToPdf, formatDateForExport } from '../../../utils/exportUtilsLegacy';
 import { CHART_COLORS } from '../../../utils/constants';
-import type { DailySalesItemDto } from '../../../types/report';
+import type { DailySalesItemDto } from '../../../types/reportLegacy';
 
 const { Text } = Typography;
 

@@ -1,20 +1,15 @@
-using System;
-using System.Threading.Tasks;
-using PastryFlow.Application.Common;
-using PastryFlow.Application.DTOs.Reports;
+using PastryFlow.Application.DTOs.Report;
 
 namespace PastryFlow.Application.Interfaces;
 
 public interface IReportService
 {
-    Task<ApiResponse<DailyReportDto>> GetDailySalesReportAsync(DateOnly date, Guid? branchId);
-    Task<ApiResponse<WasteSummaryReportDto>> GetWasteSummaryReportAsync(DateOnly startDate, DateOnly endDate, Guid? branchId, Guid? categoryId);
-    Task<ApiResponse<DemandSummaryReportDto>> GetDemandSummaryReportAsync(DateOnly startDate, DateOnly endDate, Guid? branchId);
-    Task<ApiResponse<BranchComparisonReportDto>> GetBranchComparisonReportAsync(DateOnly startDate, DateOnly endDate, string metric);
-    
-    Task<PurchaseReportDto> GetPurchaseReportAsync(
-        Guid? branchId, DateTime startDate, DateTime endDate);
+    Task<DailySummaryReportDto> GetDailySummaryAsync(
+        Guid branchId, DateOnly date);
 
-    Task<CashTransactionReportDto> GetCashTransactionReportAsync(
-        Guid? branchId, DateTime startDate, DateTime endDate);
+    Task<PeriodSummaryReportDto> GetPeriodSummaryAsync(
+        Guid branchId, DateOnly startDate, DateOnly endDate);
+
+    Task<ManagementReportDto> GetManagementReportAsync(
+        DateOnly startDate, DateOnly endDate);
 }

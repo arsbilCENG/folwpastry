@@ -13,10 +13,10 @@ import {
 } from 'recharts';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
-import { useBranchComparisonReport } from '../../../hooks/useReports';
-import { exportToExcel, exportToPdf, formatDateRangeForExport } from '../../../utils/exportUtils';
+import { useBranchComparisonReport } from '../../../hooks/useReportsLegacy';
+import { exportToExcel, exportToPdf, formatDateRangeForExport } from '../../../utils/exportUtilsLegacy';
 import { CHART_COLORS } from '../../../utils/constants';
-import type { BranchComparisonItemDto } from '../../../types/report';
+import type { BranchComparisonItemDto } from '../../../types/reportLegacy';
 
 const { RangePicker } = DatePicker;
 

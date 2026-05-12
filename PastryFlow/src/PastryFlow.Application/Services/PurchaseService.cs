@@ -164,12 +164,22 @@ public class PurchaseService : IPurchaseService
             ? WalletType.Cash
             : WalletType.Bank;
 
-        await _walletService.ApplyPurchaseDeductionAsync(
-            purchase.BranchId,
-            walletType,
-            purchase.TotalAmount,
-            purchase.PurchaseNumber,
-            userId);
+        try
+        {
+            await _walletService.ApplyPurchaseDeductionAsync(
+                purchase.BranchId,
+                walletType,
+                purchase.TotalAmount,
+                purchase.PurchaseNumber,
+                userId);
+        }
+        catch (Exception ex)
+        {
+            // Wallet hatası satın alımı iptal etmez
+            // Bakiye yetersizse yine de satın alım kaydedilir
+            // Admin manuel düzeltme yapabilir
+            Console.WriteLine($"[WalletService] Satın alım wallet güncellemesi başarısız: {ex.Message}");
+        }
 
         return await GetPurchaseByIdAsync(purchase.Id);
     }
@@ -228,12 +238,19 @@ public class PurchaseService : IPurchaseService
             ? WalletType.Cash
             : WalletType.Bank;
 
-        await _walletService.RevertPurchaseDeductionAsync(
-            purchase.BranchId,
-            walletType,
-            purchase.TotalAmount,
-            purchase.PurchaseNumber,
-            userId);
+        try
+        {
+            await _walletService.RevertPurchaseDeductionAsync(
+                purchase.BranchId,
+                walletType,
+                purchase.TotalAmount,
+                purchase.PurchaseNumber,
+                userId);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[WalletService] Satın alım iade wallet güncellemesi başarısız: {ex.Message}");
+        }
     }
 
     public async Task<PagedResult<PurchaseDto>> GetAllPurchasesAsync(
