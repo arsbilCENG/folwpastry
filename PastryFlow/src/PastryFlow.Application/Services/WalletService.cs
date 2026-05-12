@@ -230,9 +230,12 @@ public class WalletService : IWalletService
         using var transaction = await _context.Database.BeginTransactionAsync();
         try
         {
+            // Her zaman wallet'ları oluştur (GetOrCreate pattern)
+            var cashWallet = await GetOrCreateBranchWalletAsync(branchId, WalletType.Cash);
+            var bankWallet = await GetOrCreateBranchWalletAsync(branchId, WalletType.Bank);
+
             if (cashRevenue > 0)
             {
-                var cashWallet = await GetOrCreateBranchWalletAsync(branchId, WalletType.Cash);
                 cashWallet.CurrentBalance += cashRevenue;
                 cashWallet.UpdatedAt = DateTime.UtcNow;
 
@@ -255,7 +258,6 @@ public class WalletService : IWalletService
 
             if (bankRevenue > 0)
             {
-                var bankWallet = await GetOrCreateBranchWalletAsync(branchId, WalletType.Bank);
                 bankWallet.CurrentBalance += bankRevenue;
                 bankWallet.UpdatedAt = DateTime.UtcNow;
 
@@ -295,8 +297,10 @@ public class WalletService : IWalletService
 
             if (wallet.CurrentBalance < amount)
             {
-                wallet.CurrentBalance -= amount;
-                throw new Exception($"Yetersiz {walletType} bakiyesi. Mevcut: ₺{wallet.CurrentBalance:N2}");
+                // Bakiyeye dokunma — sadece exception fırlat
+                throw new Exception(
+                    $"Yetersiz {(walletType == WalletType.Cash ? "nakit" : "banka")} bakiyesi. " +
+                    $"Mevcut: ₺{wallet.CurrentBalance:N2}, İstenen: ₺{amount:N2}");
             }
 
             wallet.CurrentBalance -= amount;
@@ -535,12 +539,14 @@ public class WalletService : IWalletService
 
         if (startDate.HasValue)
         {
-            query = query.Where(t => t.TransactionDate >= startDate.Value.Date);
+            var start = DateTime.SpecifyKind(startDate.Value.Date, DateTimeKind.Utc);
+            query = query.Where(t => t.TransactionDate >= start);
         }
 
         if (endDate.HasValue)
         {
-            query = query.Where(t => t.TransactionDate <= endDate.Value.Date.AddDays(1).AddTicks(-1));
+            var end = DateTime.SpecifyKind(endDate.Value.Date.AddDays(1).AddTicks(-1), DateTimeKind.Utc);
+            query = query.Where(t => t.TransactionDate <= end);
         }
 
         var transactions = await query.OrderByDescending(t => t.TransactionDate).ToListAsync();
