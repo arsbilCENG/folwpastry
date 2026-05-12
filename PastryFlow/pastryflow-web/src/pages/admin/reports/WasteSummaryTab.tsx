@@ -12,11 +12,11 @@ import {
 } from 'recharts';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
-import { useWasteSummaryReport } from '../../../hooks/useReports';
+import { useWasteSummaryReport } from '../../../hooks/useReportsLegacy';
 import { useAdminBranches, useAdminCategories } from '../../../hooks/useAdmin';
-import { exportToExcel, exportToPdf, formatDateRangeForExport } from '../../../utils/exportUtils';
+import { exportToExcel, exportToPdf, formatDateRangeForExport } from '../../../utils/exportUtilsLegacy';
 import { CHART_COLORS } from '../../../utils/constants';
-import type { WasteSummaryItemDto } from '../../../types/report';
+import type { WasteSummaryItemDto } from '../../../types/reportLegacy';
 
 const { RangePicker } = DatePicker;
 

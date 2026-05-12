@@ -14,10 +14,10 @@ import {
 } from 'recharts';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
-import { useDemandSummaryReport } from '../../../hooks/useReports';
+import { useDemandSummaryReport } from '../../../hooks/useReportsLegacy';
 import { useAdminBranches } from '../../../hooks/useAdmin';
-import { exportToExcel, exportToPdf, formatDateRangeForExport } from '../../../utils/exportUtils';
-import type { DemandSummaryItemDto } from '../../../types/report';
+import { exportToExcel, exportToPdf, formatDateRangeForExport } from '../../../utils/exportUtilsLegacy';
+import type { DemandSummaryItemDto } from '../../../types/reportLegacy';
 
 const { RangePicker } = DatePicker;
 const { Text } = Typography;

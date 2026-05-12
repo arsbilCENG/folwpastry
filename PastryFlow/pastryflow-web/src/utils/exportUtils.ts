@@ -2,151 +2,22 @@ import ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import type {
+  DailySummaryReport,
+  PeriodSummaryReport,
+  ManagementReport,
+} from '../types/report';
+import { formatCurrency, formatDate } from './formatters';
 
-// ============ EXCEL EXPORT ============
+const safeFilePart = (s: string) => s.replace(/[/\\?%*:|"<>]/g, '-').trim() || 'rapor';
 
-interface ExcelColumn {
-  header: string;
-  key: string;
-  width?: number;
-  style?: Partial<ExcelJS.Style>;
-}
+// ─── Türkçe PDF font (Roboto) — mevcut pattern ─────────────────
 
-interface ExcelExportOptions {
-  fileName: string;
-  sheetName: string;
-  columns: ExcelColumn[];
-  data: Record<string, any>[];
-  title?: string;
-  subtitle?: string;
-}
-
-export const exportToExcel = async (options: ExcelExportOptions): Promise<void> => {
-  const { fileName, sheetName, columns, data, title, subtitle } = options;
-  
-  const workbook = new ExcelJS.Workbook();
-  workbook.creator = 'PastryFlow';
-  workbook.created = new Date();
-  
-  const worksheet = workbook.addWorksheet(sheetName);
-  
-  let startRow = 1;
-  
-  // Başlık satırı
-  if (title) {
-    const titleRow = worksheet.addRow([title]);
-    titleRow.font = { size: 16, bold: true };
-    titleRow.alignment = { horizontal: 'center' };
-    worksheet.mergeCells(startRow, 1, startRow, columns.length);
-    startRow++;
-  }
-  
-  // Alt başlık
-  if (subtitle) {
-    const subtitleRow = worksheet.addRow([subtitle]);
-    subtitleRow.font = { size: 11, italic: true, color: { argb: '666666' } };
-    subtitleRow.alignment = { horizontal: 'center' };
-    worksheet.mergeCells(startRow, 1, startRow, columns.length);
-    startRow++;
-  }
-  
-  // Boş satır
-  if (title || subtitle) {
-    worksheet.addRow([]);
-    startRow++;
-  }
-  
-  // Kolon tanımları
-  worksheet.columns = columns.map(col => ({
-    key: col.key,
-    width: col.width || 15,
-  }));
-  
-  // Header satırını manuel ekle
-  const headerValues = columns.map(col => col.header);
-  const headerRow = worksheet.addRow(headerValues);
-  headerRow.font = { bold: true, color: { argb: 'FFFFFF' } };
-  headerRow.fill = {
-    type: 'pattern',
-    pattern: 'solid',
-    fgColor: { argb: '1890FF' }, // Ant Design primary blue
-  };
-  headerRow.alignment = { horizontal: 'center', vertical: 'middle' };
-  headerRow.height = 28;
-  
-  // Veri satırları
-  data.forEach((row, index) => {
-    const values = columns.map(col => row[col.key] ?? '');
-    const dataRow = worksheet.addRow(values);
-    
-    // Zebra striping
-    if (index % 2 === 1) {
-      dataRow.fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: 'F5F5F5' },
-      };
-    }
-    
-    dataRow.alignment = { vertical: 'middle' };
-  });
-  
-  // Border ekle
-  worksheet.eachRow((row, rowNumber) => {
-    if (rowNumber >= startRow) {
-      row.eachCell((cell) => {
-        cell.border = {
-          top: { style: 'thin' },
-          left: { style: 'thin' },
-          bottom: { style: 'thin' },
-          right: { style: 'thin' },
-        };
-      });
-    }
-  });
-  
-  // Auto-filter
-  if (data.length > 0) {
-    const lastRow = worksheet.rowCount;
-    const headerRowNumber = startRow + (title || subtitle ? 2 : 0); // Corrected header row calculation
-    worksheet.autoFilter = {
-      from: { row: headerRowNumber, column: 1 },
-      to: { row: lastRow, column: columns.length },
-    };
-  }
-  
-  // Dosyayı kaydet
-  const buffer = await workbook.xlsx.writeBuffer();
-  const blob = new Blob([buffer], { 
-    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
-  });
-  saveAs(blob, `${fileName}.xlsx`);
-};
-
-// ============ PDF EXPORT ============
-
-interface PdfColumn {
-  header: string;
-  dataKey: string;
-  halign?: 'left' | 'center' | 'right';
-}
-
-interface PdfExportOptions {
-  fileName: string;
-  title: string;
-  subtitle?: string;
-  columns: PdfColumn[];
-  data: Record<string, any>[];
-  orientation?: 'portrait' | 'landscape';
-  footerText?: string;
-}
-
-// Türkçe font yükleme
 const loadTurkishFont = async (doc: jsPDF): Promise<boolean> => {
   try {
     const response = await fetch('/fonts/Roboto-Regular.ttf');
     if (!response.ok) return false;
-    
+
     const buffer = await response.arrayBuffer();
     const binary = new Uint8Array(buffer);
     let str = '';
@@ -154,7 +25,7 @@ const loadTurkishFont = async (doc: jsPDF): Promise<boolean> => {
       str += String.fromCharCode(binary[i]);
     }
     const base64 = btoa(str);
-    
+
     doc.addFileToVFS('Roboto-Regular.ttf', base64);
     doc.addFont('Roboto-Regular.ttf', 'Roboto', 'normal');
     doc.setFont('Roboto');
@@ -165,112 +36,357 @@ const loadTurkishFont = async (doc: jsPDF): Promise<boolean> => {
   }
 };
 
-export const exportToPdf = async (options: PdfExportOptions): Promise<void> => {
-  const { fileName, title, subtitle, columns, data, orientation = 'landscape', footerText } = options;
-  
-  const doc = new jsPDF({ orientation, unit: 'mm', format: 'a4' });
-  
-  // Türkçe font yükle
-  const hasTurkishFont = await loadTurkishFont(doc);
-  const fontName = hasTurkishFont ? 'Roboto' : 'helvetica';
-  
-  const pageWidth = doc.internal.pageSize.getWidth();
-  
-  // Başlık
-  doc.setFont(fontName, 'normal');
-  doc.setFontSize(18);
-  doc.setTextColor(24, 144, 255); // Ant Design primary blue
-  doc.text(title, pageWidth / 2, 15, { align: 'center' });
-  
-  // Alt başlık
-  let yPosition = 22;
-  if (subtitle) {
-    doc.setFontSize(10);
-    doc.setTextColor(102, 102, 102);
-    doc.text(subtitle, pageWidth / 2, yPosition, { align: 'center' });
-    yPosition += 8;
-  }
-  
-  // Oluşturma tarihi
-  doc.setFontSize(8);
-  doc.setTextColor(153, 153, 153);
-  const now = new Date().toLocaleString('tr-TR');
-  doc.text(`Oluşturma Tarihi: ${now}`, pageWidth / 2, yPosition, { align: 'center' });
-  yPosition += 5;
-  
-  // Tablo
-  const tableColumns = columns.map(col => ({
-    header: col.header,
-    dataKey: col.dataKey,
-  }));
-  
-  const tableData = data.map(row => {
-    const newRow: Record<string, any> = {};
-    columns.forEach(col => {
-      newRow[col.dataKey] = row[col.dataKey] ?? '-';
+const pdfFontName = async (doc: jsPDF): Promise<string> => {
+  const ok = await loadTurkishFont(doc);
+  return ok ? 'Roboto' : 'helvetica';
+};
+
+export type WalletBalanceExportRow = {
+  branchName: string;
+  cashBalance: number;
+  bankBalance: number;
+  totalBalance: number;
+};
+
+// ─── Günlük Özet Export ────────────────────────────────────
+
+export const exportDailySummaryExcel = async (report: DailySummaryReport): Promise<void> => {
+  const wb = new ExcelJS.Workbook();
+  const ws = wb.addWorksheet('Günlük Özet');
+
+  ws.mergeCells('A1:F1');
+  ws.getCell('A1').value = `${report.branchName} — Günlük Özet — ${formatDate(report.date)}`;
+  ws.getCell('A1').font = { bold: true, size: 14 };
+  ws.getCell('A1').alignment = { horizontal: 'center' };
+
+  ws.addRow([]);
+  ws.addRow(['Toplam Satış', formatCurrency(report.totalSalesRevenue)]);
+  ws.addRow(['  Ürün Satışları', formatCurrency(report.productSalesRevenue)]);
+  ws.addRow(['  Sayaç Satışları', formatCurrency(report.counterSalesRevenue)]);
+  ws.addRow(['Satın Alım Gideri', formatCurrency(report.totalPurchaseExpense)]);
+  ws.addRow(['  Nakit', formatCurrency(report.cashPurchaseExpense)]);
+  ws.addRow(['  Kart', formatCurrency(report.cardPurchaseExpense)]);
+  ws.addRow(['Beklenen Kasa', formatCurrency(report.expectedCashAmount)]);
+  ws.addRow(['Gerçek Kasa', formatCurrency(report.actualCashAmount)]);
+  ws.addRow(['Kasa Farkı', formatCurrency(report.cashDifference)]);
+
+  ws.addRow([]);
+  ws.addRow(['KATEGORİ', 'ÜRÜN', 'TÜR', 'ADET/KG', 'BİRİM FİYAT', 'GELİR']);
+  const headerRow = ws.lastRow!;
+  headerRow.font = { bold: true };
+  headerRow.fill = {
+    type: 'pattern',
+    pattern: 'solid',
+    fgColor: { argb: 'FFE8F4FD' },
+  };
+
+  report.productSales.forEach((item) => {
+    ws.addRow([
+      item.categoryName,
+      item.productName,
+      item.isCounter ? 'Sayaç' : 'Stok',
+      item.soldQuantity,
+      item.unitPrice ?? '-',
+      item.revenue,
+    ]);
+  });
+
+  if (report.wastes.length > 0) {
+    ws.addRow([]);
+    ws.addRow(['ZAYİAT', 'KATEGORİ', 'MİKTAR', 'BİRİM', 'TİP', 'SEBEP']);
+    const wasteHeader = ws.lastRow!;
+    wasteHeader.font = { bold: true };
+    wasteHeader.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FFFFF3CD' },
+    };
+
+    report.wastes.forEach((w) => {
+      ws.addRow([
+        w.productName,
+        w.categoryName,
+        w.quantity,
+        w.unit,
+        w.wasteTypeLabel,
+        w.reason ?? '-',
+      ]);
     });
-    return newRow;
+  }
+
+  ws.columns.forEach((col) => {
+    col.width = 20;
   });
-  
+
+  const buf = await wb.xlsx.writeBuffer();
+  saveAs(
+    new Blob([buf]),
+    `gunluk-ozet-${safeFilePart(report.branchName)}-${report.date}.xlsx`
+  );
+};
+
+export const exportDailySummaryPdf = async (report: DailySummaryReport): Promise<void> => {
+  const doc = new jsPDF();
+  const font = await pdfFontName(doc);
+
+  doc.setFont(font, 'normal');
+  doc.setFontSize(16);
+  doc.text(`${report.branchName} — Günlük Özet`, 14, 20);
+  doc.setFontSize(11);
+  doc.text(`Tarih: ${formatDate(report.date)}`, 14, 28);
+
   autoTable(doc, {
-    startY: yPosition,
-    columns: tableColumns,
-    body: tableData,
-    styles: {
-      font: fontName,
-      fontSize: 8,
-      cellPadding: 3,
-      lineColor: [220, 220, 220],
-      lineWidth: 0.1,
-    },
-    headStyles: {
-      fillColor: [24, 144, 255],
-      textColor: [255, 255, 255],
-      fontStyle: 'bold',
-      halign: 'center',
-    },
-    alternateRowStyles: {
-      fillColor: [245, 245, 245],
-    },
-    columnStyles: columns.reduce((acc, col, index) => {
-      if (col.halign) {
-        acc[index] = { halign: col.halign as any };
-      }
-      return acc;
-    }, {} as Record<number, any>),
-    margin: { top: 10, right: 10, bottom: 20, left: 10 },
-    didDrawPage: (data: any) => {
-      // Footer
-      const pageCount = doc.getNumberOfPages();
-      const currentPage = data.pageNumber;
-      doc.setFontSize(8);
-      doc.setTextColor(153, 153, 153);
-      doc.setFont(fontName, 'normal');
-      
-      const footerY = doc.internal.pageSize.getHeight() - 10;
-      doc.text(
-        `Sayfa ${currentPage} / ${pageCount}`,
-        pageWidth / 2,
-        footerY,
-        { align: 'center' }
-      );
-      
-      if (footerText) {
-        doc.text(footerText, 10, footerY);
-      }
-      
-      doc.text('PastryFlow', pageWidth - 10, footerY, { align: 'right' });
-    },
+    startY: 35,
+    head: [['', 'Tutar']],
+    body: [
+      ['Toplam Satış', formatCurrency(report.totalSalesRevenue)],
+      ['  Ürün Satışları', formatCurrency(report.productSalesRevenue)],
+      ['  Sayaç Satışları', formatCurrency(report.counterSalesRevenue)],
+      ['Satın Alım Gideri', formatCurrency(report.totalPurchaseExpense)],
+      ['Kasa Farkı', formatCurrency(report.cashDifference)],
+    ],
+    theme: 'striped',
+    styles: { font },
+    headStyles: { font },
   });
-  
-  doc.save(`${fileName}.pdf`);
+
+  autoTable(doc, {
+    startY: (doc as any).lastAutoTable.finalY + 10,
+    head: [['Kategori', 'Ürün', 'Tür', 'Miktar', 'Birim Fiyat', 'Gelir']],
+    body: report.productSales.map((item) => [
+      item.categoryName,
+      item.productName,
+      item.isCounter ? 'Sayaç' : 'Stok',
+      String(item.soldQuantity),
+      item.unitPrice != null ? String(item.unitPrice) : '-',
+      formatCurrency(item.revenue),
+    ]),
+    theme: 'striped',
+    styles: { font, fontSize: 8 },
+    headStyles: { font },
+  });
+
+  doc.save(`gunluk-ozet-${safeFilePart(report.branchName)}-${report.date}.pdf`);
 };
 
-// ============ HELPER: Tarih formatla ============
-export const formatDateForExport = (date: string): string => {
-  return new Date(date).toLocaleDateString('tr-TR');
+// ─── Dönem Raporu Export ───────────────────────────────────
+
+export const exportPeriodSummaryExcel = async (report: PeriodSummaryReport): Promise<void> => {
+  const wb = new ExcelJS.Workbook();
+
+  const ws1 = wb.addWorksheet('Günlük Ciro');
+  ws1.addRow(['TARİH', 'ÜRÜN SATIŞ', 'SAYAÇ SATIŞ', 'TOPLAM', 'SATIN ALIM', 'KASA FARKI']);
+  ws1.getRow(1).font = { bold: true };
+
+  report.dailyRows.forEach((row) => {
+    ws1.addRow([
+      formatDate(row.date),
+      row.productSalesRevenue,
+      row.counterSalesRevenue,
+      row.totalSalesRevenue,
+      row.purchaseExpense,
+      row.cashDifference,
+    ]);
+  });
+
+  ws1.addRow([
+    'TOPLAM',
+    report.dailyRows.reduce((s, r) => s + r.productSalesRevenue, 0),
+    report.dailyRows.reduce((s, r) => s + r.counterSalesRevenue, 0),
+    report.totalSalesRevenue,
+    report.totalPurchaseExpense,
+    report.totalCashDifference,
+  ]);
+  const totalRow = ws1.lastRow!;
+  totalRow.font = { bold: true };
+
+  ws1.columns.forEach((col) => {
+    col.width = 18;
+  });
+
+  const ws2 = wb.addWorksheet('Ürün Özeti');
+  ws2.addRow(['KATEGORİ', 'ÜRÜN', 'TÜR', 'TOPLAM MİKTAR', 'TOPLAM GELİR']);
+  ws2.getRow(1).font = { bold: true };
+
+  report.productSummaries.forEach((p) => {
+    ws2.addRow([
+      p.categoryName,
+      p.productName,
+      p.isCounter ? 'Sayaç' : 'Stok',
+      p.totalSoldQuantity,
+      p.totalRevenue,
+    ]);
+  });
+
+  ws2.columns.forEach((col) => {
+    col.width = 20;
+  });
+
+  const buf = await wb.xlsx.writeBuffer();
+  saveAs(
+    new Blob([buf]),
+    `donem-raporu-${safeFilePart(report.branchName)}-${report.startDate}-${report.endDate}.xlsx`
+  );
 };
 
-export const formatDateRangeForExport = (startDate: string, endDate: string): string => {
-  return `${formatDateForExport(startDate)} - ${formatDateForExport(endDate)}`;
+export const exportPeriodSummaryPdf = async (report: PeriodSummaryReport): Promise<void> => {
+  const doc = new jsPDF({ orientation: 'landscape' });
+  const font = await pdfFontName(doc);
+
+  doc.setFont(font, 'normal');
+  doc.setFontSize(16);
+  doc.text(`${report.branchName} — Dönem Raporu`, 14, 20);
+  doc.setFontSize(11);
+  doc.text(
+    `${formatDate(report.startDate)} — ${formatDate(report.endDate)} | ${report.closedDayCount} gün`,
+    14,
+    28
+  );
+
+  autoTable(doc, {
+    startY: 35,
+    head: [['Tarih', 'Ürün Satış', 'Sayaç Satış', 'Toplam', 'Satın Alım', 'Kasa Farkı']],
+    body: report.dailyRows.map((row) => [
+      formatDate(row.date),
+      formatCurrency(row.productSalesRevenue),
+      formatCurrency(row.counterSalesRevenue),
+      formatCurrency(row.totalSalesRevenue),
+      formatCurrency(row.purchaseExpense),
+      formatCurrency(row.cashDifference),
+    ]),
+    theme: 'striped',
+    styles: { font, fontSize: 8 },
+    headStyles: { font },
+  });
+
+  autoTable(doc, {
+    startY: (doc as any).lastAutoTable.finalY + 10,
+    head: [['Kategori', 'Ürün', 'Tür', 'Toplam Miktar', 'Toplam Gelir']],
+    body: report.productSummaries.map((p) => [
+      p.categoryName,
+      p.productName,
+      p.isCounter ? 'Sayaç' : 'Stok',
+      String(p.totalSoldQuantity),
+      formatCurrency(p.totalRevenue),
+    ]),
+    theme: 'striped',
+    styles: { font, fontSize: 8 },
+    headStyles: { font },
+  });
+
+  doc.save(
+    `donem-raporu-${safeFilePart(report.branchName)}-${report.startDate}-${report.endDate}.pdf`
+  );
+};
+
+// ─── Yönetim Paneli Export ─────────────────────────────────
+
+export const exportManagementExcel = async (
+  report: ManagementReport,
+  walletRows: WalletBalanceExportRow[]
+): Promise<void> => {
+  const wb = new ExcelJS.Workbook();
+
+  const ws1 = wb.addWorksheet('Şube Karşılaştırma');
+  ws1.addRow(['ŞUBE', 'TOPLAM CİRO', 'SATIN ALIM', 'KASA FARKI', 'NET', 'KAPALI GÜN']);
+  ws1.getRow(1).font = { bold: true };
+
+  report.branchComparisons.forEach((b) => {
+    ws1.addRow([
+      b.branchName,
+      b.totalSalesRevenue,
+      b.totalPurchaseExpense,
+      b.totalCashDifference,
+      b.netRevenue,
+      b.closedDayCount,
+    ]);
+  });
+  ws1.columns.forEach((col) => {
+    col.width = 18;
+  });
+
+  const rows = walletRows.length > 0 ? walletRows : report.walletBalances.map((w) => ({ ...w }));
+
+  const ws2 = wb.addWorksheet('Kasa Bakiyeleri');
+  ws2.addRow(['ŞUBE', 'NAKİT', 'BANKA', 'TOPLAM']);
+  ws2.getRow(1).font = { bold: true };
+
+  rows.forEach((w) => {
+    ws2.addRow([w.branchName, w.cashBalance, w.bankBalance, w.totalBalance]);
+  });
+  ws2.columns.forEach((col) => {
+    col.width = 18;
+  });
+
+  const ws3 = wb.addWorksheet('Kasa Hareketleri');
+  ws3.addRow(['TARİH', 'ŞUBE', 'İŞLEM', 'YÖNTEM', 'TUTAR', 'AÇIKLAMA', 'YAPAN']);
+  ws3.getRow(1).font = { bold: true };
+
+  report.walletMovements.forEach((m) => {
+    ws3.addRow([
+      formatDate(m.transactionDate),
+      m.branchName,
+      m.transactionTypeLabel,
+      m.walletTypeLabel,
+      m.amount,
+      m.description ?? '-',
+      m.createdByName,
+    ]);
+  });
+  ws3.columns.forEach((col) => {
+    col.width = 20;
+  });
+
+  const buf = await wb.xlsx.writeBuffer();
+  saveAs(
+    new Blob([buf]),
+    `yonetim-paneli-${report.startDate}-${report.endDate}.xlsx`
+  );
+};
+
+export const exportManagementPdf = async (
+  report: ManagementReport,
+  walletRows: WalletBalanceExportRow[]
+): Promise<void> => {
+  const doc = new jsPDF({ orientation: 'landscape' });
+  const font = await pdfFontName(doc);
+
+  doc.setFont(font, 'normal');
+  doc.setFontSize(16);
+  doc.text('Yönetim Paneli', 14, 20);
+  doc.setFontSize(11);
+  doc.text(`${formatDate(report.startDate)} — ${formatDate(report.endDate)}`, 14, 28);
+
+  autoTable(doc, {
+    startY: 35,
+    head: [['Şube', 'Toplam Ciro', 'Satın Alım', 'Kasa Farkı', 'Net']],
+    body: report.branchComparisons.map((b) => [
+      b.branchName,
+      formatCurrency(b.totalSalesRevenue),
+      formatCurrency(b.totalPurchaseExpense),
+      formatCurrency(b.totalCashDifference),
+      formatCurrency(b.netRevenue),
+    ]),
+    theme: 'striped',
+    styles: { font, fontSize: 8 },
+    headStyles: { font },
+  });
+
+  const rows = walletRows.length > 0 ? walletRows : report.walletBalances.map((w) => ({ ...w }));
+
+  autoTable(doc, {
+    startY: (doc as any).lastAutoTable.finalY + 10,
+    head: [['Şube', 'Nakit', 'Banka', 'Toplam']],
+    body: rows.map((w) => [
+      w.branchName,
+      formatCurrency(w.cashBalance),
+      formatCurrency(w.bankBalance),
+      formatCurrency(w.totalBalance),
+    ]),
+    theme: 'striped',
+    styles: { font, fontSize: 8 },
+    headStyles: { font },
+  });
+
+  doc.save(`yonetim-paneli-${report.startDate}-${report.endDate}.pdf`);
 };

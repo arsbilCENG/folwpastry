@@ -1,12 +1,9 @@
-using System;
 using System.Security.Claims;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PastryFlow.Application.Common;
-using PastryFlow.Application.DTOs.Reports;
+using PastryFlow.Application.DTOs.Report;
 using PastryFlow.Application.Interfaces;
-using PastryFlow.Domain.Enums;
 
 namespace PastryFlow.API.Controllers;
 
@@ -22,123 +19,62 @@ public class ReportsController : ControllerBase
         _reportService = reportService;
     }
 
-    [HttpGet("daily-sales")]
-    public async Task<IActionResult> GetDailySales([FromQuery] string date, [FromQuery] Guid? branchId)
-    {
-        if (!DateOnly.TryParse(date, out var parsedDate))
-            return BadRequest("Geçersiz tarih formatı.");
-
-        var currentUserBranchId = GetUserBranchId();
-        var userRole = GetUserRole();
-
-        if (userRole != UserRole.Admin)
-        {
-            if (branchId.HasValue && branchId != currentUserBranchId)
-                return Forbid();
-            branchId = currentUserBranchId;
-        }
-
-        var result = await _reportService.GetDailySalesReportAsync(parsedDate, branchId);
-        return Ok(result);
-    }
-
-    [HttpGet("waste-summary")]
-    public async Task<IActionResult> GetWasteSummary([FromQuery] string startDate, [FromQuery] string endDate, [FromQuery] Guid? branchId, [FromQuery] Guid? categoryId)
-    {
-        if (!DateOnly.TryParse(startDate, out var start) || !DateOnly.TryParse(endDate, out var end))
-            return BadRequest("Geçersiz tarih formatı.");
-
-        var currentUserBranchId = GetUserBranchId();
-        var userRole = GetUserRole();
-
-        if (userRole != UserRole.Admin)
-        {
-            if (branchId.HasValue && branchId != currentUserBranchId)
-                return Forbid();
-            branchId = currentUserBranchId;
-        }
-
-        var result = await _reportService.GetWasteSummaryReportAsync(start, end, branchId, categoryId);
-        return Ok(result);
-    }
-
-    [HttpGet("demand-summary")]
-    public async Task<IActionResult> GetDemandSummary([FromQuery] string startDate, [FromQuery] string endDate, [FromQuery] Guid? branchId)
-    {
-        if (!DateOnly.TryParse(startDate, out var start) || !DateOnly.TryParse(endDate, out var end))
-            return BadRequest("Geçersiz tarih formatı.");
-
-        var currentUserBranchId = GetUserBranchId();
-        var userRole = GetUserRole();
-
-        if (userRole != UserRole.Admin)
-        {
-            if (branchId.HasValue && branchId != currentUserBranchId)
-                return Forbid();
-            branchId = currentUserBranchId;
-        }
-
-        var result = await _reportService.GetDemandSummaryReportAsync(start, end, branchId);
-        return Ok(result);
-    }
-
-    [HttpGet("branch-comparison")]
-    [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> GetBranchComparison([FromQuery] string startDate, [FromQuery] string endDate, [FromQuery] string metric)
-    {
-        if (!DateOnly.TryParse(startDate, out var start) || !DateOnly.TryParse(endDate, out var end))
-            return BadRequest("Geçersiz tarih formatı.");
-
-        var result = await _reportService.GetBranchComparisonReportAsync(start, end, metric);
-        return Ok(result);
-    }
-
-    // GET /api/reports/purchases?branchId=...&startDate=...&endDate=...
-    [HttpGet("purchases")]
-    [Authorize(Roles = "Admin,Sales,Production")]
-    public async Task<IActionResult> GetPurchaseReport(
+    // GET /api/reports/daily-summary?branchId=&date=
+    [HttpGet("daily-summary")]
+    public async Task<IActionResult> GetDailySummary(
         [FromQuery] Guid? branchId,
-        [FromQuery] DateTime? startDate,
-        [FromQuery] DateTime? endDate)
+        [FromQuery] DateOnly? date)
     {
-        var start = startDate ?? new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
-        var end = endDate ?? DateTime.Today;
-        
-        var currentUserBranchId = GetUserBranchId();
-        var userRole = GetUserRole();
+        var targetBranchId = ResolveBranchId(branchId);
+        if (targetBranchId == null)
+            return BadRequest(ApiResponse<string>.Fail("Şube bilgisi bulunamadı."));
 
-        if (userRole != UserRole.Admin)
-        {
-            branchId = currentUserBranchId;
-        }
-
-        var result = await _reportService.GetPurchaseReportAsync(branchId, start, end);
-        return Ok(ApiResponse<PurchaseReportDto>.Ok(result));
+        var targetDate = date ?? DateOnly.FromDateTime(DateTime.Today);
+        var result = await _reportService.GetDailySummaryAsync(targetBranchId.Value, targetDate);
+        return Ok(ApiResponse<DailySummaryReportDto>.Ok(result));
     }
 
-    // GET /api/reports/cash-transactions?branchId=...&startDate=...&endDate=...
-    [HttpGet("cash-transactions")]
-    [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> GetCashTransactionReport(
+    // GET /api/reports/period-summary?branchId=&startDate=&endDate=
+    [HttpGet("period-summary")]
+    public async Task<IActionResult> GetPeriodSummary(
         [FromQuery] Guid? branchId,
-        [FromQuery] DateTime? startDate,
-        [FromQuery] DateTime? endDate)
+        [FromQuery] DateOnly? startDate,
+        [FromQuery] DateOnly? endDate)
     {
-        var start = startDate ?? new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
-        var end = endDate ?? DateTime.Today;
-        var result = await _reportService.GetCashTransactionReportAsync(branchId, start, end);
-        return Ok(ApiResponse<CashTransactionReportDto>.Ok(result));
+        var targetBranchId = ResolveBranchId(branchId);
+        if (targetBranchId == null)
+            return BadRequest(ApiResponse<string>.Fail("Şube bilgisi bulunamadı."));
+
+        var start = startDate ?? DateOnly.FromDateTime(
+            new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1));
+        var end = endDate ?? DateOnly.FromDateTime(DateTime.Today);
+
+        var result = await _reportService.GetPeriodSummaryAsync(targetBranchId.Value, start, end);
+        return Ok(ApiResponse<PeriodSummaryReportDto>.Ok(result));
     }
 
-    private Guid? GetUserBranchId()
+    // GET /api/reports/management?startDate=&endDate=
+    [HttpGet("management")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> GetManagementReport(
+        [FromQuery] DateOnly? startDate,
+        [FromQuery] DateOnly? endDate)
     {
-        var branchIdStr = User.FindFirst("BranchId")?.Value;
-        return Guid.TryParse(branchIdStr, out var branchId) ? branchId : null;
+        var start = startDate ?? DateOnly.FromDateTime(
+            new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1));
+        var end = endDate ?? DateOnly.FromDateTime(DateTime.Today);
+
+        var result = await _reportService.GetManagementReportAsync(start, end);
+        return Ok(ApiResponse<ManagementReportDto>.Ok(result));
     }
 
-    private UserRole? GetUserRole()
+    private Guid? ResolveBranchId(Guid? queryBranchId)
     {
-        var roleStr = User.FindFirst(ClaimTypes.Role)?.Value;
-        return Enum.TryParse<UserRole>(roleStr, true, out var role) ? role : null;
+        var role = User.FindFirst(ClaimTypes.Role)?.Value;
+        if (role == "Admin" && queryBranchId.HasValue)
+            return queryBranchId;
+
+        var branchClaim = User.FindFirst("BranchId")?.Value;
+        return branchClaim != null ? Guid.Parse(branchClaim) : queryBranchId;
     }
 }

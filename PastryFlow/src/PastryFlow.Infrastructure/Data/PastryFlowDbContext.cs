@@ -97,6 +97,13 @@ public class PastryFlowDbContext : DbContext, IPastryFlowDbContext
             .HasForeignKey(t => t.TargetAdminWalletId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        // CreatedBy + CreatedByUserId: convention would use shadow FK "CreatedById"; map explicitly.
+        modelBuilder.Entity<WalletTransaction>()
+            .HasOne(t => t.CreatedBy)
+            .WithMany()
+            .HasForeignKey(t => t.CreatedByUserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         // DayClosing
         modelBuilder.Entity<DayClosing>(entity =>
         {
