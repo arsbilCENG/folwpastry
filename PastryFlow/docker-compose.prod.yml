@@ -10,7 +10,7 @@ services:
     restart: always
 
   api:
-    image: ${DOCKER_USERNAME}/pastryflow-api:latest
+    image: pastryflow-api:latest
     environment:
       - ConnectionStrings__DefaultConnection=Host=db;Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD}
       - Jwt__Secret=${JWT_SECRET}
@@ -23,7 +23,7 @@ services:
     restart: always
 
   web:
-    image: ${DOCKER_USERNAME}/pastryflow-web:latest
+    image: pastryflow-web:latest
     ports:
       - "80:80"
     depends_on:
