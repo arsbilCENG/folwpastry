@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using PastryFlow.Application.Common;
 using PastryFlow.Application.DTOs.DayClosing;
+using PastryFlow.Domain.Entities;
 
 namespace PastryFlow.Application.Interfaces;
 
@@ -20,4 +21,6 @@ public interface IDayClosingService
 
     Task<ApiResponse<DayClosingSummaryDto>> CloseDayAsync(Guid branchId, DateOnly date, Guid closedByUserId, List<DayClosingCounterItemDto>? counterItems = null);
     Task<ApiResponse<DayClosingSummaryDto>> GetSummaryAsync(Guid branchId, DateOnly date);
+
+    Task<DayClosing> GetOrCreateDayClosingAsync(Guid branchId, DateOnly date);
 }

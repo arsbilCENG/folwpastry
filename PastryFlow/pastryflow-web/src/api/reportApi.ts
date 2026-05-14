@@ -4,6 +4,7 @@ import type {
   DailySummaryReport,
   PeriodSummaryReport,
   ManagementReport,
+  ProductionReport,
 } from '../types/report';
 
 export const getDailySummary = async (
@@ -44,5 +45,18 @@ export const getManagementReport = async (
   const qs = params.toString();
   const url = qs ? `/reports/management?${qs}` : '/reports/management';
   const response = await axiosClient.get<any, ApiResponse<ManagementReport>>(url);
+  return response.data!;
+};
+
+export const getProductionReport = async (
+  date?: string,
+  branchId?: string
+): Promise<ProductionReport> => {
+  const params = new URLSearchParams();
+  if (date) params.append('date', date);
+  if (branchId) params.append('branchId', branchId);
+  const qs = params.toString();
+  const url = qs ? `/reports/production-report?${qs}` : '/reports/production-report';
+  const response = await axiosClient.get<any, ApiResponse<ProductionReport>>(url);
   return response.data!;
 };

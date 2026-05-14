@@ -68,6 +68,38 @@ public class ReportsController : ControllerBase
         return Ok(ApiResponse<ManagementReportDto>.Ok(result));
     }
 
+    // GET /api/reports/production-report?date=2026-05-14&branchId=
+    [HttpGet("production-report")]
+    [Authorize(Roles = "Admin,Production")]
+    public async Task<IActionResult> GetProductionReport(
+        [FromQuery] DateOnly? date,
+        [FromQuery] Guid? branchId)
+    {
+        var targetDate = date ?? DateOnly.FromDateTime(DateTime.Today);
+
+        Guid productionBranchId;
+
+        if (User.IsInRole("Admin"))
+        {
+            // Admin şube seçmek zorunda
+            if (!branchId.HasValue)
+                return BadRequest(ApiResponse<string>.Fail("Admin için şube seçimi zorunludur."));
+            productionBranchId = branchId.Value;
+        }
+        else
+        {
+            // Production kullanıcısı kendi şubesini görür
+            var branchClaim = User.FindFirst("BranchId")?.Value;
+            if (branchClaim == null)
+                return BadRequest(ApiResponse<string>.Fail("Şube bilgisi bulunamadı."));
+            productionBranchId = Guid.Parse(branchClaim);
+        }
+
+        var result = await _reportService.GetProductionReportAsync(
+            productionBranchId, targetDate);
+        return Ok(ApiResponse<ProductionReportDto>.Ok(result));
+    }
+
     private Guid? ResolveBranchId(Guid? queryBranchId)
     {
         var role = User.FindFirst(ClaimTypes.Role)?.Value;

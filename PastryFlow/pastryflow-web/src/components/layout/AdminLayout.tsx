@@ -12,7 +12,8 @@ import {
   MenuOutlined,
   ShoppingCartOutlined,
   WalletOutlined,
-  SwapOutlined
+  SwapOutlined,
+  FileTextOutlined
 } from '@ant-design/icons';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
@@ -53,6 +54,7 @@ const AdminLayout: React.FC = () => {
       label: 'Cüzdan Yönetimi' 
     },
     { key: '/admin/cake-options', icon: <AppstoreOutlined />, label: 'Pasta Seçenekleri' },
+    { key: '/admin/production-report', icon: <FileTextOutlined />, label: 'Üretim Raporu' },
     { key: '/admin/reports', icon: <BarChartOutlined />, label: 'Raporlar' },
     { key: '/admin/day-correction', icon: <EditOutlined />, label: 'Gün Düzeltme' },
   ];

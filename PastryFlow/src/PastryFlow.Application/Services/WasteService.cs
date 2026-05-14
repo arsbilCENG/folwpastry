@@ -19,17 +19,20 @@ public class WasteService : IWasteService
     private readonly IMapper _mapper;
     private readonly IStockService _stockService;
     private readonly INotificationService _notificationService;
+    private readonly IDayClosingService _dayClosingService;
 
     public WasteService(
         IPastryFlowDbContext context, 
         IMapper mapper, 
         IStockService stockService,
-        INotificationService notificationService)
+        INotificationService notificationService,
+        IDayClosingService dayClosingService)
     {
         _context = context;
         _mapper = mapper;
         _stockService = stockService;
         _notificationService = notificationService;
+        _dayClosingService = dayClosingService;
     }
 
     public async Task<ApiResponse<WasteDto>> CreateWasteAsync(CreateWasteDto dto, Guid createdByUserId)
@@ -69,22 +72,7 @@ public class WasteService : IWasteService
         _context.Wastes.Add(waste);
 
         // Update DailyStockSummary
-        var closing = await _context.DayClosings
-            .Include(c => c.Details)
-            .FirstOrDefaultAsync(c => c.BranchId == dto.BranchId && c.Date == dto.Date);
-
-        if (closing == null)
-        {
-            closing = new DayClosing
-            {
-                BranchId = dto.BranchId,
-                Date = dto.Date,
-                IsOpened = true,
-                OpenedAt = DateTime.UtcNow
-            };
-            _context.DayClosings.Add(closing);
-            await _context.SaveChangesAsync();
-        }
+        var closing = await _dayClosingService.GetOrCreateDayClosingAsync(dto.BranchId, dto.Date);
 
         var detail = closing.Details.FirstOrDefault(d => d.ProductId == dto.ProductId);
         if (detail == null)
