@@ -18,12 +18,18 @@ public class DemandService : IDemandService
     private readonly IPastryFlowDbContext _context;
     private readonly IMapper _mapper;
     private readonly INotificationService _notificationService;
+    private readonly IDayClosingService _dayClosingService;
 
-    public DemandService(IPastryFlowDbContext context, IMapper mapper, INotificationService notificationService)
+    public DemandService(
+        IPastryFlowDbContext context, 
+        IMapper mapper, 
+        INotificationService notificationService,
+        IDayClosingService dayClosingService)
     {
         _context = context;
         _mapper = mapper;
         _notificationService = notificationService;
+        _dayClosingService = dayClosingService;
     }
 
     public async Task<ApiResponse<DemandDto>> CreateDemandAsync(Guid userId, CreateDemandDto dto)
@@ -344,22 +350,7 @@ public class DemandService : IDemandService
         DateOnly today = DateOnly.FromDateTime(acceptedAt);
         int rejectedCount = 0;
 
-        var closing = await _context.DayClosings
-            .Include(c => c.Details)
-            .FirstOrDefaultAsync(c => c.BranchId == demand.SalesBranchId && c.Date == today);
-
-        if (closing == null)
-        {
-            closing = new DayClosing
-            {
-                BranchId = demand.SalesBranchId,
-                Date = today,
-                IsOpened = true,
-                OpenedAt = DateTime.UtcNow
-            };
-            _context.DayClosings.Add(closing);
-            await _context.SaveChangesAsync();
-        }
+        var closing = await _dayClosingService.GetOrCreateDayClosingAsync(demand.SalesBranchId, today);
 
         foreach (var itemDto in dto.Items)
         {

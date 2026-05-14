@@ -25,3 +25,10 @@ export const useManagementReport = (startDate?: string, endDate?: string) =>
     queryFn: () => reportApi.getManagementReport(startDate, endDate),
     enabled: !!(startDate && endDate),
   });
+
+export const useProductionReport = (date?: string, branchId?: string) =>
+  useQuery({
+    queryKey: ['report', 'production', date, branchId],
+    queryFn: () => reportApi.getProductionReport(date, branchId),
+    enabled: true,
+  });

@@ -241,8 +241,11 @@ public class DayClosingService : IDayClosingService
 
         await _context.SaveChangesAsync();
 
-        var expectedCashRes = await CalculateExpectedCashAsync(closing.Id);
-        var totalSalesRevenue = expectedCashRes.Data?.TotalSalesRevenue ?? 0;
+        var productSalesRevenue = closing.Details
+            .Where(d => d.Product?.TrackingType != TrackingType.Counter)
+            .Sum(d => d.CalculatedSales * (d.Product?.UnitPrice ?? 0));
+
+        var totalSalesRevenue = productSalesRevenue + counterSalesTotal;
         closing.TotalSalesRevenue = totalSalesRevenue;
         await _context.SaveChangesAsync();
         
@@ -564,7 +567,7 @@ public class DayClosingService : IDayClosingService
         return ApiResponse<DayClosingSummaryDto>.Ok(response);
     }
 
-    private async Task<DayClosing> GetOrCreateDayClosingAsync(Guid branchId, DateOnly date)
+    public async Task<DayClosing> GetOrCreateDayClosingAsync(Guid branchId, DateOnly date)
     {
         var closing = await _context.DayClosings
             .Include(c => c.Details)

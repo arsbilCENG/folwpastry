@@ -120,3 +120,29 @@ export type PeriodPreset =
   | 'this_month'
   | 'last_month'
   | 'custom';
+
+// ─── Üretim Raporu ──────────────────────────────────────────
+
+export interface ProductionReportSalesBranch {
+  branchId: string;
+  branchName: string;
+}
+
+export interface ProductionReportRow {
+  productId: string;
+  productName: string;
+  categoryName: string;
+  unit: string;
+  branchQuantities: Record<string, number>; // branchId → quantity
+  totalQuantity: number;
+}
+
+export interface ProductionReport {
+  reportDate: string;
+  demandDate: string;
+  productionBranchName: string;
+  salesBranches: ProductionReportSalesBranch[];
+  rows: ProductionReportRow[];
+  totalProductCount: number;
+  totalQuantity: number;
+}

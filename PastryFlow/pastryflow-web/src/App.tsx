@@ -37,6 +37,7 @@ import DeliveryReturnsPage from './pages/production/DeliveryReturnsPage';
 import ProductionReports from './pages/production/Reports';
 import ProductionPurchases from './pages/production/Purchases';
 import ProductionTransfers from './pages/sales/Transfers'; // same component
+import ProductionReport from './pages/production/ProductionReport';
 
 
 // Admin pages
@@ -47,6 +48,7 @@ import AdminProducts from './pages/admin/Products';
 import AdminBranches from './pages/admin/Branches';
 import AdminCakeOptions from './pages/admin/CakeOptions';
 import AdminReports from './pages/admin/Reports';
+import AdminProductionReport from './pages/admin/ProductionReport';
 import AdminDayCorrection from './pages/admin/DayCorrection';
 import AdminPurchases from './pages/admin/Purchases';
 import AdminWalletManagementPage from './pages/admin/WalletManagement';
@@ -92,6 +94,7 @@ const App: React.FC = () => {
                       <Route path="products" element={<AdminProducts />} />
                       <Route path="branches" element={<AdminBranches />} />
                       <Route path="cake-options" element={<AdminCakeOptions />} />
+                      <Route path="production-report" element={<AdminProductionReport />} />
                       <Route path="reports" element={<AdminReports />} />
                       <Route path="day-correction" element={<AdminDayCorrection />} />
                       <Route path="purchases" element={<AdminPurchases />} />
@@ -135,6 +138,7 @@ const App: React.FC = () => {
                       <Route path="ship-demand/:id" element={<ShipDemandPage />} />
                       <Route path="delivery-returns" element={<DeliveryReturnsPage />} />
                       <Route path="cake-orders" element={<ProductionCakeOrders />} />
+                      <Route path="production-report" element={<ProductionReport />} />
                       <Route path="reports" element={<ProductionReports />} />
                       <Route path="purchases" element={<ProductionPurchases />} />
                       <Route path="transfers" element={<ProductionTransfers />} />

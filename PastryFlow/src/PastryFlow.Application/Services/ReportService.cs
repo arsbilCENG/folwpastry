@@ -352,4 +352,107 @@ public class ReportService : IReportService
             GrandTotalBankBalance = walletBalances.Sum(b => b.BankBalance)
         };
     }
+
+    public async Task<ProductionReportDto> GetProductionReportAsync(
+        Guid productionBranchId, DateOnly date)
+    {
+        // Üretim şubesi
+        var productionBranch = await _context.Branches
+            .FindAsync(productionBranchId)
+            ?? throw new Exception("Üretim şubesi bulunamadı.");
+
+        // Dünün tarihi (Talepler dünden gelir)
+        var demandDate = date.AddDays(-1);
+        var demandStartUtc = UtcStartOfDay(demandDate);
+        var demandEndUtc = UtcStartOfNextDay(demandDate);
+
+        // Bu üretim şubesinin ürettiği ürünler
+        var productionProductIds = await _context.Products
+            .Where(p => p.ProductionBranchId == productionBranchId
+                     && p.IsActive && !p.IsDeleted
+                     && p.TrackingType == TrackingType.Production)
+            .Select(p => p.Id)
+            .ToListAsync();
+
+        // Dün onaylanan talepler — bu şubenin ürünlerini içerenler
+        // DemandStatus: Approved(1), PartiallyApproved(3), Shipped(4), Delivered(5), Received(6)
+        var demands = await _context.Demands
+            .Include(d => d.SalesBranch)      // Talep eden satış şubesi
+            .Include(d => d.Items)
+                .ThenInclude(i => i.Product)
+                    .ThenInclude(p => p.Category)
+            .Where(d => d.CreatedAt >= demandStartUtc
+                     && d.CreatedAt < demandEndUtc
+                     && (d.Status == DemandStatus.Approved
+                      || d.Status == DemandStatus.PartiallyApproved
+                      || d.Status == DemandStatus.Shipped
+                      || d.Status == DemandStatus.Delivered
+                      || d.Status == DemandStatus.Received)
+                     && d.Items.Any(i => productionProductIds.Contains(i.ProductId)))
+            .ToListAsync();
+
+        // Talep eden satış şubelerini bul (sıralı)
+        var salesBranches = demands
+            .Select(d => new ProductionReportSalesBranchDto 
+            { 
+                BranchId = d.SalesBranchId, 
+                BranchName = d.SalesBranch.Name 
+            })
+            .GroupBy(x => x.BranchId)
+            .Select(g => g.First())
+            .OrderBy(x => x.BranchName)
+            .ToList();
+
+        // Ürün bazlı gruplama
+        var productRows = new Dictionary<Guid, ProductionReportRowDto>();
+
+        foreach (var demand in demands)
+        {
+            foreach (var item in demand.Items
+                .Where(i => productionProductIds.Contains(i.ProductId)
+                         && (i.ApprovedQuantity ?? 0) > 0))
+            {
+                if (!productRows.ContainsKey(item.ProductId))
+                {
+                    productRows[item.ProductId] = new ProductionReportRowDto
+                    {
+                        ProductId = item.ProductId,
+                        ProductName = item.Product.Name,
+                        CategoryName = item.Product.Category?.Name ?? string.Empty,
+                        Unit = item.Product.Unit.ToString(),
+                        BranchQuantities = new Dictionary<string, decimal>()
+                    };
+                }
+
+                var row = productRows[item.ProductId];
+                string branchKey = demand.SalesBranchId.ToString();
+
+                if (row.BranchQuantities.ContainsKey(branchKey))
+                    row.BranchQuantities[branchKey] += item.ApprovedQuantity ?? 0;
+                else
+                    row.BranchQuantities[branchKey] = item.ApprovedQuantity ?? 0;
+            }
+        }
+
+        // Toplam hesapla
+        foreach (var row in productRows.Values)
+            row.TotalQuantity = row.BranchQuantities.Values.Sum();
+
+        // Kategoriye göre sırala
+        var sortedRows = productRows.Values
+            .OrderBy(r => r.CategoryName)
+            .ThenBy(r => r.ProductName)
+            .ToList();
+
+        return new ProductionReportDto
+        {
+            ReportDate = date,
+            DemandDate = demandDate,
+            ProductionBranchName = productionBranch.Name,
+            SalesBranches = salesBranches,
+            Rows = sortedRows,
+            TotalProductCount = sortedRows.Count,
+            TotalQuantity = sortedRows.Sum(r => r.TotalQuantity)
+        };
+    }
 }

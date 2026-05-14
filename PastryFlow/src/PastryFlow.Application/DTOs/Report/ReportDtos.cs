@@ -133,3 +133,33 @@ public class WalletMovementDto
     public string? Description { get; set; }
     public string CreatedByName { get; set; } = string.Empty;
 }
+
+// ─── Üretim Raporu ──────────────────────────────────────────
+
+public class ProductionReportSalesBranchDto
+{
+    public Guid BranchId { get; set; }
+    public string BranchName { get; set; } = string.Empty;
+}
+
+public class ProductionReportRowDto
+{
+    public Guid ProductId { get; set; }
+    public string ProductName { get; set; } = string.Empty;
+    public string CategoryName { get; set; } = string.Empty;
+    public string Unit { get; set; } = string.Empty;
+    // Key: BranchId (string format for JSON serialization compatibility), Value: ApprovedQuantity
+    public Dictionary<string, decimal> BranchQuantities { get; set; } = new();
+    public decimal TotalQuantity { get; set; }
+}
+
+public class ProductionReportDto
+{
+    public DateOnly ReportDate { get; set; }        // Raporun tarihi (bugün)
+    public DateOnly DemandDate { get; set; }        // Talep tarihi (dün)
+    public string ProductionBranchName { get; set; } = string.Empty;
+    public List<ProductionReportSalesBranchDto> SalesBranches { get; set; } = new();
+    public List<ProductionReportRowDto> Rows { get; set; } = new();
+    public int TotalProductCount { get; set; }      // Toplam ürün çeşidi
+    public decimal TotalQuantity { get; set; }      // Toplam üretilecek adet
+}

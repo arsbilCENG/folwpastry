@@ -12,4 +12,7 @@ public interface IReportService
 
     Task<ManagementReportDto> GetManagementReportAsync(
         DateOnly startDate, DateOnly endDate);
+
+    Task<ProductionReportDto> GetProductionReportAsync(
+        Guid productionBranchId, DateOnly date);
 }
