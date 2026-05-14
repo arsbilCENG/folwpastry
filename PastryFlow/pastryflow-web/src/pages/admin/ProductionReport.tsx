@@ -1,11 +1,23 @@
-import React, { useState } from 'react';
-import { Table, DatePicker, Button, Space, Card, Typography, Spin, Alert, Row, Col, Select, Statistic } from 'antd';
-import { FileTextOutlined, FileExcelOutlined, InfoCircleOutlined, ShopOutlined } from '@ant-design/icons';
+import React, { useState, useMemo } from 'react';
+import { Table, DatePicker, Button, Space, Card, Typography, Spin, Alert, Row, Col, Select, Statistic, Dropdown } from 'antd';
+import { 
+  FileTextOutlined, 
+  FileExcelOutlined, 
+  InfoCircleOutlined, 
+  ShopOutlined,
+  DownOutlined,
+  CloudDownloadOutlined
+} from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { useQuery } from '@tanstack/react-query';
 import axiosClient from '../../api/axiosClient';
 import { useProductionReport } from '../../hooks/useReports';
-import { exportProductionReportPdf, exportProductionReportExcel } from '../../utils/exportUtils';
+import { 
+  exportProductionReportPdf, 
+  exportProductionReportExcel,
+  exportAllCategoriesPdf,
+  exportAllCategoriesExcel
+} from '../../utils/exportUtils';
 import { formatDate } from '../../utils/formatters';
 import type { ProductionReportRow } from '../../types/report';
 
@@ -17,6 +29,7 @@ const AdminProductionReport: React.FC = () => {
     dayjs().format('YYYY-MM-DD')
   );
   const [selectedBranchId, setSelectedBranchId] = useState<string | undefined>(undefined);
+  const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined);
 
   // Fetch all branches to filter production ones
   const { data: branchesResponse } = useQuery({
@@ -33,12 +46,31 @@ const AdminProductionReport: React.FC = () => {
     selectedBranchId
   );
 
+  // Kategorileri report'tan dinamik türet
+  const categories = useMemo(() => {
+    if (!report) return [];
+    return [...new Set(report.rows.map(r => r.categoryName))].sort();
+  }, [report]);
+
+  // Tabloda gösterilecek satırlar
+  const filteredRows = useMemo(() => {
+    if (!report) return [];
+    return selectedCategory
+      ? report.rows.filter(r => r.categoryName === selectedCategory)
+      : report.rows;
+  }, [report, selectedCategory]);
+
+  // Filtrelenmiş toplam
+  const filteredTotalQuantity = useMemo(() => {
+    return filteredRows.reduce((sum, r) => sum + r.totalQuantity, 0);
+  }, [filteredRows]);
+
   const handleExportPdf = () => {
-    if (report) exportProductionReportPdf(report);
+    if (report) exportProductionReportPdf(report, selectedCategory);
   };
 
   const handleExportExcel = () => {
-    if (report) exportProductionReportExcel(report);
+    if (report) exportProductionReportExcel(report, selectedCategory);
   };
 
   const columns = [
@@ -84,6 +116,21 @@ const AdminProductionReport: React.FC = () => {
     }
   ];
 
+  const exportMenuItems = [
+    {
+      key: 'excel-all',
+      icon: <FileExcelOutlined />,
+      label: 'Tüm Kategoriler (Excel — tek dosya, ayrı sheet)',
+      onClick: () => report && exportAllCategoriesExcel(report)
+    },
+    {
+      key: 'pdf-all',
+      icon: <FileTextOutlined />,
+      label: 'Her Kategori Ayrı PDF',
+      onClick: () => report && exportAllCategoriesPdf(report)
+    }
+  ];
+
   return (
     <div style={{ padding: '0 0 24px 0' }}>
       <Card bordered={false}>
@@ -99,18 +146,26 @@ const AdminProductionReport: React.FC = () => {
               <Button 
                 icon={<FileExcelOutlined />} 
                 onClick={handleExportExcel}
-                disabled={!report || report.rows.length === 0}
+                disabled={!report || filteredRows.length === 0}
               >
-                Excel İndir
+                Excel
               </Button>
               <Button 
-                type="primary"
                 icon={<FileTextOutlined />} 
                 onClick={handleExportPdf}
-                disabled={!report || report.rows.length === 0}
+                disabled={!report || filteredRows.length === 0}
               >
-                PDF İndir
+                PDF
               </Button>
+              <Dropdown 
+                menu={{ items: exportMenuItems }} 
+                disabled={!report || report.rows.length === 0}
+                placement="bottomRight"
+              >
+                <Button type="primary" icon={<CloudDownloadOutlined />}>
+                  Tümünü İndir <DownOutlined />
+                </Button>
+              </Dropdown>
             </Space>
           </Col>
         </Row>
@@ -120,7 +175,7 @@ const AdminProductionReport: React.FC = () => {
             <Row gutter={[24, 16]} align="middle">
               <Col xs={24} sm={12} md={8}>
                 <Space direction="vertical" style={{ width: '100%' }}>
-                  <Text strong>Üretim Şubesi Seçin:</Text>
+                  <Text strong>Üretim Şubesi:</Text>
                   <Select
                     placeholder="Şube seçin"
                     style={{ width: '100%' }}
@@ -136,7 +191,7 @@ const AdminProductionReport: React.FC = () => {
               </Col>
               <Col xs={24} sm={12} md={8}>
                 <Space direction="vertical" style={{ width: '100%' }}>
-                  <Text strong>Tarih Seçimi:</Text>
+                  <Text strong>Tarih:</Text>
                   <DatePicker 
                     style={{ width: '100%' }}
                     value={dayjs(selectedDate)} 
@@ -144,6 +199,23 @@ const AdminProductionReport: React.FC = () => {
                     format="DD.MM.YYYY"
                     allowClear={false}
                   />
+                </Space>
+              </Col>
+              <Col xs={24} sm={12} md={8}>
+                <Space direction="vertical" style={{ width: '100%' }}>
+                  <Text strong>Kategori Filtresi:</Text>
+                  <Select
+                    style={{ width: '100%' }}
+                    placeholder="Tümü"
+                    value={selectedCategory}
+                    onChange={setSelectedCategory}
+                    allowClear
+                    onClear={() => setSelectedCategory(undefined)}
+                  >
+                    {categories.map(cat => (
+                      <Option key={cat} value={cat}>{cat}</Option>
+                    ))}
+                  </Select>
                 </Space>
               </Col>
             </Row>
@@ -179,7 +251,7 @@ const AdminProductionReport: React.FC = () => {
               />
 
               <Table
-                dataSource={report.rows}
+                dataSource={filteredRows}
                 columns={columns}
                 rowKey="productId"
                 pagination={false}
@@ -189,9 +261,11 @@ const AdminProductionReport: React.FC = () => {
                   return (
                     <Table.Summary fixed>
                       <Table.Summary.Row style={{ backgroundColor: '#fafafa', fontWeight: 'bold' }}>
-                        <Table.Summary.Cell index={0} colSpan={3}>TOPLAM</Table.Summary.Cell>
+                        <Table.Summary.Cell index={0} colSpan={3}>
+                          {selectedCategory ? `${selectedCategory.toUpperCase()} TOPLAM` : 'GENEL TOPLAM'}
+                        </Table.Summary.Cell>
                         {report.salesBranches.map((branch, index) => {
-                          const total = report.rows.reduce((sum, row) => sum + (row.branchQuantities[branch.branchId] ?? 0), 0);
+                          const total = filteredRows.reduce((sum, row) => sum + (row.branchQuantities[branch.branchId] ?? 0), 0);
                           return (
                             <Table.Summary.Cell index={index + 3} key={branch.branchId} align="center">
                               {total}
@@ -199,7 +273,7 @@ const AdminProductionReport: React.FC = () => {
                           );
                         })}
                         <Table.Summary.Cell index={report.salesBranches.length + 3} align="center">
-                          {report.totalQuantity}
+                          {filteredTotalQuantity}
                         </Table.Summary.Cell>
                       </Table.Summary.Row>
                     </Table.Summary>
@@ -210,15 +284,15 @@ const AdminProductionReport: React.FC = () => {
               <Row gutter={16} style={{ marginTop: 24 }}>
                 <Col span={8}>
                   <Statistic 
-                    title="Toplam Ürün Çeşidi" 
-                    value={report.totalProductCount} 
+                    title={selectedCategory ? `${selectedCategory} — Ürün Çeşidi` : "Toplam Ürün Çeşidi"}
+                    value={filteredRows.length} 
                     prefix={<InfoCircleOutlined />} 
                   />
                 </Col>
                 <Col span={8}>
                   <Statistic 
-                    title="Toplam Üretilecek Adet/Birim" 
-                    value={report.totalQuantity} 
+                    title={selectedCategory ? `${selectedCategory} — Toplam Miktar` : "Toplam Üretilecek Adet/Birim"}
+                    value={filteredTotalQuantity} 
                     valueStyle={{ color: '#3f8600' }}
                   />
                 </Col>

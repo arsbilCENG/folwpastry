@@ -392,14 +392,24 @@ export const exportManagementPdf = async (
   doc.save(`yonetim-paneli-${report.startDate}-${report.endDate}.pdf`);
 };
 
-export const exportProductionReportPdf = async (report: ProductionReport): Promise<void> => {
-  const doc = new jsPDF({ orientation: 'landscape' }); // Yatay — sütun sayısı fazla
+export const exportProductionReportPdf = async (
+  report: ProductionReport,
+  categoryFilter?: string
+): Promise<void> => {
+  const doc = new jsPDF({ orientation: 'landscape' });
   const font = await pdfFontName(doc);
+
+  const filteredRows = categoryFilter
+    ? report.rows.filter(r => r.categoryName === categoryFilter)
+    : report.rows;
+
+  const categoryLabel = categoryFilter ?? 'Tüm Kategoriler';
+  const title = `ÜRETİM RAPORU — ${categoryLabel.toUpperCase()}`;
 
   // Başlık
   doc.setFont(font, 'bold');
   doc.setFontSize(18);
-  doc.text('ÜRETİM RAPORU', 14, 18);
+  doc.text(title, 14, 18);
   doc.setFontSize(11);
   doc.text(report.productionBranchName, 14, 26);
   doc.setFont(font, 'normal');
@@ -416,7 +426,7 @@ export const exportProductionReportPdf = async (report: ProductionReport): Promi
   ];
 
   // Tablo satırları
-  const body = report.rows.map(row => [
+  const body = filteredRows.map(row => [
     row.categoryName,
     row.productName,
     row.unit,
@@ -430,11 +440,11 @@ export const exportProductionReportPdf = async (report: ProductionReport): Promi
   const totalRow = [
     'TOPLAM', '', '',
     ...report.salesBranches.map(b =>
-      report.rows
+      filteredRows
         .reduce((sum, r) => sum + (r.branchQuantities[b.branchId] ?? 0), 0)
         .toString()
     ),
-    report.totalQuantity.toString()
+    filteredRows.reduce((sum, r) => sum + r.totalQuantity, 0).toString()
   ];
 
   autoTable(doc, {
@@ -455,41 +465,47 @@ export const exportProductionReportPdf = async (report: ProductionReport): Promi
       1: { cellWidth: 40 },
       2: { cellWidth: 15, halign: 'center' },
     },
-    // Toplam sütunu bold
     didParseCell: (data) => {
       if (data.column.index === head[0].length - 1) {
         data.cell.styles.fontStyle = 'bold';
       }
-      // Toplam satırı bold
       if (data.row.index === body.length) {
         data.cell.styles.fontStyle = 'bold';
         data.cell.styles.fillColor = [236, 240, 241];
       }
     },
     foot: [[
-      `Toplam ${report.totalProductCount} ürün çeşidi`,
+      `Toplam ${filteredRows.length} ürün çeşidi`,
       '', '',
       ...report.salesBranches.map(() => ''),
-      `${report.totalQuantity} adet`
+      `${filteredRows.reduce((sum, r) => sum + r.totalQuantity, 0)} adet`
     ]],
     footStyles: { font, fontStyle: 'bold' }
   });
 
-  doc.save(
-    `uretim-raporu-${safeFilePart(report.productionBranchName)}-${report.reportDate}.pdf`
-  );
+  const fileName = categoryFilter
+    ? `uretim-raporu-${safeFilePart(report.productionBranchName)}-${safeFilePart(categoryFilter)}-${report.reportDate}.pdf`
+    : `uretim-raporu-${safeFilePart(report.productionBranchName)}-${report.reportDate}.pdf`;
+
+  doc.save(fileName);
 };
 
 export const exportProductionReportExcel = async (
-  report: ProductionReport
+  report: ProductionReport,
+  categoryFilter?: string
 ): Promise<void> => {
   const wb = new ExcelJS.Workbook();
-  const ws = wb.addWorksheet('Üretim Raporu');
+  const sheetName = categoryFilter ? categoryFilter.substring(0, 31) : 'Üretim Raporu';
+  const ws = wb.addWorksheet(sheetName);
+
+  const filteredRows = categoryFilter
+    ? report.rows.filter(r => r.categoryName === categoryFilter)
+    : report.rows;
 
   // Başlık
   const colCount = 3 + report.salesBranches.length + 1;
   ws.mergeCells(1, 1, 1, colCount);
-  ws.getCell('A1').value = 'ÜRETİM RAPORU';
+  ws.getCell('A1').value = categoryFilter ? `ÜRETİM RAPORU — ${categoryFilter.toUpperCase()}` : 'ÜRETİM RAPORU';
   ws.getCell('A1').font = { bold: true, size: 16 };
   ws.getCell('A1').alignment = { horizontal: 'center' };
 
@@ -526,7 +542,7 @@ export const exportProductionReportExcel = async (
   });
 
   // Veri satırları
-  report.rows.forEach(row => {
+  filteredRows.forEach(row => {
     const dataValues = [
       row.categoryName,
       row.productName,
@@ -535,7 +551,6 @@ export const exportProductionReportExcel = async (
       row.totalQuantity
     ];
     const dataRow = ws.addRow(dataValues);
-    // Toplam sütunu bold
     const lastCell = dataRow.getCell(colCount);
     lastCell.font = { bold: true };
   });
@@ -546,9 +561,9 @@ export const exportProductionReportExcel = async (
     '',
     '',
     ...report.salesBranches.map(b =>
-      report.rows.reduce((sum, r) => sum + (r.branchQuantities[b.branchId] ?? 0), 0)
+      filteredRows.reduce((sum, r) => sum + (r.branchQuantities[b.branchId] ?? 0), 0)
     ),
-    report.totalQuantity
+    filteredRows.reduce((sum, r) => sum + r.totalQuantity, 0)
   ];
   const totalRow = ws.addRow(totalValues);
   totalRow.font = { bold: true };
@@ -559,17 +574,106 @@ export const exportProductionReportExcel = async (
   };
 
   // Kolon genişlikleri
-  ws.getColumn(1).width = 20; // Kategori
-  ws.getColumn(2).width = 35; // Ürün
-  ws.getColumn(3).width = 10; // Birim
+  ws.getColumn(1).width = 20;
+  ws.getColumn(2).width = 35;
+  ws.getColumn(3).width = 10;
   report.salesBranches.forEach((_, i) => {
     ws.getColumn(4 + i).width = 18;
   });
-  ws.getColumn(colCount).width = 12; // Toplam
+  ws.getColumn(colCount).width = 12;
 
   const buf = await wb.xlsx.writeBuffer();
-  saveAs(
-    new Blob([buf]),
-    `uretim-raporu-${safeFilePart(report.productionBranchName)}-${report.reportDate}.xlsx`
-  );
+  const fileName = categoryFilter
+    ? `uretim-raporu-${safeFilePart(report.productionBranchName)}-${safeFilePart(categoryFilter)}-${report.reportDate}.xlsx`
+    : `uretim-raporu-${safeFilePart(report.productionBranchName)}-${report.reportDate}.xlsx`;
+
+  saveAs(new Blob([buf]), fileName);
 };
+
+export const exportAllCategoriesPdf = (report: ProductionReport): void => {
+  const categories = [...new Set(report.rows.map(r => r.categoryName))].sort();
+  
+  categories.forEach((category, index) => {
+    setTimeout(() => {
+      exportProductionReportPdf(report, category);
+    }, index * 300);
+  });
+};
+
+export const exportAllCategoriesExcel = async (report: ProductionReport): Promise<void> => {
+  const wb = new ExcelJS.Workbook();
+  const categories = [...new Set(report.rows.map(r => r.categoryName))].sort();
+
+  // "Tümü" sheet
+  const wsAll = wb.addWorksheet('Tümü');
+  await addProductionDataToSheet(wsAll, report);
+
+  // Kategori bazlı sheetler
+  for (const cat of categories) {
+    const ws = wb.addWorksheet(cat.substring(0, 31));
+    await addProductionDataToSheet(ws, report, cat);
+  }
+
+  const buf = await wb.xlsx.writeBuffer();
+  const fileName = `uretim-raporu-${safeFilePart(report.productionBranchName)}-TUM-KATEGORILER-${report.reportDate}.xlsx`;
+  saveAs(new Blob([buf]), fileName);
+};
+
+// Excel için yardımcı fonksiyon (ayrı sheet'lere veri basmak için)
+const addProductionDataToSheet = async (
+  ws: ExcelJS.Worksheet, 
+  report: ProductionReport, 
+  categoryFilter?: string
+) => {
+  const filteredRows = categoryFilter
+    ? report.rows.filter(r => r.categoryName === categoryFilter)
+    : report.rows;
+
+  const colCount = 3 + report.salesBranches.length + 1;
+
+  ws.mergeCells(1, 1, 1, colCount);
+  ws.getCell('A1').value = categoryFilter ? `ÜRETİM RAPORU — ${categoryFilter.toUpperCase()}` : 'ÜRETİM RAPORU';
+  ws.getCell('A1').font = { bold: true, size: 16 };
+  ws.getCell('A1').alignment = { horizontal: 'center' };
+
+  ws.mergeCells(2, 1, 2, colCount);
+  ws.getCell('A2').value = report.productionBranchName;
+  ws.getCell('A2').font = { bold: true, size: 13 };
+  ws.getCell('A2').alignment = { horizontal: 'center' };
+
+  ws.addRow([]);
+
+  const headerValues = ['Kategori', 'Ürün', 'Birim', ...report.salesBranches.map(b => b.branchName), 'TOPLAM'];
+  const headerRow = ws.addRow(headerValues);
+  headerRow.font = { bold: true };
+  headerRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF2980B9' } };
+  headerRow.eachCell(cell => {
+    cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+    cell.alignment = { horizontal: 'center' };
+  });
+
+  filteredRows.forEach(row => {
+    ws.addRow([
+      row.categoryName,
+      row.productName,
+      row.unit,
+      ...report.salesBranches.map(b => row.branchQuantities[b.branchId] ?? 0),
+      row.totalQuantity
+    ]).getCell(colCount).font = { bold: true };
+  });
+
+  const totalRow = ws.addRow([
+    'TOPLAM', '', '',
+    ...report.salesBranches.map(b => filteredRows.reduce((sum, r) => sum + (r.branchQuantities[b.branchId] ?? 0), 0)),
+    filteredRows.reduce((sum, r) => sum + r.totalQuantity, 0)
+  ]);
+  totalRow.font = { bold: true };
+  totalRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFECF0F1' } };
+
+  ws.getColumn(1).width = 20;
+  ws.getColumn(2).width = 35;
+  ws.getColumn(3).width = 10;
+  report.salesBranches.forEach((_, i) => ws.getColumn(4 + i).width = 18);
+  ws.getColumn(colCount).width = 12;
+};
+
