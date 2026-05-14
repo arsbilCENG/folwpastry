@@ -404,15 +404,16 @@ export const exportProductionReportPdf = async (
     : report.rows;
 
   const categoryLabel = categoryFilter ?? 'Tüm Kategoriler';
-  const title = `ÜRETİM RAPORU — ${categoryLabel.toUpperCase()}`;
+  // Turkish-safe uppercase
+  const title = `ÜRETİM RAPORU — ${categoryLabel.toLocaleUpperCase('tr-TR')}`;
 
-  // Başlık
-  doc.setFont(font, 'bold');
+  // Başlık - Kalın font yüklü olmadığı için normal kullanıyoruz (encoding bozulmaması için)
+  doc.setFont(font, 'normal');
   doc.setFontSize(18);
   doc.text(title, 14, 18);
+  
   doc.setFontSize(11);
   doc.text(report.productionBranchName, 14, 26);
-  doc.setFont(font, 'normal');
   doc.text(
     `Rapor Tarihi: ${formatDate(report.reportDate)} | Talep Tarihi: ${formatDate(report.demandDate)}`,
     14, 33
@@ -436,6 +437,8 @@ export const exportProductionReportPdf = async (
     row.totalQuantity.toString()
   ]);
 
+  const totalQty = filteredRows.reduce((sum, r) => sum + r.totalQuantity, 0);
+
   // Toplam satırı
   const totalRow = [
     'TOPLAM', '', '',
@@ -444,7 +447,7 @@ export const exportProductionReportPdf = async (
         .reduce((sum, r) => sum + (r.branchQuantities[b.branchId] ?? 0), 0)
         .toString()
     ),
-    filteredRows.reduce((sum, r) => sum + r.totalQuantity, 0).toString()
+    totalQty.toString()
   ];
 
   autoTable(doc, {
@@ -452,25 +455,25 @@ export const exportProductionReportPdf = async (
     head,
     body: [...body, totalRow],
     theme: 'striped',
-    styles: { font },
+    styles: { 
+      font, 
+      halign: 'center' // İçerikleri ortalıyoruz
+    },
     headStyles: {
       fillColor: [41, 128, 185],
       textColor: 255,
-      fontStyle: 'bold',
+      fontStyle: 'normal', // Bold font yüklenmediği için normal (Turkish fix)
       halign: 'center',
       font
     },
     columnStyles: {
       0: { cellWidth: 30 },
       1: { cellWidth: 40 },
-      2: { cellWidth: 15, halign: 'center' },
+      2: { cellWidth: 15 },
     },
     didParseCell: (data) => {
-      if (data.column.index === head[0].length - 1) {
-        data.cell.styles.fontStyle = 'bold';
-      }
+      // Toplam satırı görsel ayrımı
       if (data.row.index === body.length) {
-        data.cell.styles.fontStyle = 'bold';
         data.cell.styles.fillColor = [236, 240, 241];
       }
     },
@@ -478,9 +481,13 @@ export const exportProductionReportPdf = async (
       `Toplam ${filteredRows.length} ürün çeşidi`,
       '', '',
       ...report.salesBranches.map(() => ''),
-      `${filteredRows.reduce((sum, r) => sum + r.totalQuantity, 0)} adet`
+      `${totalQty} adet`
     ]],
-    footStyles: { font, fontStyle: 'bold' }
+    footStyles: { 
+      font, 
+      fontStyle: 'normal',
+      halign: 'center' 
+    }
   });
 
   const fileName = categoryFilter
@@ -502,10 +509,13 @@ export const exportProductionReportExcel = async (
     ? report.rows.filter(r => r.categoryName === categoryFilter)
     : report.rows;
 
-  // Başlık
   const colCount = 3 + report.salesBranches.length + 1;
+
+  // Başlık
   ws.mergeCells(1, 1, 1, colCount);
-  ws.getCell('A1').value = categoryFilter ? `ÜRETİM RAPORU — ${categoryFilter.toUpperCase()}` : 'ÜRETİM RAPORU';
+  ws.getCell('A1').value = categoryFilter 
+    ? `ÜRETİM RAPORU — ${categoryFilter.toLocaleUpperCase('tr-TR')}` 
+    : 'ÜRETİM RAPORU';
   ws.getCell('A1').font = { bold: true, size: 16 };
   ws.getCell('A1').alignment = { horizontal: 'center' };
 
@@ -522,20 +532,9 @@ export const exportProductionReportExcel = async (
   ws.addRow([]);
 
   // Header satırı
-  const headerValues = [
-    'Kategori',
-    'Ürün',
-    'Birim',
-    ...report.salesBranches.map(b => b.branchName),
-    'TOPLAM'
-  ];
+  const headerValues = ['Kategori', 'Ürün', 'Birim', ...report.salesBranches.map(b => b.branchName), 'TOPLAM'];
   const headerRow = ws.addRow(headerValues);
-  headerRow.font = { bold: true };
-  headerRow.fill = {
-    type: 'pattern',
-    pattern: 'solid',
-    fgColor: { argb: 'FF2980B9' }
-  };
+  headerRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF2980B9' } };
   headerRow.eachCell(cell => {
     cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
     cell.alignment = { horizontal: 'center' };
@@ -543,43 +542,37 @@ export const exportProductionReportExcel = async (
 
   // Veri satırları
   filteredRows.forEach(row => {
-    const dataValues = [
+    const r = ws.addRow([
       row.categoryName,
       row.productName,
       row.unit,
       ...report.salesBranches.map(b => row.branchQuantities[b.branchId] ?? 0),
       row.totalQuantity
-    ];
-    const dataRow = ws.addRow(dataValues);
-    const lastCell = dataRow.getCell(colCount);
-    lastCell.font = { bold: true };
+    ]);
+    r.eachCell(cell => {
+      cell.alignment = { horizontal: 'center' }; // İçerikleri ortalıyoruz
+    });
+    r.getCell(colCount).font = { bold: true };
   });
 
   // Toplam satırı
-  const totalValues = [
-    'TOPLAM',
-    '',
-    '',
-    ...report.salesBranches.map(b =>
-      filteredRows.reduce((sum, r) => sum + (r.branchQuantities[b.branchId] ?? 0), 0)
-    ),
-    filteredRows.reduce((sum, r) => sum + r.totalQuantity, 0)
-  ];
-  const totalRow = ws.addRow(totalValues);
+  const totalQty = filteredRows.reduce((sum, r) => sum + r.totalQuantity, 0);
+  const totalRow = ws.addRow([
+    'TOPLAM', '', '',
+    ...report.salesBranches.map(b => filteredRows.reduce((sum, r) => sum + (r.branchQuantities[b.branchId] ?? 0), 0)),
+    totalQty
+  ]);
   totalRow.font = { bold: true };
-  totalRow.fill = {
-    type: 'pattern',
-    pattern: 'solid',
-    fgColor: { argb: 'FFECF0F1' }
-  };
+  totalRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFECF0F1' } };
+  totalRow.eachCell(cell => {
+    cell.alignment = { horizontal: 'center' };
+  });
 
   // Kolon genişlikleri
   ws.getColumn(1).width = 20;
   ws.getColumn(2).width = 35;
   ws.getColumn(3).width = 10;
-  report.salesBranches.forEach((_, i) => {
-    ws.getColumn(4 + i).width = 18;
-  });
+  report.salesBranches.forEach((_, i) => ws.getColumn(4 + i).width = 18);
   ws.getColumn(colCount).width = 12;
 
   const buf = await wb.xlsx.writeBuffer();
@@ -592,11 +585,8 @@ export const exportProductionReportExcel = async (
 
 export const exportAllCategoriesPdf = (report: ProductionReport): void => {
   const categories = [...new Set(report.rows.map(r => r.categoryName))].sort();
-  
   categories.forEach((category, index) => {
-    setTimeout(() => {
-      exportProductionReportPdf(report, category);
-    }, index * 300);
+    setTimeout(() => exportProductionReportPdf(report, category), index * 300);
   });
 };
 
@@ -604,11 +594,9 @@ export const exportAllCategoriesExcel = async (report: ProductionReport): Promis
   const wb = new ExcelJS.Workbook();
   const categories = [...new Set(report.rows.map(r => r.categoryName))].sort();
 
-  // "Tümü" sheet
   const wsAll = wb.addWorksheet('Tümü');
   await addProductionDataToSheet(wsAll, report);
 
-  // Kategori bazlı sheetler
   for (const cat of categories) {
     const ws = wb.addWorksheet(cat.substring(0, 31));
     await addProductionDataToSheet(ws, report, cat);
@@ -619,7 +607,6 @@ export const exportAllCategoriesExcel = async (report: ProductionReport): Promis
   saveAs(new Blob([buf]), fileName);
 };
 
-// Excel için yardımcı fonksiyon (ayrı sheet'lere veri basmak için)
 const addProductionDataToSheet = async (
   ws: ExcelJS.Worksheet, 
   report: ProductionReport, 
@@ -632,7 +619,9 @@ const addProductionDataToSheet = async (
   const colCount = 3 + report.salesBranches.length + 1;
 
   ws.mergeCells(1, 1, 1, colCount);
-  ws.getCell('A1').value = categoryFilter ? `ÜRETİM RAPORU — ${categoryFilter.toUpperCase()}` : 'ÜRETİM RAPORU';
+  ws.getCell('A1').value = categoryFilter 
+    ? `ÜRETİM RAPORU — ${categoryFilter.toLocaleUpperCase('tr-TR')}` 
+    : 'ÜRETİM RAPORU';
   ws.getCell('A1').font = { bold: true, size: 16 };
   ws.getCell('A1').alignment = { horizontal: 'center' };
 
@@ -645,7 +634,6 @@ const addProductionDataToSheet = async (
 
   const headerValues = ['Kategori', 'Ürün', 'Birim', ...report.salesBranches.map(b => b.branchName), 'TOPLAM'];
   const headerRow = ws.addRow(headerValues);
-  headerRow.font = { bold: true };
   headerRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF2980B9' } };
   headerRow.eachCell(cell => {
     cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
@@ -653,13 +641,15 @@ const addProductionDataToSheet = async (
   });
 
   filteredRows.forEach(row => {
-    ws.addRow([
+    const r = ws.addRow([
       row.categoryName,
       row.productName,
       row.unit,
       ...report.salesBranches.map(b => row.branchQuantities[b.branchId] ?? 0),
       row.totalQuantity
-    ]).getCell(colCount).font = { bold: true };
+    ]);
+    r.eachCell(cell => cell.alignment = { horizontal: 'center' });
+    r.getCell(colCount).font = { bold: true };
   });
 
   const totalRow = ws.addRow([
@@ -669,6 +659,7 @@ const addProductionDataToSheet = async (
   ]);
   totalRow.font = { bold: true };
   totalRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFECF0F1' } };
+  totalRow.eachCell(cell => cell.alignment = { horizontal: 'center' });
 
   ws.getColumn(1).width = 20;
   ws.getColumn(2).width = 35;
@@ -676,4 +667,5 @@ const addProductionDataToSheet = async (
   report.salesBranches.forEach((_, i) => ws.getColumn(4 + i).width = 18);
   ws.getColumn(colCount).width = 12;
 };
+
 
