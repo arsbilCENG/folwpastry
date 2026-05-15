@@ -8,7 +8,7 @@ using PastryFlow.Application.Interfaces;
 
 namespace PastryFlow.API.Controllers.Admin;
 
-[Authorize(Roles = "Admin")]
+[Authorize(Roles = "Admin,Production")]
 [ApiController]
 [Route("api/admin/products")]
 public class AdminProductsController : ControllerBase
