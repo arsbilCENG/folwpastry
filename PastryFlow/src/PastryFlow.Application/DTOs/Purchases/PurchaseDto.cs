@@ -6,7 +6,7 @@ public class PurchaseDto
 {
     public Guid Id { get; set; }
     public string PurchaseNumber { get; set; } = string.Empty;
-    public Guid BranchId { get; set; }
+    public Guid? BranchId { get; set; }
     public string BranchName { get; set; } = string.Empty;
     public DateTime PurchaseDate { get; set; }
     public PaymentMethod PaymentMethod { get; set; }

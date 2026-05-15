@@ -26,6 +26,15 @@ public interface IWalletService
         Guid branchId, WalletType walletType, decimal amount,
         string purchaseNumber, Guid createdByUserId);
 
+    // Admin satın alımları için
+    Task ApplyAdminPurchaseDeductionAsync(
+        WalletType walletType, decimal amount,
+        string purchaseNumber, Guid createdByUserId);
+
+    Task RevertAdminPurchaseDeductionAsync(
+        WalletType walletType, decimal amount,
+        string purchaseNumber, Guid createdByUserId);
+
     // Manuel — Admin
     Task TransferBranchToAdminAsync(TransferRequest request, Guid adminUserId);
     Task TransferAdminToBranchAsync(TransferRequest request, Guid adminUserId);

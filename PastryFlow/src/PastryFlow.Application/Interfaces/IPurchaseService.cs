@@ -14,4 +14,5 @@ public interface IPurchaseService
     
     // Admin: tüm şubeler
     Task<PagedResult<PurchaseDto>> GetAllPurchasesAsync(PaginationParams pagination, Guid? branchId = null, DateTime? startDate = null, DateTime? endDate = null);
+    Task<PurchaseDto> CreateAdminPurchaseAsync(Guid userId, CreatePurchaseDto dto);
 }

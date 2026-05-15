@@ -167,7 +167,7 @@ public class PurchaseService : IPurchaseService
         try
         {
             await _walletService.ApplyPurchaseDeductionAsync(
-                purchase.BranchId,
+                purchase.BranchId.Value,
                 walletType,
                 purchase.TotalAmount,
                 purchase.PurchaseNumber,
@@ -179,6 +179,79 @@ public class PurchaseService : IPurchaseService
             // Bakiye yetersizse yine de satın alım kaydedilir
             // Admin manuel düzeltme yapabilir
             Console.WriteLine($"[WalletService] Satın alım wallet güncellemesi başarısız: {ex.Message}");
+        }
+
+        return await GetPurchaseByIdAsync(purchase.Id);
+    }
+
+    public async Task<PurchaseDto> CreateAdminPurchaseAsync(Guid userId, CreatePurchaseDto dto)
+    {
+        if (!dto.Items.Any())
+            throw new Exception("En az bir kalem girilmelidir.");
+
+        var year = DateTime.Now.Year;
+        var lastNumber = await _context.Purchases
+            .Where(p => p.PurchaseNumber.StartsWith($"PUR-{year}-"))
+            .CountAsync();
+        var purchaseNumber = $"PUR-{year}-{(lastNumber + 1):D4}";
+
+        var purchase = new Purchase
+        {
+            Id = Guid.NewGuid(),
+            PurchaseNumber = purchaseNumber,
+            BranchId = null, // Admin purchase
+            PurchaseDate = dto.PurchaseDate.Date,
+            PaymentMethod = dto.PaymentMethod,
+            Notes = dto.Notes,
+            CreatedByUserId = userId,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+
+        decimal totalAmount = 0;
+
+        foreach (var itemDto in dto.Items)
+        {
+            var totalPrice = itemDto.Quantity * itemDto.UnitPrice;
+            totalAmount += totalPrice;
+
+            var item = new PurchaseItem
+            {
+                Id = Guid.NewGuid(),
+                PurchaseId = purchase.Id,
+                ProductId = itemDto.ProductId,
+                ItemName = itemDto.ItemName,
+                Quantity = itemDto.Quantity,
+                Unit = itemDto.Unit,
+                UnitPrice = itemDto.UnitPrice,
+                TotalPrice = totalPrice,
+                AffectsStock = false, // Admin purchases never affect branch stock
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            purchase.Items.Add(item);
+        }
+
+        purchase.TotalAmount = totalAmount;
+        _context.Purchases.Add(purchase);
+        await _context.SaveChangesAsync();
+
+        var walletType = purchase.PaymentMethod == PaymentMethod.Cash
+            ? WalletType.Cash
+            : WalletType.Bank;
+
+        try
+        {
+            await _walletService.ApplyAdminPurchaseDeductionAsync(
+                walletType,
+                purchase.TotalAmount,
+                purchase.PurchaseNumber,
+                userId);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[WalletService] Admin satın alım wallet güncellemesi başarısız: {ex.Message}");
         }
 
         return await GetPurchaseByIdAsync(purchase.Id);
@@ -204,27 +277,28 @@ public class PurchaseService : IPurchaseService
             .FirstOrDefaultAsync(p => p.Id == id && !p.IsDeleted)
             ?? throw new Exception("Satın alım bulunamadı.");
 
-        // Sadece admin veya aynı gün oluşturan silebilir
         if (!isAdmin)
         {
             if (purchase.CreatedByUserId != userId)
                 throw new Exception("Bu satın alımı silme yetkiniz yok.");
             
-            // local time comparison might be better but UtcNow is safer for backend
             if (purchase.CreatedAt.Date != DateTime.UtcNow.Date)
                 throw new Exception("Sadece bugün oluşturulan satın alımlar silinebilir.");
         }
 
-        // Stok geri al
-        foreach (var item in purchase.Items.Where(i => i.AffectsStock && i.ProductId.HasValue))
+        // Stok geri al (Sadece şubeli ise)
+        if (purchase.BranchId.HasValue)
         {
-            var stock = await _context.Stocks
-                .FirstOrDefaultAsync(s => s.BranchId == purchase.BranchId && s.ProductId == item.ProductId);
-
-            if (stock != null)
+            foreach (var item in purchase.Items.Where(i => i.AffectsStock && i.ProductId.HasValue))
             {
-                stock.CurrentQuantity = Math.Max(0, stock.CurrentQuantity - item.Quantity);
-                stock.UpdatedAt = DateTime.UtcNow;
+                var stock = await _context.Stocks
+                    .FirstOrDefaultAsync(s => s.BranchId == purchase.BranchId && s.ProductId == item.ProductId);
+
+                if (stock != null)
+                {
+                    stock.CurrentQuantity = Math.Max(0, stock.CurrentQuantity - item.Quantity);
+                    stock.UpdatedAt = DateTime.UtcNow;
+                }
             }
         }
 
@@ -240,12 +314,23 @@ public class PurchaseService : IPurchaseService
 
         try
         {
-            await _walletService.RevertPurchaseDeductionAsync(
-                purchase.BranchId,
-                walletType,
-                purchase.TotalAmount,
-                purchase.PurchaseNumber,
-                userId);
+            if (purchase.BranchId.HasValue)
+            {
+                await _walletService.RevertPurchaseDeductionAsync(
+                    purchase.BranchId.Value,
+                    walletType,
+                    purchase.TotalAmount,
+                    purchase.PurchaseNumber,
+                    userId);
+            }
+            else
+            {
+                await _walletService.RevertAdminPurchaseDeductionAsync(
+                    walletType,
+                    purchase.TotalAmount,
+                    purchase.PurchaseNumber,
+                    userId);
+            }
         }
         catch (Exception ex)
         {

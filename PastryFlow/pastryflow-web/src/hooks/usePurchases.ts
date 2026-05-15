@@ -79,3 +79,46 @@ export const useAdminPurchases = (params?: {
     queryFn: () => adminPurchaseApi.getAllPurchases(params),
   });
 };
+
+export const useCreateAdminPurchase = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: CreatePurchaseDto) => adminPurchaseApi.createAdminPurchase(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-purchases'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-wallet'] });
+    },
+    onError: (error: any) => {
+      message.error(error?.message || 'Admin satın alımı oluşturulamadı.');
+    },
+  });
+};
+
+export const useUploadAdminReceiptPhoto = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, photo }: { id: string; photo: File }) =>
+      adminPurchaseApi.uploadAdminReceiptPhoto(id, photo),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-purchases'] });
+    },
+    onError: (error: any) => {
+      message.error(error?.message || 'Fotoğraf yüklenemedi.');
+    },
+  });
+};
+
+export const useDeleteAdminPurchase = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => adminPurchaseApi.deleteAdminPurchase(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-purchases'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-wallet'] });
+      message.success('Admin satın alımı silindi.');
+    },
+    onError: (error: any) => {
+      message.error(error?.message || 'Silinemedi.');
+    },
+  });
+};
