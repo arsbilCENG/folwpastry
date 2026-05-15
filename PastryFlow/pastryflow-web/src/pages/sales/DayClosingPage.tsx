@@ -276,7 +276,10 @@ const DayClosingPage: React.FC = () => {
       onOk: async () => {
         setSaving(true);
         try {
-          const carryItems = Object.keys(carryOvers).map(k => ({ productId: k, carryOverQuantity: carryOvers[k] }));
+          const carryItems = flatProducts.map(item => ({
+            productId: item.id,
+            carryOverQuantity: carryOvers[item.id] ?? counts[item.id] ?? 0
+          }));
           await dayClosingApi.saveCarryOver({ branchId: user.branchId!, date: today, items: carryItems });
 
           const res = await dayClosingApi.closeDay({
