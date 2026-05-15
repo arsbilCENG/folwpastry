@@ -65,7 +65,14 @@ const DayClosingPage: React.FC = () => {
   // UI State
   const [currentStep, setCurrentStep] = useState(0);
   
-  const today = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD in local time
+  const getBusinessDate = () => {
+    const now = new Date();
+    if (now.getHours() < 3) {
+      now.setDate(now.getDate() - 1);
+    }
+    return now.toLocaleDateString('en-CA');
+  };
+  const today = getBusinessDate();
   
   // Hooks
   const expectedCashQuery = useExpectedCash(user?.branchId || '', today, currentStep === 1 && !!user?.branchId);
