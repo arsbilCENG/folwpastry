@@ -11,8 +11,22 @@ import {
   Alert,
   Spin,
   Breadcrumb,
+  Radio,
+  Progress,
+  Empty,
+  Statistic,
+  Row,
+  Col,
+  Tag,
 } from 'antd';
-import { SendOutlined, ArrowLeftOutlined } from '@ant-design/icons';
+import { 
+  SendOutlined, 
+  ArrowLeftOutlined, 
+  UnorderedListOutlined, 
+  AppstoreOutlined, 
+  LeftOutlined, 
+  RightOutlined 
+} from '@ant-design/icons';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { demandApi } from '../../api/demandApi';
 import { useShipDemand } from '../../hooks/useDemands';
@@ -27,6 +41,12 @@ const ShipDemandPage: React.FC = () => {
   const [demand, setDemand] = useState<Demand | null>(null);
   const [loading, setLoading] = useState(true);
   const [sentQuantities, setSentQuantities] = useState<Record<string, number>>({});
+
+  // View Mode States
+  const [viewMode, setViewMode] = useState<'table' | 'card'>(() => 
+    (localStorage.getItem('pastryflow_input_mode') as 'table' | 'card') || 'table'
+  );
+  const [currentProductIndex, setCurrentProductIndex] = useState(0);
   
   const shipMutation = useShipDemand();
 
@@ -55,11 +75,16 @@ const ShipDemandPage: React.FC = () => {
     fetchDemand();
   }, [id]);
 
+  // Save View Mode Preference
+  useEffect(() => {
+    localStorage.setItem('pastryflow_input_mode', viewMode);
+  }, [viewMode]);
+
   const handleShip = async () => {
     if (!demand) return;
 
     const items = demand.items
-      .filter(item => sentQuantities[item.id] > 0)
+      .filter(item => (sentQuantities[item.id] || 0) > 0)
       .map(item => ({
         demandItemId: item.id,
         sentQuantity: sentQuantities[item.id],
@@ -79,6 +104,147 @@ const ShipDemandPage: React.FC = () => {
       // Error handled by mutation
     }
   };
+
+  const renderCardMode = () => {
+    if (!demand || demand.items.length === 0) return <Empty description="Ürün bulunamadı" />;
+    const record = demand.items[currentProductIndex];
+    if (!record) return <Empty />;
+
+    const isRejected = !record.approvedQuantity || record.approvedQuantity <= 0;
+
+    return (
+      <Card 
+        style={{ borderRadius: 16, boxShadow: '0 4px 20px rgba(0,0,0,0.08)', marginBottom: 24 }}
+        bodyStyle={{ padding: '24px 16px' }}
+      >
+        <div style={{ textAlign: 'center', marginBottom: 24 }}>
+          <Tag color="blue" style={{ marginBottom: 8, borderRadius: 4 }}>{record.categoryName}</Tag>
+          <Title level={3} style={{ margin: 0, fontSize: 22 }}>{record.productName}</Title>
+          <Text type="secondary" style={{ fontSize: 14 }}>{record.unitName}</Text>
+        </div>
+
+        <div style={{ 
+          background: '#f5f5f5', 
+          padding: '16px', 
+          borderRadius: 12, 
+          marginBottom: 24,
+          display: 'flex',
+          justifyContent: 'center',
+          gap: 24
+        }}>
+          <Statistic 
+            title="Talep" 
+            value={record.requestedQuantity} 
+            valueStyle={{ fontSize: 18, fontWeight: 500 }}
+          />
+          <Statistic 
+            title="Onaylanan" 
+            value={record.approvedQuantity || 0} 
+            valueStyle={{ fontSize: 20, fontWeight: 600, color: '#52c41a' }}
+          />
+        </div>
+
+        <div style={{ marginBottom: 32 }}>
+          <div style={{ textAlign: 'center', marginBottom: 8 }}>
+            <Text strong style={{ fontSize: 16 }}>Gönderilecek Miktar</Text>
+          </div>
+          <InputNumber 
+            min={0}
+            disabled={isRejected}
+            value={sentQuantities[record.id] || 0}
+            onChange={(val) => setSentQuantities(prev => ({ ...prev, [record.id]: val || 0 }))}
+            style={{ 
+              width: '100%', 
+              fontSize: 28, 
+              height: 64, 
+              display: 'flex', 
+              alignItems: 'center',
+              borderRadius: 12,
+            }}
+            status={sentQuantities[record.id] > (record.approvedQuantity || 0) ? 'warning' : ''}
+            onFocus={(e) => e.target.select()}
+            inputMode="numeric"
+            keyboard={false}
+            placeholder="0.00"
+          />
+          {sentQuantities[record.id] > (record.approvedQuantity || 0) && (
+            <div style={{ textAlign: 'center', marginTop: 8 }}>
+              <Text type="warning" style={{ fontSize: 12 }}>Onaylanan miktardan fazla gönderiyorsunuz.</Text>
+            </div>
+          )}
+        </div>
+
+        <Row gutter={12}>
+          <Col span={12}>
+            <Button 
+              size="large" 
+              block 
+              icon={<LeftOutlined />}
+              disabled={currentProductIndex === 0}
+              onClick={() => setCurrentProductIndex(prev => prev - 1)}
+              style={{ height: 50, borderRadius: 10 }}
+            >
+              Önceki
+            </Button>
+          </Col>
+          <Col span={12}>
+            <Button 
+              type="primary" 
+              size="large" 
+              block 
+              icon={<RightOutlined />}
+              disabled={currentProductIndex === demand.items.length - 1}
+              onClick={() => setCurrentProductIndex(prev => prev + 1)}
+              style={{ height: 50, borderRadius: 10 }}
+            >
+              Sonraki
+            </Button>
+          </Col>
+        </Row>
+
+        <div style={{ marginTop: 20, textAlign: 'center' }}>
+          <Progress 
+            percent={Math.round(((currentProductIndex + 1) / demand.items.length) * 100)} 
+            showInfo={false}
+            size="small"
+            strokeColor="#13c2c2"
+          />
+          <div style={{ marginTop: 8 }}>
+            <Text type="secondary" style={{ fontSize: 12 }}>
+              {currentProductIndex + 1} / {demand.items.length} Ürün
+            </Text>
+          </div>
+        </div>
+      </Card>
+    );
+  };
+
+  const renderModeSelector = () => (
+    <div style={{ 
+      display: 'flex', 
+      justifyContent: 'space-between', 
+      alignItems: 'center', 
+      marginBottom: 16,
+      background: '#fff',
+      padding: '8px 16px',
+      borderRadius: 12,
+      border: '1px solid #f0f0f0'
+    }}>
+      <Radio.Group 
+        value={viewMode} 
+        onChange={e => setViewMode(e.target.value)}
+        optionType="button"
+        buttonStyle="solid"
+        size="middle"
+      >
+        <Radio.Button value="table"><UnorderedListOutlined /> Tablo</Radio.Button>
+        <Radio.Button value="card"><AppstoreOutlined /> Kart</Radio.Button>
+      </Radio.Group>
+      <Text type="secondary" style={{ fontSize: 13 }}>
+        {demand?.items.length} Ürün Hazırlanıyor
+      </Text>
+    </div>
+  );
 
   if (loading) return <div style={{ textAlign: 'center', padding: '100px' }}><Spin size="large" /></div>;
   if (!demand) return <div style={{ padding: 24 }}><Alert message="Talep bulunamadı" type="error" /></div>;
@@ -127,6 +293,9 @@ const ShipDemandPage: React.FC = () => {
             onChange={(val) => setSentQuantities(prev => ({ ...prev, [record.id]: val || 0 }))}
             style={{ width: '100%' }}
             status={sentQuantities[record.id] > (record.approvedQuantity || 0) ? 'warning' : ''}
+            onFocus={(e) => e.target.select()}
+            inputMode="numeric"
+            keyboard={false}
           />
         );
       },
@@ -168,15 +337,23 @@ const ShipDemandPage: React.FC = () => {
           style={{ marginBottom: 24 }}
         />
 
-        <Table
-          dataSource={demand.items}
-          columns={columns}
-          rowKey="id"
-          pagination={false}
-          bordered
-          rowClassName={(record) => (!record.approvedQuantity || record.approvedQuantity <= 0 ? 'row-disabled' : '')}
-          scroll={{ x: 'max-content' }}
-        />
+        <div style={{ marginBottom: 16 }}>
+          {renderModeSelector()}
+        </div>
+
+        {viewMode === 'card' ? (
+          renderCardMode()
+        ) : (
+          <Table
+            dataSource={demand.items}
+            columns={columns}
+            rowKey="id"
+            pagination={false}
+            bordered
+            rowClassName={(record) => (!record.approvedQuantity || record.approvedQuantity <= 0 ? 'row-disabled' : '')}
+            scroll={{ x: 'max-content' }}
+          />
+        )}
 
         <Divider />
 

@@ -258,6 +258,9 @@ const DayCorrection: React.FC = () => {
                   style={{ width: '100%' }} 
                   min={0} 
                   precision={currentRecord?.unit === 'Kg' ? 2 : 0} 
+                  onFocus={(e) => e.target.select()}
+                  inputMode="numeric"
+                  keyboard={false}
                 />
               </Form.Item>
             </Col>
@@ -271,6 +274,9 @@ const DayCorrection: React.FC = () => {
                   style={{ width: '100%' }} 
                   min={0} 
                   precision={currentRecord?.unit === 'Kg' ? 2 : 0} 
+                  onFocus={(e) => e.target.select()}
+                  inputMode="numeric"
+                  keyboard={false}
                 />
               </Form.Item>
             </Col>

@@ -139,7 +139,15 @@ const AddWastePage: React.FC = () => {
               }),
             ]}
           >
-            <InputNumber min={0.1} step={0.1} style={{ width: '100%' }} placeholder="Zayi olan miktar" />
+            <InputNumber 
+              min={0.1} 
+              step={0.1} 
+              style={{ width: '100%' }} 
+              placeholder="Zayi olan miktar" 
+              onFocus={(e) => e.target.select()}
+              inputMode="numeric"
+              keyboard={false}
+            />
           </Form.Item>
 
           <Form.Item

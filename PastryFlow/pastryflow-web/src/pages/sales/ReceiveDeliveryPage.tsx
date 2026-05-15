@@ -222,6 +222,9 @@ const ReceiveDeliveryPage: React.FC = () => {
                         onChange={(val) => handleItemChange(item.demandItemId, 'acceptedQuantity', val || 0)}
                         size="large"
                         style={{ width: 120 }}
+                        onFocus={(e) => e.target.select()}
+                        inputMode="numeric"
+                        keyboard={false}
                       />
                     </div>
                     {rejected > 0 && <Tag color="error" icon={<WarningOutlined />}>{rejected} adet reddedildi</Tag>}

@@ -13,11 +13,20 @@ import {
   Spin,
   message,
   Divider,
+  Progress,
+  Empty,
+  Statistic,
+  Row,
+  Col
 } from 'antd';
 import {
   CheckOutlined,
   ArrowLeftOutlined,
   ExclamationCircleOutlined,
+  UnorderedListOutlined,
+  AppstoreOutlined,
+  LeftOutlined,
+  RightOutlined
 } from '@ant-design/icons';
 import { useParams, useNavigate } from 'react-router-dom';
 import { demandApi } from '../../api/demandApi';
@@ -47,6 +56,12 @@ const DemandReviewPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [items, setItems] = useState<ItemReviewState[]>([]);
+
+  // View Mode States
+  const [viewMode, setViewMode] = useState<'table' | 'card'>(() => 
+    (localStorage.getItem('pastryflow_input_mode') as 'table' | 'card') || 'table'
+  );
+  const [currentProductIndex, setCurrentProductIndex] = useState(0);
 
   useEffect(() => {
     const fetchDemand = async () => {
@@ -88,6 +103,11 @@ const DemandReviewPage: React.FC = () => {
     };
     fetchDemand();
   }, [id, navigate]);
+
+  // Save View Mode Preference
+  useEffect(() => {
+    localStorage.setItem('pastryflow_input_mode', viewMode);
+  }, [viewMode]);
 
   const updateItem = (itemId: string, field: keyof ItemReviewState, value: any) => {
     setItems(prev =>
@@ -201,6 +221,9 @@ const DemandReviewPage: React.FC = () => {
             disabled={record.status === 'Rejected'}
             status={record.status === 'Approved' && (record.approvedQuantity <= 0 || record.approvedQuantity > record.requestedQuantity) ? 'error' : ''}
             style={{ width: '100%' }}
+            onFocus={(e) => e.target.select()}
+            inputMode="numeric"
+            keyboard={false}
           />
           {record.status === 'Approved' && record.approvedQuantity > record.requestedQuantity && (
             <Text type="danger" style={{ fontSize: '11px' }}>Miktarı aşamaz!</Text>
@@ -245,6 +268,166 @@ const DemandReviewPage: React.FC = () => {
     },
   ];
 
+  const renderCardMode = () => {
+    if (items.length === 0) return <Empty description="İncelenecek ürün bulunamadı" />;
+    const record = items[currentProductIndex];
+    if (!record) return <Empty />;
+
+    const isReduced = record.status === 'Approved' && record.approvedQuantity < record.requestedQuantity;
+    const isRejected = record.status === 'Rejected';
+    const showReason = isReduced || isRejected;
+
+    return (
+      <Card 
+        style={{ borderRadius: 16, boxShadow: '0 4px 20px rgba(0,0,0,0.08)', marginBottom: 24 }}
+        bodyStyle={{ padding: '24px 16px' }}
+      >
+        <div style={{ textAlign: 'center', marginBottom: 24 }}>
+          <Tag color="blue" style={{ marginBottom: 8, borderRadius: 4 }}>{record.categoryName}</Tag>
+          <Title level={3} style={{ margin: 0, fontSize: 22 }}>{record.productName}</Title>
+          <Text type="secondary" style={{ fontSize: 14 }}>{record.unit}</Text>
+        </div>
+
+        <div style={{ 
+          background: '#f5f5f5', 
+          padding: '16px', 
+          borderRadius: 12, 
+          marginBottom: 24,
+          display: 'flex',
+          justifyContent: 'center',
+          gap: 24
+        }}>
+          <Statistic 
+            title="İstenen Miktar" 
+            value={record.requestedQuantity} 
+            valueStyle={{ fontSize: 20, fontWeight: 600 }}
+          />
+        </div>
+
+        <div style={{ marginBottom: 24 }}>
+          <div style={{ textAlign: 'center', marginBottom: 8 }}>
+            <Text strong style={{ fontSize: 16 }}>Onay Miktarı</Text>
+          </div>
+          <InputNumber 
+            min={0}
+            max={record.requestedQuantity}
+            value={record.approvedQuantity}
+            onChange={(val) => updateItem(record.demandItemId, 'approvedQuantity', val || 0)}
+            disabled={record.status === 'Rejected'}
+            style={{ 
+              width: '100%', 
+              fontSize: 28, 
+              height: 64, 
+              display: 'flex', 
+              alignItems: 'center',
+              borderRadius: 12,
+            }}
+            onFocus={(e) => e.target.select()}
+            inputMode="numeric"
+            keyboard={false}
+            placeholder="0.00"
+          />
+        </div>
+
+        <div style={{ textAlign: 'center', marginBottom: 24 }}>
+          <div style={{ marginBottom: 8 }}><Text strong>İşlem</Text></div>
+          <Radio.Group
+            value={record.status}
+            onChange={(e) => updateItem(record.demandItemId, 'status', e.target.value)}
+            buttonStyle="solid"
+            size="large"
+            style={{ width: '100%', display: 'flex' }}
+          >
+            <Radio.Button value="Approved" style={{ flex: 1, textAlign: 'center' }}>Onayla</Radio.Button>
+            <Radio.Button value="Rejected" style={{ flex: 1, textAlign: 'center' }}>Reddet</Radio.Button>
+          </Radio.Group>
+        </div>
+
+        {showReason && (
+          <div style={{ marginBottom: 24 }}>
+            <div style={{ marginBottom: 8 }}><Text strong>{isReduced ? "Azaltma Sebebi" : "Red Sebebi"} <Text type="danger">*</Text></Text></div>
+            <Input
+              placeholder={isReduced ? "Neden daha az onayladınız?" : "Neden reddettiniz?"}
+              value={record.rejectionReason}
+              onChange={(e) => updateItem(record.demandItemId, 'rejectionReason', e.target.value)}
+              status={!record.rejectionReason.trim() ? 'error' : ''}
+              size="large"
+            />
+          </div>
+        )}
+
+        <Row gutter={12}>
+          <Col span={12}>
+            <Button 
+              size="large" 
+              block 
+              icon={<LeftOutlined />}
+              disabled={currentProductIndex === 0}
+              onClick={() => setCurrentProductIndex(prev => prev - 1)}
+              style={{ height: 50, borderRadius: 10 }}
+            >
+              Önceki
+            </Button>
+          </Col>
+          <Col span={12}>
+            <Button 
+              type="primary" 
+              size="large" 
+              block 
+              icon={<RightOutlined />}
+              disabled={currentProductIndex === items.length - 1}
+              onClick={() => setCurrentProductIndex(prev => prev + 1)}
+              style={{ height: 50, borderRadius: 10 }}
+            >
+              Sonraki
+            </Button>
+          </Col>
+        </Row>
+
+        <div style={{ marginTop: 20, textAlign: 'center' }}>
+          <Progress 
+            percent={Math.round(((currentProductIndex + 1) / items.length) * 100)} 
+            showInfo={false}
+            size="small"
+            strokeColor="#1890ff"
+          />
+          <div style={{ marginTop: 8 }}>
+            <Text type="secondary" style={{ fontSize: 12 }}>
+              {currentProductIndex + 1} / {items.length} Ürün
+            </Text>
+          </div>
+        </div>
+      </Card>
+    );
+  };
+
+  const renderModeSelector = () => (
+    <div style={{ 
+      display: 'flex', 
+      justifyContent: 'space-between', 
+      alignItems: 'center', 
+      marginBottom: 16,
+      background: '#fff',
+      padding: '8px 16px',
+      borderRadius: 12,
+      border: '1px solid #f0f0f0'
+    }}>
+      <Radio.Group 
+        value={viewMode} 
+        onChange={e => setViewMode(e.target.value)}
+        optionType="button"
+        buttonStyle="solid"
+        size="middle"
+      >
+        <Radio.Button value="table"><UnorderedListOutlined /> Tablo</Radio.Button>
+        <Radio.Button value="card"><AppstoreOutlined /> Kart</Radio.Button>
+      </Radio.Group>
+      <Text type="secondary" style={{ fontSize: 13 }}>
+        {items.length} Ürün İnceleniyor
+      </Text>
+    </div>
+  );
+
   if (loading) return <div style={{ textAlign: 'center', padding: '100px' }}><Spin size="large" /></div>;
   if (!demand) return null;
 
@@ -270,6 +453,10 @@ const DemandReviewPage: React.FC = () => {
         </Descriptions>
       </Card>
 
+      <div style={{ marginBottom: 16 }}>
+        {renderModeSelector()}
+      </div>
+
       <Card 
         title="Talep Edilen Ürünler" 
         style={{ borderRadius: 12 }}
@@ -280,14 +467,18 @@ const DemandReviewPage: React.FC = () => {
           </Space>
         )}
       >
-        <Table
-          dataSource={items}
-          columns={columns}
-          rowKey="demandItemId"
-          pagination={false}
-          bordered
-          scroll={{ x: 'max-content' }}
-        />
+        {viewMode === 'card' ? (
+          renderCardMode()
+        ) : (
+          <Table
+            dataSource={items}
+            columns={columns}
+            rowKey="demandItemId"
+            pagination={false}
+            bordered
+            scroll={{ x: 'max-content' }}
+          />
+        )}
         
         <Divider />
         
