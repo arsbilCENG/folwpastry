@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import {
   Form,
   Button,
@@ -12,13 +12,27 @@ import {
   Space,
   Empty,
   Divider,
+  Radio,
+  Progress,
+  Card,
+  Statistic,
+  Tag,
 } from 'antd';
-import { HistoryOutlined, SendOutlined } from '@ant-design/icons';
+import { 
+  HistoryOutlined, 
+  SendOutlined,
+  UnorderedListOutlined,
+  AppstoreOutlined,
+  LeftOutlined,
+  RightOutlined
+} from '@ant-design/icons';
 import { productApi } from '../../api/productApi';
 import { demandApi } from '../../api/demandApi';
+import { stockApi } from '../../api/stockApi';
 import { CategoryWithProducts } from '../../types/product';
 import useAuth from '../../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
+import dayjs from 'dayjs';
 
 const { Title, Text } = Typography;
 const { Panel } = Collapse;
@@ -31,6 +45,13 @@ const CreateDemandPage: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
   const [repeatLoading, setRepeatLoading] = useState(false);
   const [quantities, setQuantities] = useState<Record<string, number>>({});
+  const [stocks, setStocks] = useState<Record<string, number>>({});
+
+  // View Mode States
+  const [viewMode, setViewMode] = useState<'table' | 'card'>(() => 
+    (localStorage.getItem('pastryflow_input_mode') as 'table' | 'card') || 'table'
+  );
+  const [currentProductIndex, setCurrentProductIndex] = useState(0);
 
   const fetchProducts = useCallback(async () => {
     try {
@@ -45,9 +66,42 @@ const CreateDemandPage: React.FC = () => {
     }
   }, []);
 
+  const fetchStocks = useCallback(async () => {
+    if (!user?.branchId) return;
+    try {
+      const today = dayjs().format('YYYY-MM-DD');
+      const res = await stockApi.getCurrentStock(user.branchId, today);
+      if (res.success && res.data) {
+        const stockMap: Record<string, number> = {};
+        res.data.forEach(s => {
+          stockMap[s.productId] = s.currentStock;
+        });
+        setStocks(stockMap);
+      }
+    } catch {
+      console.error('Stok bilgileri yüklenemedi.');
+    }
+  }, [user?.branchId]);
+
   useEffect(() => {
     fetchProducts();
-  }, [fetchProducts]);
+    fetchStocks();
+  }, [fetchProducts, fetchStocks]);
+
+  // Save View Mode Preference
+  useEffect(() => {
+    localStorage.setItem('pastryflow_input_mode', viewMode);
+  }, [viewMode]);
+
+  // Memoized Flat Product List for Card Mode
+  const flatProducts = useMemo(() => {
+    return categories.flatMap(cat => 
+      cat.products.map(p => ({
+        ...p,
+        categoryName: cat.name
+      }))
+    );
+  }, [categories]);
 
   const handleQuantityChange = (productId: string, val: number | null) => {
     setQuantities(prev => {
@@ -61,8 +115,6 @@ const CreateDemandPage: React.FC = () => {
   const handleRepeatYesterday = async () => {
     if (!user?.branchId) return;
 
-    // We need to fetch last demands for each production branch we work with.
-    // For simplicity, we find all production branch IDs used in our categories.
     const productionBranchIds = new Set<string>();
     categories.forEach(cat => {
       cat.products.forEach(p => {
@@ -112,7 +164,6 @@ const CreateDemandPage: React.FC = () => {
 
     if (!user?.branchId) return;
 
-    // Group items by ProductionBranchId
     const itemsByBranch: Record<string, any[]> = {};
     
     categories.forEach(cat => {
@@ -135,7 +186,7 @@ const CreateDemandPage: React.FC = () => {
         await demandApi.createDemand({
           salesBranchId: user.branchId,
           productionBranchId: bId,
-          notes: 'Dünkü talebi tekrarla veya yeni talep girişi',
+          notes: 'Yeni talep girişi',
           items: itemsByBranch[bId]
         });
       }
@@ -148,16 +199,143 @@ const CreateDemandPage: React.FC = () => {
     }
   };
 
+  const renderCardMode = () => {
+    if (flatProducts.length === 0) return <Empty description="Ürün bulunamadı" />;
+    const product = flatProducts[currentProductIndex];
+    if (!product) return <Empty />;
+
+    return (
+      <Card 
+        style={{ borderRadius: 16, boxShadow: '0 4px 20px rgba(0,0,0,0.08)', marginBottom: 24 }}
+        bodyStyle={{ padding: '24px 16px' }}
+      >
+        <div style={{ textAlign: 'center', marginBottom: 24 }}>
+          <Tag color="blue" style={{ marginBottom: 8, borderRadius: 4 }}>{product.categoryName}</Tag>
+          <Title level={3} style={{ margin: 0, fontSize: 22 }}>{product.name}</Title>
+          <Text type="secondary" style={{ fontSize: 14 }}>{product.unitName}</Text>
+        </div>
+
+        <div style={{ 
+          background: '#f5f5f5', 
+          padding: '16px', 
+          borderRadius: 12, 
+          marginBottom: 24,
+          display: 'flex',
+          justifyContent: 'center'
+        }}>
+          <Statistic 
+            title="Mevcut Stok" 
+            value={stocks[product.id] || 0} 
+            valueStyle={{ fontSize: 20, fontWeight: 600 }}
+          />
+        </div>
+
+        <div style={{ marginBottom: 32 }}>
+          <div style={{ textAlign: 'center', marginBottom: 8 }}>
+            <Text strong style={{ fontSize: 16 }}>Talep Miktarı</Text>
+          </div>
+          <InputNumber 
+            min={0}
+            value={quantities[product.id] || null}
+            onChange={val => handleQuantityChange(product.id, val)}
+            style={{ 
+              width: '100%', 
+              fontSize: 28, 
+              height: 64, 
+              display: 'flex', 
+              alignItems: 'center',
+              borderRadius: 12,
+            }}
+            onFocus={(e) => e.target.select()}
+            inputMode="numeric"
+            keyboard={false}
+            placeholder="0"
+          />
+        </div>
+
+        <Row gutter={12}>
+          <Col span={12}>
+            <Button 
+              size="large" 
+              block 
+              icon={<LeftOutlined />}
+              disabled={currentProductIndex === 0}
+              onClick={() => setCurrentProductIndex(prev => prev - 1)}
+              style={{ height: 50, borderRadius: 10 }}
+            >
+              Önceki
+            </Button>
+          </Col>
+          <Col span={12}>
+            <Button 
+              type="primary" 
+              size="large" 
+              block 
+              icon={<RightOutlined />}
+              disabled={currentProductIndex === flatProducts.length - 1}
+              onClick={() => setCurrentProductIndex(prev => prev + 1)}
+              style={{ height: 50, borderRadius: 10 }}
+            >
+              Sonraki
+            </Button>
+          </Col>
+        </Row>
+
+        <div style={{ marginTop: 20, textAlign: 'center' }}>
+          <Progress 
+            percent={Math.round(((currentProductIndex + 1) / flatProducts.length) * 100)} 
+            showInfo={false}
+            size="small"
+            strokeColor="#1890ff"
+          />
+          <div style={{ marginTop: 8 }}>
+            <Text type="secondary" style={{ fontSize: 12 }}>
+              {currentProductIndex + 1} / {flatProducts.length} Ürün
+            </Text>
+          </div>
+        </div>
+      </Card>
+    );
+  };
+
+  const renderModeSelector = () => (
+    <div style={{ 
+      display: 'flex', 
+      justifyContent: 'space-between', 
+      alignItems: 'center', 
+      marginBottom: 16,
+      background: '#fff',
+      padding: '8px 16px',
+      borderRadius: 12,
+      border: '1px solid #f0f0f0'
+    }}>
+      <Radio.Group 
+        value={viewMode} 
+        onChange={e => setViewMode(e.target.value)}
+        optionType="button"
+        buttonStyle="solid"
+        size="middle"
+      >
+        <Radio.Button value="table"><UnorderedListOutlined /> Tablo</Radio.Button>
+        <Radio.Button value="card"><AppstoreOutlined /> Kart</Radio.Button>
+      </Radio.Group>
+      <Text type="secondary" style={{ fontSize: 13 }}>
+        {Object.keys(quantities).length} / {flatProducts.length} Ürün Seçili
+      </Text>
+    </div>
+  );
+
   if (loading) return <Spin style={{ display: 'block', marginTop: 50 }} />;
 
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+    <div style={{ padding: '0 8px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 12 }}>
         <Title level={2} style={{ margin: 0 }}>Yeni Talep Oluştur</Title>
         <Button 
           icon={<HistoryOutlined />} 
           onClick={handleRepeatYesterday} 
           loading={repeatLoading}
+          shape="round"
         >
           Dünkü Talebi Tekrarla
         </Button>
@@ -166,42 +344,54 @@ const CreateDemandPage: React.FC = () => {
       <div style={{ marginBottom: 24 }}>
         <Text type="secondary">Gerekli miktarları ilgili ürünlerin yanına giriniz ve GÖNDER butonuna basınız.</Text>
       </div>
+
+      <div style={{ marginBottom: 16 }}>
+        {renderModeSelector()}
+      </div>
       
       {categories.length === 0 ? (
         <Empty description="Ürün bulunamadı" />
       ) : (
-        <Collapse defaultActiveKey={[categories[0].id]}>
-          {categories.map(cat => (
-            <Panel header={`${cat.name} (${cat.products.length} ürün)`} key={cat.id}>
-              {cat.products.map(p => (
-                <Row key={p.id} style={{ marginBottom: 8, padding: '8px 0', borderBottom: '1px solid #f0f0f0' }}>
-                  <Col span={16}>
-                    <Text strong>{p.name}</Text>
-                    <div style={{ fontSize: 12, color: '#aaa' }}>Birim: {p.unitName}</div>
-                  </Col>
-                  <Col span={8} style={{ textAlign: 'right' }}>
-                    <InputNumber 
-                      min={0} 
-                      value={quantities[p.id] || null} 
-                      onChange={val => handleQuantityChange(p.id, val)}
-                      style={{ width: '100%' }}
-                      placeholder="Miktar"
-                      onFocus={(e) => e.target.select()}
-                      inputMode="numeric"
-                      keyboard={false}
-                    />
-                  </Col>
-                </Row>
-              ))}
-            </Panel>
-          ))}
-        </Collapse>
+        viewMode === 'card' ? (
+          renderCardMode()
+        ) : (
+          <Collapse defaultActiveKey={categories.length > 0 ? [categories[0].id] : undefined} ghost expandIconPosition="end">
+            {categories.map(cat => (
+              <Panel 
+                header={<Text strong style={{ fontSize: 16 }}>{cat.name} ({cat.products.length})</Text>} 
+                key={cat.id}
+                style={{ marginBottom: 12, background: '#fff', borderRadius: 8, border: '1px solid #f0f0f0' }}
+              >
+                {cat.products.map(p => (
+                  <Row key={p.id} style={{ marginBottom: 12, padding: '8px 0', borderBottom: '1px solid #fafafa', alignItems: 'center' }}>
+                    <Col span={14}>
+                      <Text strong>{p.name}</Text>
+                      <div style={{ fontSize: 12, color: '#aaa' }}>Birim: {p.unitName} | Stok: {stocks[p.id] || 0}</div>
+                    </Col>
+                    <Col span={10} style={{ textAlign: 'right' }}>
+                      <InputNumber 
+                        min={0} 
+                        value={quantities[p.id] || null} 
+                        onChange={val => handleQuantityChange(p.id, val)}
+                        style={{ width: '100%' }}
+                        placeholder="Miktar"
+                        onFocus={(e) => e.target.select()}
+                        inputMode="numeric"
+                        keyboard={false}
+                      />
+                    </Col>
+                  </Row>
+                ))}
+              </Panel>
+            ))}
+          </Collapse>
+        )
       )}
 
       <Divider />
 
-      <div style={{ marginTop: 24, textAlign: 'right' }}>
-        <Space>
+      <div style={{ marginTop: 24, textAlign: 'right', paddingBottom: 40 }}>
+        <Space wrap>
           <Button size="large" onClick={() => navigate('/sales/demands')}>Vazgeç</Button>
           <Button 
             type="primary" 
@@ -209,7 +399,7 @@ const CreateDemandPage: React.FC = () => {
             icon={<SendOutlined />}
             onClick={handleSubmit} 
             loading={submitting}
-            style={{ minWidth: 200 }}
+            style={{ minWidth: 200, height: 50, borderRadius: 10, fontWeight: 'bold' }}
           >
             TALEBİ GÖNDER
           </Button>
