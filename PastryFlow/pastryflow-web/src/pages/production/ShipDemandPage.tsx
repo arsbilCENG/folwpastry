@@ -127,6 +127,9 @@ const ShipDemandPage: React.FC = () => {
             onChange={(val) => setSentQuantities(prev => ({ ...prev, [record.id]: val || 0 }))}
             style={{ width: '100%' }}
             status={sentQuantities[record.id] > (record.approvedQuantity || 0) ? 'warning' : ''}
+            onFocus={(e) => e.target.select()}
+            inputMode="numeric"
+            keyboard={false}
           />
         );
       },

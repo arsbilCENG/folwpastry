@@ -375,6 +375,9 @@ const DayClosingPage: React.FC = () => {
                           value={counts[p.id] || 0} 
                           onChange={val => setCounts(prev => ({ ...prev, [p.id]: val || 0 }))}
                           style={{ width: '80%' }}
+                          onFocus={(e) => e.target.select()}
+                          inputMode="numeric"
+                          keyboard={false}
                         />
                       </Col>
                       <Col span={4}>
@@ -425,6 +428,9 @@ const DayClosingPage: React.FC = () => {
                     )}
                     style={{ width: 120 }}
                     addonAfter="adet"
+                    onFocus={(e) => e.target.select()}
+                    inputMode="numeric"
+                    keyboard={false}
                   />
                 </Col>
               </Row>
@@ -535,6 +541,9 @@ const DayClosingPage: React.FC = () => {
                           value={cashAmount}
                           onChange={val => setCashAmount(val)}
                           placeholder="Kasada ne kadar nakit var?"
+                          onFocus={(e) => e.target.select()}
+                          inputMode="numeric"
+                          keyboard={false}
                         />
                       </Form.Item>
                     </Col>
@@ -548,6 +557,9 @@ const DayClosingPage: React.FC = () => {
                           min={0}
                           value={posAmount}
                           onChange={val => setPosAmount(val)}
+                          onFocus={(e) => e.target.select()}
+                          inputMode="numeric"
+                          keyboard={false}
                         />
                       </Form.Item>
                     </Col>
@@ -753,6 +765,9 @@ const DayClosingPage: React.FC = () => {
                           value={carryOvers[p.id] || 0} 
                           onChange={val => setCarryOvers(prev => ({ ...prev, [p.id]: val || 0 }))}
                           style={{ width: '80%' }}
+                          onFocus={(e) => e.target.select()}
+                          inputMode="numeric"
+                          keyboard={false}
                         />
                       </Col>
                     </Row>

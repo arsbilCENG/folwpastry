@@ -186,6 +186,9 @@ const CreateDemandPage: React.FC = () => {
                       onChange={val => handleQuantityChange(p.id, val)}
                       style={{ width: '100%' }}
                       placeholder="Miktar"
+                      onFocus={(e) => e.target.select()}
+                      inputMode="numeric"
+                      keyboard={false}
                     />
                   </Col>
                 </Row>

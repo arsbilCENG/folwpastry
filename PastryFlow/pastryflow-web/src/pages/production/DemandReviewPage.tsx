@@ -201,6 +201,9 @@ const DemandReviewPage: React.FC = () => {
             disabled={record.status === 'Rejected'}
             status={record.status === 'Approved' && (record.approvedQuantity <= 0 || record.approvedQuantity > record.requestedQuantity) ? 'error' : ''}
             style={{ width: '100%' }}
+            onFocus={(e) => e.target.select()}
+            inputMode="numeric"
+            keyboard={false}
           />
           {record.status === 'Approved' && record.approvedQuantity > record.requestedQuantity && (
             <Text type="danger" style={{ fontSize: '11px' }}>Miktarı aşamaz!</Text>
