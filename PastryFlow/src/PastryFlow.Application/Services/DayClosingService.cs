@@ -499,6 +499,7 @@ public class DayClosingService : IDayClosingService
         {
             return ApiResponse<DayClosingSummaryDto>.Ok(new DayClosingSummaryDto
             {
+                Id = null,
                 BranchName = branch.Name,
                 Date = date,
                 IsClosed = false,

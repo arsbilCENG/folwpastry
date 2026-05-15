@@ -54,7 +54,7 @@ const DayCorrection: React.FC = () => {
       }
 
       await correctionMutation.mutateAsync({
-        dayClosingId: currentRecord.id,
+        dayClosingId: (dayClosings as any).id,
         data: {
           dayClosingDetailId: currentRecord.id, // API expects this
           correctedEndOfDayCount: values.correctedEndOfDayCount,
