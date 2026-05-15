@@ -1,11 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { 
   Button, InputNumber, Collapse, Typography, message, Spin, Row, Col, Space, 
-  Modal, Result, Tag, Steps, Card, Statistic, Alert, Input, Table, Form, Divider
+  Modal, Result, Tag, Steps, Card, Statistic, Alert, Input, Table, Form, Divider,
+  Radio, Progress, Empty
 } from 'antd';
 import { 
   CheckCircleOutlined, ExclamationCircleOutlined, InfoCircleOutlined,
-  DollarOutlined, CameraOutlined, ExceptionOutlined, CalculatorOutlined, ShopOutlined
+  DollarOutlined, CameraOutlined, ExceptionOutlined, CalculatorOutlined, ShopOutlined,
+  UnorderedListOutlined, AppstoreOutlined, LeftOutlined, RightOutlined
 } from '@ant-design/icons';
 import { DayClosingCounterItem } from '../../types/dayClosing';
 import { dayClosingApi } from '../../api/dayClosingApi';
@@ -37,6 +39,12 @@ const DayClosingPage: React.FC = () => {
   const [isClosed, setIsClosed] = useState(false);
   const [dayClosingId, setDayClosingId] = useState<string | null>(null);
 
+  // View Mode States
+  const [viewMode, setViewMode] = useState<'table' | 'card'>(() => 
+    (localStorage.getItem('pastryflow_input_mode') as 'table' | 'card') || 'table'
+  );
+  const [currentProductIndex, setCurrentProductIndex] = useState(0);
+
   // Step 1: Sayım
   const [counts, setCounts] = useState<Record<string, number>>({});
   const [counterItems, setCounterItems] = useState<DayClosingCounterItem[]>([]);
@@ -64,6 +72,21 @@ const DayClosingPage: React.FC = () => {
   const submitCashCountMutation = useSubmitCashCount();
   const uploadReceiptMutation = useUploadReceiptPhoto();
   const uploadCounterMutation = useUploadCounterPhoto();
+
+  // Memoized Flat Product List for Card Mode
+  const flatProducts = useMemo(() => {
+    return categories.flatMap(cat => 
+      cat.products.map(p => ({
+        ...p,
+        categoryName: cat.name
+      }))
+    );
+  }, [categories]);
+
+  // Save View Mode Preference
+  useEffect(() => {
+    localStorage.setItem('pastryflow_input_mode', viewMode);
+  }, [viewMode]);
 
   // Load existing data
   useEffect(() => {
@@ -287,6 +310,153 @@ const DayClosingPage: React.FC = () => {
     return <Tag color="warning" icon={<InfoCircleOutlined />}>+{diff.toFixed(2)}</Tag>;
   };
 
+  const renderProductCard = (type: 'count' | 'carryover') => {
+    if (flatProducts.length === 0) return <Empty />;
+    const product = flatProducts[currentProductIndex];
+    if (!product) return <Empty />;
+
+    const isCount = type === 'count';
+    const value = isCount ? counts[product.id] || 0 : (carryOvers[product.id] ?? counts[product.id] ?? 0);
+    const maxValue = isCount ? undefined : (counts[product.id] || 0);
+
+    return (
+      <Card 
+        style={{ borderRadius: 16, boxShadow: '0 4px 20px rgba(0,0,0,0.08)', marginBottom: 24 }}
+        bodyStyle={{ padding: '24px 16px' }}
+      >
+        <div style={{ textAlign: 'center', marginBottom: 24 }}>
+          <Tag color="blue" style={{ marginBottom: 8, borderRadius: 4 }}>{product.categoryName}</Tag>
+          <Title level={3} style={{ margin: 0, fontSize: 22 }}>{product.name}</Title>
+          <Text type="secondary" style={{ fontSize: 14 }}>{product.unitName}</Text>
+        </div>
+
+        <div style={{ 
+          background: '#f5f5f5', 
+          padding: '16px', 
+          borderRadius: 12, 
+          marginBottom: 24,
+          display: 'flex',
+          justifyContent: 'center',
+          gap: 24
+        }}>
+          {isCount ? (
+            <Statistic 
+              title="Mevcut Stok" 
+              value={stocks[product.id] || 0} 
+              valueStyle={{ fontSize: 20, fontWeight: 600 }}
+            />
+          ) : (
+            <Statistic 
+              title="Gün Sonu Sayım" 
+              value={counts[product.id] || 0} 
+              valueStyle={{ fontSize: 20, fontWeight: 600, color: '#1890ff' }}
+            />
+          )}
+        </div>
+
+        <div style={{ marginBottom: 32 }}>
+          <div style={{ textAlign: 'center', marginBottom: 8 }}>
+            <Text strong style={{ fontSize: 16 }}>{isCount ? 'Sayım Miktarı' : 'Yarına Devir'}</Text>
+          </div>
+          <InputNumber 
+            min={0}
+            max={maxValue}
+            precision={2}
+            value={value}
+            onChange={val => {
+              if (isCount) {
+                setCounts(prev => ({ ...prev, [product.id]: val || 0 }));
+              } else {
+                setCarryOvers(prev => ({ ...prev, [product.id]: val || 0 }));
+              }
+            }}
+            style={{ 
+              width: '100%', 
+              fontSize: 28, 
+              height: 64, 
+              display: 'flex', 
+              alignItems: 'center',
+              borderRadius: 12,
+            }}
+            onFocus={(e) => e.target.select()}
+            inputMode="numeric"
+            keyboard={false}
+            placeholder="0.00"
+          />
+        </div>
+
+        <Row gutter={12}>
+          <Col span={12}>
+            <Button 
+              size="large" 
+              block 
+              icon={<LeftOutlined />}
+              disabled={currentProductIndex === 0}
+              onClick={() => setCurrentProductIndex(prev => prev - 1)}
+              style={{ height: 50, borderRadius: 10 }}
+            >
+              Önceki
+            </Button>
+          </Col>
+          <Col span={12}>
+            <Button 
+              type="primary" 
+              size="large" 
+              block 
+              icon={<RightOutlined />}
+              disabled={currentProductIndex === flatProducts.length - 1}
+              onClick={() => setCurrentProductIndex(prev => prev + 1)}
+              style={{ height: 50, borderRadius: 10 }}
+            >
+              Sonraki
+            </Button>
+          </Col>
+        </Row>
+
+        <div style={{ marginTop: 20, textAlign: 'center' }}>
+          <Progress 
+            percent={Math.round(((currentProductIndex + 1) / flatProducts.length) * 100)} 
+            showInfo={false}
+            size="small"
+            strokeColor="#1890ff"
+          />
+          <div style={{ marginTop: 8 }}>
+            <Text type="secondary" style={{ fontSize: 12 }}>
+              {currentProductIndex + 1} / {flatProducts.length} Ürün
+            </Text>
+          </div>
+        </div>
+      </Card>
+    );
+  };
+
+  const renderModeSelector = () => (
+    <div style={{ 
+      display: 'flex', 
+      justifyContent: 'space-between', 
+      alignItems: 'center', 
+      marginBottom: 16,
+      background: '#fff',
+      padding: '8px 16px',
+      borderRadius: 12,
+      border: '1px solid #f0f0f0'
+    }}>
+      <Radio.Group 
+        value={viewMode} 
+        onChange={e => setViewMode(e.target.value)}
+        optionType="button"
+        buttonStyle="solid"
+        size="middle"
+      >
+        <Radio.Button value="table"><UnorderedListOutlined /> Tablo</Radio.Button>
+        <Radio.Button value="card"><AppstoreOutlined /> Kart</Radio.Button>
+      </Radio.Group>
+      <Text type="secondary" style={{ fontSize: 13 }}>
+        {Object.keys(counts).length} / {flatProducts.length} Sayılan
+      </Text>
+    </div>
+  );
+
   if (loading) return (
     <div style={{ textAlign: 'center', padding: '50px' }}>
       <Spin size="large" tip="Veriler yükleniyor..." />
@@ -342,54 +512,60 @@ const DayClosingPage: React.FC = () => {
         <div style={{ marginBottom: 16 }}>
           <Text type="secondary">Adım 1: Gün sonunda elinizde Kalan Ürün sayısını girin. Mevcut stok ile karşılaştırma yapılır.</Text>
         </div>
-        
-        <Collapse defaultActiveKey={categories.length > 0 ? [categories[0].id] : undefined} ghost expandIconPosition="end">
-          {categories.map(cat => (
-            <Panel 
-              header={<Text strong style={{ fontSize: 16 }}>{cat.name}</Text>} 
-              key={cat.id}
-              style={{ marginBottom: 16, background: '#fff', borderRadius: 8, border: '1px solid #f0f0f0' }}
-            >
-              <div style={{ overflowX: 'auto' }}>
-                <div style={{ minWidth: 600 }}>
-                  <Row style={{ fontWeight: 'bold', marginBottom: 12, paddingBottom: 12, borderBottom: '1px solid #f0f0f0', textAlign: 'center' }}>
-                    <Col span={8} style={{ textAlign: 'left' }}>Ürün Adı</Col>
-                    <Col span={4}>Stok</Col>
-                    <Col span={8}>Sayım Miktarı</Col>
-                    <Col span={4}>Fark</Col>
-                  </Row>
 
-                  {cat.products.map(p => (
-                    <Row key={p.id} style={{ marginBottom: 12, padding: '8px 0', borderBottom: '1px solid #fafafa', alignItems: 'center', textAlign: 'center' }}>
-                      <Col span={8} style={{ textAlign: 'left' }}>
-                        <Text>{p.name}</Text><br />
-                        <Text type="secondary" style={{ fontSize: 11 }}>{p.unitName}</Text>
-                      </Col>
-                      <Col span={4}>
-                        <Text strong>{stocks[p.id] || 0}</Text>
-                      </Col>
-                      <Col span={8}>
-                        <InputNumber 
-                          min={0} 
-                          precision={2}
-                          value={counts[p.id] || 0} 
-                          onChange={val => setCounts(prev => ({ ...prev, [p.id]: val || 0 }))}
-                          style={{ width: '80%' }}
-                          onFocus={(e) => e.target.select()}
-                          inputMode="numeric"
-                          keyboard={false}
-                        />
-                      </Col>
-                      <Col span={4}>
-                        {renderDiff(p.id)}
-                      </Col>
+        {renderModeSelector()}
+        
+        {viewMode === 'card' ? (
+          renderProductCard('count')
+        ) : (
+          <Collapse defaultActiveKey={categories.length > 0 ? [categories[0].id] : undefined} ghost expandIconPosition="end">
+            {categories.map(cat => (
+              <Panel 
+                header={<Text strong style={{ fontSize: 16 }}>{cat.name}</Text>} 
+                key={cat.id}
+                style={{ marginBottom: 16, background: '#fff', borderRadius: 8, border: '1px solid #f0f0f0' }}
+              >
+                <div style={{ overflowX: 'auto' }}>
+                  <div style={{ minWidth: 600 }}>
+                    <Row style={{ fontWeight: 'bold', marginBottom: 12, paddingBottom: 12, borderBottom: '1px solid #f0f0f0', textAlign: 'center' }}>
+                      <Col span={8} style={{ textAlign: 'left' }}>Ürün Adı</Col>
+                      <Col span={4}>Stok</Col>
+                      <Col span={8}>Sayım Miktarı</Col>
+                      <Col span={4}>Fark</Col>
                     </Row>
-                  ))}
+
+                    {cat.products.map(p => (
+                      <Row key={p.id} style={{ marginBottom: 12, padding: '8px 0', borderBottom: '1px solid #fafafa', alignItems: 'center', textAlign: 'center' }}>
+                        <Col span={8} style={{ textAlign: 'left' }}>
+                          <Text>{p.name}</Text><br />
+                          <Text type="secondary" style={{ fontSize: 11 }}>{p.unitName}</Text>
+                        </Col>
+                        <Col span={4}>
+                          <Text strong>{stocks[p.id] || 0}</Text>
+                        </Col>
+                        <Col span={8}>
+                          <InputNumber 
+                            min={0} 
+                            precision={2}
+                            value={counts[p.id] || 0} 
+                            onChange={val => setCounts(prev => ({ ...prev, [p.id]: val || 0 }))}
+                            style={{ width: '80%' }}
+                            onFocus={(e) => e.target.select()}
+                            inputMode="numeric"
+                            keyboard={false}
+                          />
+                        </Col>
+                        <Col span={4}>
+                          {renderDiff(p.id)}
+                        </Col>
+                      </Row>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            </Panel>
-          ))}
-        </Collapse>
+              </Panel>
+            ))}
+          </Collapse>
+        )}
 
         {/* SAYAÇ ÜRÜNLERİ */}
         {counterItems.length > 0 && (
@@ -618,7 +794,7 @@ const DayClosingPage: React.FC = () => {
                     <Panel header={<Text style={{ color: '#1890ff' }}>Ürün Bazlı Satış Detaylarını Gör</Text>} key="1">
                       <style>{`
                         .counter-row {
-                          background-color: #f0f5ff;
+                           background-color: #f0f5ff;
                         }
                       `}</style>
                       <Table 
@@ -731,53 +907,59 @@ const DayClosingPage: React.FC = () => {
         <div style={{ marginBottom: 16 }}>
           <Text type="secondary">Son Adım: Yarına devredecek ürün sayısını girin. (Aradaki fark otomatik çöpe atılan zayiat olarak hesaplanacaktır).</Text>
         </div>
-        
-        <Collapse defaultActiveKey={categories.length > 0 ? [categories[0].id] : undefined} ghost expandIconPosition="end">
-          {categories.map(cat => {
-            return (
-            <Panel 
-              header={<Text strong style={{ fontSize: 16 }}>{cat.name}</Text>} 
-              key={cat.id}
-              style={{ marginBottom: 16, background: '#fff', borderRadius: 8, border: '1px solid #f0f0f0' }}
-            >
-              <div style={{ overflowX: 'auto' }}>
-                <div style={{ minWidth: 600 }}>
-                  <Row style={{ fontWeight: 'bold', marginBottom: 12, paddingBottom: 12, borderBottom: '1px solid #f0f0f0', textAlign: 'center' }}>
-                    <Col span={10} style={{ textAlign: 'left' }}>Ürün Adı</Col>
-                    <Col span={6}>Sayım (Kalan)</Col>
-                    <Col span={8}>Yarına Devir</Col>
-                  </Row>
 
-                  {cat.products.map(p => (
-                    <Row key={p.id} style={{ marginBottom: 12, padding: '8px 0', borderBottom: '1px solid #fafafa', alignItems: 'center', textAlign: 'center' }}>
-                      <Col span={10} style={{ textAlign: 'left' }}>
-                        <Text>{p.name}</Text><br />
-                        <Text type="secondary" style={{ fontSize: 11 }}>{p.unitName}</Text>
-                      </Col>
-                      <Col span={6}>
-                        <Text strong>{counts[p.id] || 0}</Text>
-                      </Col>
-                      <Col span={8}>
-                        <InputNumber 
-                          min={0} 
-                          max={counts[p.id] || 0}
-                          precision={2}
-                          value={carryOvers[p.id] || 0} 
-                          onChange={val => setCarryOvers(prev => ({ ...prev, [p.id]: val || 0 }))}
-                          style={{ width: '80%' }}
-                          onFocus={(e) => e.target.select()}
-                          inputMode="numeric"
-                          keyboard={false}
-                        />
-                      </Col>
+        {renderModeSelector()}
+        
+        {viewMode === 'card' ? (
+          renderProductCard('carryover')
+        ) : (
+          <Collapse defaultActiveKey={categories.length > 0 ? [categories[0].id] : undefined} ghost expandIconPosition="end">
+            {categories.map(cat => {
+              return (
+              <Panel 
+                header={<Text strong style={{ fontSize: 16 }}>{cat.name}</Text>} 
+                key={cat.id}
+                style={{ marginBottom: 16, background: '#fff', borderRadius: 8, border: '1px solid #f0f0f0' }}
+              >
+                <div style={{ overflowX: 'auto' }}>
+                  <div style={{ minWidth: 600 }}>
+                    <Row style={{ fontWeight: 'bold', marginBottom: 12, paddingBottom: 12, borderBottom: '1px solid #f0f0f0', textAlign: 'center' }}>
+                      <Col span={10} style={{ textAlign: 'left' }}>Ürün Adı</Col>
+                      <Col span={6}>Sayım (Kalan)</Col>
+                      <Col span={8}>Yarına Devir</Col>
                     </Row>
-                  ))}
+
+                    {cat.products.map(p => (
+                      <Row key={p.id} style={{ marginBottom: 12, padding: '8px 0', borderBottom: '1px solid #fafafa', alignItems: 'center', textAlign: 'center' }}>
+                        <Col span={10} style={{ textAlign: 'left' }}>
+                          <Text>{p.name}</Text><br />
+                          <Text type="secondary" style={{ fontSize: 11 }}>{p.unitName}</Text>
+                        </Col>
+                        <Col span={6}>
+                          <Text strong>{counts[p.id] || 0}</Text>
+                        </Col>
+                        <Col span={8}>
+                          <InputNumber 
+                            min={0} 
+                            max={counts[p.id] || 0}
+                            precision={2}
+                            value={carryOvers[p.id] ?? counts[p.id] ?? 0} 
+                            onChange={val => setCarryOvers(prev => ({ ...prev, [p.id]: val || 0 }))}
+                            style={{ width: '80%' }}
+                            onFocus={(e) => e.target.select()}
+                            inputMode="numeric"
+                            keyboard={false}
+                          />
+                        </Col>
+                      </Row>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            </Panel>
-            );
-          })}
-        </Collapse>
+              </Panel>
+              );
+            })}
+          </Collapse>
+        )}
         
         <div style={{ marginTop: 24, padding: 24, background: '#fff', border: '1px solid #f0f0f0', borderRadius: 12, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
           <Row justify="space-between" align="middle" gutter={[16, 16]}>
