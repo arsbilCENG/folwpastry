@@ -368,6 +368,84 @@ public class WalletService : IWalletService
         }
     }
 
+    public async Task ApplyAdminPurchaseDeductionAsync(WalletType walletType, decimal amount, string purchaseNumber, Guid createdByUserId)
+    {
+        using var transaction = await _context.Database.BeginTransactionAsync();
+        try
+        {
+            var wallet = await GetOrCreateAdminWalletAsync(walletType);
+
+            if (wallet.CurrentBalance < amount)
+            {
+                throw new Exception(
+                    $"Yetersiz admin {(walletType == WalletType.Cash ? "nakit" : "banka")} bakiyesi. " +
+                    $"Mevcut: ₺{wallet.CurrentBalance:N2}, İstenen: ₺{amount:N2}");
+            }
+
+            wallet.CurrentBalance -= amount;
+            wallet.UpdatedAt = DateTime.UtcNow;
+
+            _context.WalletTransactions.Add(new WalletTransaction
+            {
+                Id = Guid.NewGuid(),
+                TransactionDate = DateTime.UtcNow,
+                TransactionType = WalletTransactionType.PurchaseDeduction,
+                WalletType = walletType,
+                SourceType = WalletPartyType.Admin,
+                TargetType = WalletPartyType.Admin, // Deducting from admin
+                TargetAdminWalletId = wallet.Id,
+                Amount = amount,
+                Description = $"Admin satın alım kesintisi: {purchaseNumber}",
+                CreatedByUserId = createdByUserId,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            });
+
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+    }
+
+    public async Task RevertAdminPurchaseDeductionAsync(WalletType walletType, decimal amount, string purchaseNumber, Guid createdByUserId)
+    {
+        using var transaction = await _context.Database.BeginTransactionAsync();
+        try
+        {
+            var wallet = await GetOrCreateAdminWalletAsync(walletType);
+
+            wallet.CurrentBalance += amount;
+            wallet.UpdatedAt = DateTime.UtcNow;
+
+            _context.WalletTransactions.Add(new WalletTransaction
+            {
+                Id = Guid.NewGuid(),
+                TransactionDate = DateTime.UtcNow,
+                TransactionType = WalletTransactionType.PurchaseRefund,
+                WalletType = walletType,
+                TargetType = WalletPartyType.Admin,
+                TargetAdminWalletId = wallet.Id,
+                Amount = amount,
+                Description = $"Admin satın alım iptali iadesi: {purchaseNumber}",
+                CreatedByUserId = createdByUserId,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            });
+
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+    }
+
     public async Task TransferBranchToAdminAsync(TransferRequest request, Guid adminUserId)
     {
         if (request.Amount <= 0) throw new Exception("Transfer miktarı 0'dan büyük olmalıdır.");

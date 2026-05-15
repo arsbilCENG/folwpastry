@@ -5,8 +5,8 @@ namespace PastryFlow.Domain.Entities;
 public class Purchase : BaseEntity
 {
     public string PurchaseNumber { get; set; } = string.Empty; // PUR-2026-0001
-    public Guid BranchId { get; set; }
-    public Branch Branch { get; set; } = null!;
+    public Guid? BranchId { get; set; }
+    public Branch? Branch { get; set; }
     
     public DateTime PurchaseDate { get; set; }
     public PaymentMethod PaymentMethod { get; set; }
