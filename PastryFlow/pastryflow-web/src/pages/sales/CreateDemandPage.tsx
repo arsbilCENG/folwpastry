@@ -53,6 +53,15 @@ const CreateDemandPage: React.FC = () => {
   );
   const [currentProductIndex, setCurrentProductIndex] = useState(0);
 
+  const getBusinessDate = () => {
+    const now = new Date();
+    if (now.getHours() < 3) {
+      now.setDate(now.getDate() - 1);
+    }
+    return now.toLocaleDateString('en-CA');
+  };
+  const today = getBusinessDate();
+
   const fetchProducts = useCallback(async () => {
     try {
       const res = await productApi.getCategoriesWithProducts({ productType: 'FinishedProduct' });
@@ -69,7 +78,6 @@ const CreateDemandPage: React.FC = () => {
   const fetchStocks = useCallback(async () => {
     if (!user?.branchId) return;
     try {
-      const today = dayjs().format('YYYY-MM-DD');
       const res = await stockApi.getCurrentStock(user.branchId, today);
       if (res.success && res.data) {
         const stockMap: Record<string, number> = {};
@@ -81,7 +89,7 @@ const CreateDemandPage: React.FC = () => {
     } catch {
       console.error('Stok bilgileri yüklenemedi.');
     }
-  }, [user?.branchId]);
+  }, [user?.branchId, today]);
 
   useEffect(() => {
     fetchProducts();

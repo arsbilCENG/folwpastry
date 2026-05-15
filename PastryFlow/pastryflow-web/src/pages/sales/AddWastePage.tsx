@@ -35,12 +35,20 @@ const AddWastePage: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
 
+  const getBusinessDate = () => {
+    const now = new Date();
+    if (now.getHours() < 3) {
+      now.setDate(now.getDate() - 1);
+    }
+    return now.toLocaleDateString('en-CA');
+  };
+  const today = getBusinessDate();
+
   useEffect(() => {
     const fetchStock = async () => {
       if (!user?.branchId) return;
       setLoading(true);
       try {
-        const today = dayjs().format('YYYY-MM-DD');
         const res = await stockApi.getCurrentStock(user.branchId, today);
         if (res.success && res.data) {
           // Only show items with stock > 0
@@ -54,7 +62,7 @@ const AddWastePage: React.FC = () => {
     };
 
     fetchStock();
-  }, [user?.branchId]);
+  }, [user?.branchId, today]);
 
   const onFinish = async (values: any) => {
     if (!user?.branchId || !user?.id) return;
@@ -66,7 +74,7 @@ const AddWastePage: React.FC = () => {
       formData.append('recordedByUserId', user.id);
       formData.append('productId', values.productId);
       formData.append('quantity', values.quantity.toString());
-      formData.append('date', dayjs().format('YYYY-MM-DD'));
+      formData.append('date', today);
       formData.append('notes', values.reason);
       
       if (photoFile) {
