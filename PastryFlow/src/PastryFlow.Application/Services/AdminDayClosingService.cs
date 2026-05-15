@@ -39,12 +39,13 @@ public class AdminDayClosingService : IAdminDayClosingService
     public async Task<ApiResponse<DailySummaryItemDto>> CorrectDayClosingDetailAsync(Guid dayClosingId, DayClosingCorrectionDto dto, Guid currentUserId)
     {
         var closing = await _context.DayClosings
+            .IgnoreQueryFilters()
             .Include(c => c.Details)
                 .ThenInclude(d => d.Product)
             .Include(c => c.Branch)
-            .FirstOrDefaultAsync(c => c.Id == dayClosingId);
+            .FirstOrDefaultAsync(c => c.Id == dayClosingId && !c.IsDeleted);
 
-        if (closing == null) return ApiResponse<DailySummaryItemDto>.Fail("Gün kapanış kaydı bulunamadı.");
+        //if (closing == null) return ApiResponse<DailySummaryItemDto>.Fail("Gün kapanış kaydı bulunamadı.");
 
         var detail = closing.Details.FirstOrDefault(d => d.Id == dto.DayClosingDetailId);
         if (detail == null) return ApiResponse<DailySummaryItemDto>.Fail("Kapanış detayı bulunamadı.");
@@ -78,7 +79,20 @@ public class AdminDayClosingService : IAdminDayClosingService
             var stock = await _context.Stocks
                 .FirstOrDefaultAsync(s => s.BranchId == closing.BranchId && s.ProductId == detail.ProductId);
 
-            if (stock != null)
+            if (stock == null)
+            {
+                stock = new Stock
+                {
+                    Id = Guid.NewGuid(),
+                    BranchId = closing.BranchId,
+                    ProductId = detail.ProductId,
+                    CurrentQuantity = detail.CarryOverQuantity,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                };
+                _context.Stocks.Add(stock);
+            }
+            else
             {
                 stock.CurrentQuantity = detail.CarryOverQuantity;
                 stock.UpdatedAt = DateTime.UtcNow;
