@@ -10,7 +10,9 @@ import {
   RollbackOutlined,
   ShoppingCartOutlined,
   SwapOutlined,
-  FileTextOutlined
+  FileTextOutlined,
+  AppstoreOutlined,
+  ShoppingOutlined
 } from '@ant-design/icons';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
@@ -42,6 +44,15 @@ const ProductionLayout: React.FC = () => {
     { key: '/production/delivery-returns', icon: <RollbackOutlined />, label: 'İadeler' },
     { key: '/production/purchases', icon: <ShoppingCartOutlined />, label: 'Satın Alımlar' },
     { key: '/production/transfers', icon: <SwapOutlined />, label: 'Transferler' },
+    { 
+      key: 'product-management', 
+      icon: <ShoppingOutlined />, 
+      label: 'Ürün Yönetimi',
+      children: [
+        { key: '/production/products', icon: <ShoppingOutlined />, label: 'Ürünler' },
+        { key: '/production/categories', icon: <AppstoreOutlined />, label: 'Kategoriler' },
+      ]
+    },
     { key: '/production/production-report', icon: <FileTextOutlined />, label: 'Üretim Raporu' },
     { key: '/production/reports', icon: <BarChartOutlined />, label: 'Raporlar' },
   ];
