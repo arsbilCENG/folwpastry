@@ -531,7 +531,7 @@ public class DayClosingService : IDayClosingService
             Items = closing.Details
                 .Where(d => d.Product != null && d.Product.IsActive && d.Product.TrackingType != TrackingType.Counter)
                 .OrderBy(d => d.Product.Category.SortOrder)
-                .ThenBy(d => d.Product.Name)
+                .ThenBy(d => d.Product.SortOrder)
                 .Select(d => {
                     var currentStock = stocks.GetValueOrDefault(d.ProductId);
                     var currentQty = currentStock?.CurrentQuantity ?? 0;

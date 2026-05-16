@@ -25,7 +25,7 @@ public class StockService : IStockService
             .Include(p => p.Category)
             .Where(p => p.IsActive && p.TrackingType != TrackingType.Counter)
             .OrderBy(p => p.Category.SortOrder)
-            .ThenBy(p => p.Name)
+            .ThenBy(p => p.SortOrder)
             .ToListAsync();
 
         var stocks = await _context.Stocks
