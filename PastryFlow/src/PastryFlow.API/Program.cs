@@ -11,6 +11,7 @@ using PastryFlow.Application.Mappings;
 using PastryFlow.Application.Services;
 using PastryFlow.Infrastructure.Data;
 using PastryFlow.Application.Hubs;
+using PastryFlow.API.BackgroundServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -57,6 +58,7 @@ builder.Services.AddScoped<IAdminDayClosingService, AdminDayClosingService>();
 builder.Services.AddScoped<IDeliveryReturnService, DeliveryReturnService>();
 builder.Services.AddScoped<ICustomCakeOrderService, CustomCakeOrderService>();
 builder.Services.AddScoped<ICakeOptionService, CakeOptionService>();
+builder.Services.AddHostedService<CakeOrderReminderService>();
 
 // JWT Authentication
 var jwtSecret = builder.Configuration["Jwt:Secret"] ?? throw new InvalidOperationException("Jwt:Secret is missing");

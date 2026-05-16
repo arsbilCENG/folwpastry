@@ -649,4 +649,74 @@ public class WalletService : IWalletService
         if (type == WalletPartyType.Branch && branch != null) return branch.Name;
         return null;
     }
+
+    public async Task ApplyCakeOrderDepositAsync(Guid branchId, WalletType walletType, decimal amount, string orderNumber, Guid userId)
+    {
+        using var transaction = await _context.Database.BeginTransactionAsync();
+        try
+        {
+            var wallet = await GetOrCreateBranchWalletAsync(branchId, walletType);
+            wallet.CurrentBalance += amount;
+            wallet.UpdatedAt = DateTime.UtcNow;
+
+            _context.WalletTransactions.Add(new WalletTransaction
+            {
+                Id = Guid.NewGuid(),
+                TransactionDate = DateTime.UtcNow,
+                TransactionType = WalletTransactionType.CakeOrderDeposit,
+                WalletType = walletType,
+                TargetType = WalletPartyType.Branch,
+                TargetBranchId = branchId,
+                TargetBranchWalletId = wallet.Id,
+                Amount = amount,
+                Description = $"Özel pasta kapora ödemesi: {orderNumber}",
+                CreatedByUserId = userId,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            });
+
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+    }
+
+    public async Task ApplyCakeOrderFinalPaymentAsync(Guid branchId, WalletType walletType, decimal amount, string orderNumber, Guid userId)
+    {
+        using var transaction = await _context.Database.BeginTransactionAsync();
+        try
+        {
+            var wallet = await GetOrCreateBranchWalletAsync(branchId, walletType);
+            wallet.CurrentBalance += amount;
+            wallet.UpdatedAt = DateTime.UtcNow;
+
+            _context.WalletTransactions.Add(new WalletTransaction
+            {
+                Id = Guid.NewGuid(),
+                TransactionDate = DateTime.UtcNow,
+                TransactionType = WalletTransactionType.CakeOrderFinalPayment,
+                WalletType = walletType,
+                TargetType = WalletPartyType.Branch,
+                TargetBranchId = branchId,
+                TargetBranchWalletId = wallet.Id,
+                Amount = amount,
+                Description = $"Özel pasta kalan ödeme: {orderNumber}",
+                CreatedByUserId = userId,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            });
+
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+    }
 }

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PastryFlow.Infrastructure.Data;
@@ -11,9 +12,11 @@ using PastryFlow.Infrastructure.Data;
 namespace PastryFlow.Infrastructure.Migrations
 {
     [DbContext(typeof(PastryFlowDbContext))]
-    partial class PastryFlowDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260515234801_Sprint8_CakeOrderPaymentAndReminder")]
+    partial class Sprint8_CakeOrderPaymentAndReminder
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

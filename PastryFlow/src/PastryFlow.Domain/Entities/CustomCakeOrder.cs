@@ -27,6 +27,23 @@ public class CustomCakeOrder : BaseEntity
     
     public decimal Price { get; set; }
     
+    // Kapora
+    public decimal? DepositAmount { get; set; }
+    public PaymentMethod? DepositPaymentMethod { get; set; }
+    public DateTime? DepositPaidAt { get; set; }
+    public Guid? DepositCollectedByUserId { get; set; }
+    public virtual User? DepositCollectedByUser { get; set; }
+
+    // Kalan ödeme (Delivered anında)
+    public decimal? FinalPaymentAmount { get; set; }
+    public PaymentMethod? FinalPaymentMethod { get; set; }
+    public DateTime? FinalPaymentPaidAt { get; set; }
+    public Guid? FinalPaymentCollectedByUserId { get; set; }
+    public virtual User? FinalPaymentCollectedByUser { get; set; }
+
+    // Hesaplanan: Price - DepositAmount
+    public decimal RemainingAmount => Price - (DepositAmount ?? 0);
+    
     public CustomCakeOrderStatus Status { get; set; } = CustomCakeOrderStatus.Created;
     public string? StatusNote { get; set; }
     public DateTime? StatusChangedAt { get; set; }

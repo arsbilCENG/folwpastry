@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   Typography, Button, Card, Row, Col, Tag, Segmented, Space, 
-  Empty, Spin, Modal, Form, Input, DatePicker, InputNumber, Select, Alert 
+  Empty, Spin, Modal, Form, Input, DatePicker, InputNumber, Select, Alert, Radio 
 } from 'antd';
 import { PlusOutlined, InfoCircleOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
@@ -11,6 +11,7 @@ import { CAKE_ORDER_STATUS_CONFIG } from '../../utils/constants';
 import CakeOrderDetail from '../../components/cake/CakeOrderDetail';
 import PhotoUpload from '../../components/common/PhotoUpload';
 import useAuth from '../../hooks/useAuth';
+import { PaymentMethod } from '../../types/purchase';
 
 dayjs.locale('tr');
 
@@ -27,6 +28,8 @@ const CakeOrders: React.FC = () => {
   const [createModalVisible, setCreateModalVisible] = useState(false);
   const [form] = Form.useForm();
   const [referencePhoto, setReferencePhoto] = useState<File | null>(null);
+  const priceValue = Form.useWatch('price', form) || 0;
+  const depositAmountValue = Form.useWatch('depositAmount', form) || 0;
 
   // Queries
   const apiFilter = statusFilter === 'Tümü' ? undefined :
@@ -72,6 +75,8 @@ const CakeOrders: React.FC = () => {
         outerCreamId: values.outerCreamId,
         description: values.description,
         price: values.price,
+        depositAmount: values.depositAmount || 0,
+        depositPaymentMethod: values.depositPaymentMethod,
       };
 
       const res = await createMutation.mutateAsync(dto);
@@ -163,6 +168,19 @@ const CakeOrders: React.FC = () => {
                   </Text>
                 </div>
 
+                <div style={{ marginBottom: 12, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  {order.depositAmount ? (
+                    <Tag color="cyan">Kapora: ₺ {order.depositAmount.toLocaleString('tr-TR')}</Tag>
+                  ) : (
+                    <Tag>Kapora: -</Tag>
+                  )}
+                  {order.remainingAmount !== undefined && order.remainingAmount > 0 ? (
+                    <Tag color="orange">Kalan: ₺ {order.remainingAmount.toLocaleString('tr-TR')}</Tag>
+                  ) : order.remainingAmount === 0 ? (
+                    <Tag color="green">Ödendi</Tag>
+                  ) : null}
+                </div>
+
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #f0f0f0', paddingTop: 12 }}>
                   <Text strong style={{ fontSize: 16 }}>₺ {order.price.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}</Text>
                   <Button type="link" style={{ padding: 0 }}>Detay →</Button>
@@ -186,7 +204,7 @@ const CakeOrders: React.FC = () => {
           form={form} 
           layout="vertical" 
           onFinish={handleCreateSubmit}
-          initialValues={{ servingSize: 10, price: 0 }}
+          initialValues={{ servingSize: 10, price: 0, depositPaymentMethod: PaymentMethod.Cash }}
         >
           <div style={{ marginBottom: 16 }}>
             <Text type="secondary" strong>Müşteri Bilgileri (Opsiyonel)</Text>
@@ -285,10 +303,67 @@ const CakeOrders: React.FC = () => {
                 label="Fiyat" 
                 rules={[{ required: true, message: 'Fiyat zorunludur' }]}
               >
-                <InputNumber addonBefore="₺" precision={2} min={0.01} style={{ width: '100%' }} />
+                <InputNumber 
+                  addonBefore="₺" 
+                  precision={2} 
+                  min={0.01} 
+                  style={{ width: '100%' }} 
+                  onFocus={(e) => e.target.select()}
+                  inputMode="numeric"
+                  keyboard={false}
+                />
               </Form.Item>
             </Col>
           </Row>
+
+          <div style={{ marginBottom: 16 }}>
+            <Text type="secondary" strong>Kapora Bilgileri (Opsiyonel)</Text>
+          </div>
+          <Row gutter={16}>
+            <Col xs={24} md={12}>
+              <Form.Item 
+                name="depositAmount" 
+                label="Kapora Tutarı"
+                rules={[
+                  {
+                    validator: async (_, value) => {
+                      if (value && value > priceValue) {
+                        return Promise.reject(new Error('Kapora toplam fiyattan büyük olamaz'));
+                      }
+                      return Promise.resolve();
+                    }
+                  }
+                ]}
+              >
+                <InputNumber 
+                  addonBefore="₺" 
+                  precision={2} 
+                  min={0} 
+                  style={{ width: '100%' }} 
+                  placeholder="0.00"
+                  onFocus={(e) => e.target.select()}
+                  inputMode="numeric"
+                  keyboard={false}
+                />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={12}>
+              <Form.Item name="depositPaymentMethod" label="Ödeme Yöntemi">
+                <Radio.Group buttonStyle="solid" style={{ width: '100%' }}>
+                  <Radio.Button value={PaymentMethod.Cash} style={{ width: '50%', textAlign: 'center' }}>Nakit</Radio.Button>
+                  <Radio.Button value={PaymentMethod.CreditCard} style={{ width: '50%', textAlign: 'center' }}>Kart</Radio.Button>
+                </Radio.Group>
+              </Form.Item>
+            </Col>
+          </Row>
+
+          {depositAmountValue > 0 && (
+            <div style={{ marginBottom: 24, padding: '8px 16px', background: '#f6ffed', border: '1px solid #b7eb8f', borderRadius: 4 }}>
+              <Text strong style={{ color: '#52c41a' }}>
+                Tahsil Edilecek Kalan: ₺ {(priceValue - depositAmountValue).toLocaleString('tr-TR', { minimumFractionDigits: 2 })}
+              </Text>
+            </div>
+          )}
 
           <Form.Item 
             name="description" 

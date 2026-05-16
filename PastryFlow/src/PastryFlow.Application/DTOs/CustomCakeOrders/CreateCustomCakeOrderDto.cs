@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using PastryFlow.Domain.Enums;
 
 namespace PastryFlow.Application.DTOs.CustomCakeOrders;
 
@@ -33,4 +34,7 @@ public class CreateCustomCakeOrderDto
     [Required]
     [Range(0.01, 999999.99)]
     public decimal Price { get; set; }
+
+    public decimal? DepositAmount { get; set; }
+    public PaymentMethod? DepositPaymentMethod { get; set; }
 }
