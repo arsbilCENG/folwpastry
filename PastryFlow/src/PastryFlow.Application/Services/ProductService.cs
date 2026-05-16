@@ -50,7 +50,7 @@ public class ProductService : IProductService
             query = query.Where(p => p.TrackingType == trackingType.Value);
         }
 
-        var products = await query.OrderBy(p => p.Category.SortOrder).ThenBy(p => p.Name).ToListAsync();
+        var products = await query.OrderBy(p => p.Category.SortOrder).ThenBy(p => p.SortOrder).ToListAsync();
         return ApiResponse<List<ProductDto>>.Ok(_mapper.Map<List<ProductDto>>(products));
     }
 
@@ -73,7 +73,7 @@ public class ProductService : IProductService
                 Name = c.Name,
                 SortOrder = c.SortOrder,
                 Products = productQuery.Where(p => p.CategoryId == c.Id)
-                                       .OrderBy(p => p.Name)
+                                       .OrderBy(p => p.SortOrder)
                                        .Select(p => new ProductDto
                                        {
                                            Id = p.Id,
