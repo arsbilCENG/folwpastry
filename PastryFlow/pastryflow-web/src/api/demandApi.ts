@@ -46,6 +46,9 @@ export const demandApi = {
   acceptDelivery: async (demandId: string, data: AcceptDeliveryDto): Promise<ApiResponse<Demand>> => {
     return axiosClient.put(`/demands/${demandId}/accept-delivery`, data);
   },
+  correctDelivery: async (demandId: string, data: AcceptDeliveryDto): Promise<ApiResponse<Demand>> => {
+    return axiosClient.put(`/demands/${demandId}/correct-delivery`, data);
+  },
 
   // Red fotoğrafı upload
   uploadRejectionPhoto: async (demandId: string, itemId: string, photo: File): Promise<ApiResponse<string>> => {

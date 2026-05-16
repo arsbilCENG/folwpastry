@@ -39,7 +39,7 @@ public class ProductService : IProductService
         {
             query = query.Where(p => p.CategoryId == categoryId.Value);
         }
-
+        
         if (productType.HasValue)
         {
             query = query.Where(p => p.ProductType == productType.Value);
@@ -54,7 +54,11 @@ public class ProductService : IProductService
         return ApiResponse<List<ProductDto>>.Ok(_mapper.Map<List<ProductDto>>(products));
     }
 
-    public async Task<ApiResponse<List<CategoryWithProductsDto>>> GetCategoriesWithProductsAsync(Guid? branchId = null, ProductType? productType = null)
+    public async Task<ApiResponse<List<CategoryWithProductsDto>>> GetCategoriesWithProductsAsync(
+        Guid? branchId = null, 
+        ProductType? productType = null,
+        bool excludeRawMaterial = false,
+        bool excludeCounter = false)
     {
         var productQuery = _context.Products.Where(p => p.IsActive);
         
@@ -63,6 +67,12 @@ public class ProductService : IProductService
             
         if (productType.HasValue)
             productQuery = productQuery.Where(p => p.ProductType == productType.Value);
+
+        if (excludeRawMaterial)
+            productQuery = productQuery.Where(p => p.ProductType != ProductType.RawMaterial);
+
+        if (excludeCounter)
+            productQuery = productQuery.Where(p => p.TrackingType != TrackingType.Counter);
             
         var categories = await _context.Categories
             .Where(c => c.IsActive)

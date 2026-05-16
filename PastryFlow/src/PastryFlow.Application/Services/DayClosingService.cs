@@ -529,7 +529,10 @@ public class DayClosingService : IDayClosingService
             CounterPhotoUrl = closing.CounterPhotoUrl,
             CounterProducts = counterProducts,
             Items = closing.Details
-                .Where(d => d.Product != null && d.Product.IsActive && d.Product.TrackingType != TrackingType.Counter)
+                .Where(d => d.Product != null 
+                         && d.Product.IsActive 
+                         && d.Product.TrackingType != TrackingType.Counter
+                         && d.Product.ProductType != ProductType.RawMaterial)
                 .OrderBy(d => d.Product.Category.SortOrder)
                 .ThenBy(d => d.Product.SortOrder)
                 .Select(d => {

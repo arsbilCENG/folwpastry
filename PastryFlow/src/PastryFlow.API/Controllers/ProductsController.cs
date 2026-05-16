@@ -35,13 +35,17 @@ public class ProductsController : ControllerBase
     }
 
     [HttpGet("by-category")]
-    public async Task<IActionResult> GetCategoriesWithProducts([FromQuery] Guid? branchId, [FromQuery] string? productType)
+    public async Task<IActionResult> GetCategoriesWithProducts(
+        [FromQuery] Guid? branchId, 
+        [FromQuery] string? productType,
+        [FromQuery] bool excludeRawMaterial = false,
+        [FromQuery] bool excludeCounter = false)
     {
         ProductType? pType = null;
         if (Enum.TryParse<ProductType>(productType, out var parsedType))
             pType = parsedType;
 
-        var result = await _productService.GetCategoriesWithProductsAsync(branchId, pType);
-        return Ok(result); // According to spec: Response: CategoryWithProductsDto[]
+        var result = await _productService.GetCategoriesWithProductsAsync(branchId, pType, excludeRawMaterial, excludeCounter);
+        return Ok(result);
     }
 }
