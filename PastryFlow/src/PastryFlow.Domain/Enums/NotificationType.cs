@@ -14,5 +14,6 @@ public enum NotificationType
     CakeOrderCreated = 9,
     CakeOrderStatusChanged = 10,
     TransferShipped = 11,
-    TransferReceived = 12
+    TransferReceived = 12,
+    CakeOrderDeliveryReminder = 13
 }

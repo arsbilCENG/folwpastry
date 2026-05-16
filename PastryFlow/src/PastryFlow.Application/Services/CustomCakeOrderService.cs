@@ -17,11 +17,13 @@ public class CustomCakeOrderService : ICustomCakeOrderService
 {
     private readonly IPastryFlowDbContext _context;
     private readonly INotificationService _notificationService;
+    private readonly IWalletService _walletService;
 
-    public CustomCakeOrderService(IPastryFlowDbContext context, INotificationService notificationService)
+    public CustomCakeOrderService(IPastryFlowDbContext context, INotificationService notificationService, IWalletService walletService)
     {
         _context = context;
         _notificationService = notificationService;
+        _walletService = walletService;
     }
 
     private async Task<string> GenerateOrderNumberAsync()
@@ -126,6 +128,10 @@ public class CustomCakeOrderService : ICustomCakeOrderService
             OuterCreamId = dto.OuterCreamId,
             Description = dto.Description,
             Price = dto.Price,
+            DepositAmount = dto.DepositAmount,
+            DepositPaymentMethod = dto.DepositPaymentMethod,
+            DepositPaidAt = dto.DepositAmount > 0 ? DateTime.UtcNow : null,
+            DepositCollectedByUserId = dto.DepositAmount > 0 ? userId : null,
             Status = CustomCakeOrderStatus.SentToProduction, // Directly to production as per rules
             StatusChangedAt = DateTime.UtcNow,
             StatusChangedByUserId = userId,
@@ -134,6 +140,17 @@ public class CustomCakeOrderService : ICustomCakeOrderService
 
         _context.CustomCakeOrders.Add(order);
         await _context.SaveChangesAsync();
+
+        // Apply deposit to wallet
+        if (order.DepositAmount > 0 && order.DepositPaymentMethod.HasValue)
+        {
+            try
+            {
+                var walletType = order.DepositPaymentMethod == PaymentMethod.Cash ? WalletType.Cash : WalletType.Bank;
+                await _walletService.ApplyCakeOrderDepositAsync(branchId, walletType, order.DepositAmount.Value, order.OrderNumber, userId);
+            }
+            catch (Exception) { /* Log error or handle as needed, but don't break order creation */ }
+        }
 
         var createdOrder = await GetBaseQuery().FirstOrDefaultAsync(o => o.Id == order.Id);
 
@@ -237,6 +254,22 @@ public class CustomCakeOrderService : ICustomCakeOrderService
             order.StatusNote = dto.StatusNote;
             order.StatusChangedAt = DateTime.UtcNow;
             order.StatusChangedByUserId = userId;
+
+            // Handle final payment on delivery
+            if (dto.NewStatus == CustomCakeOrderStatus.Delivered && dto.FinalPaymentAmount > 0 && dto.FinalPaymentMethod.HasValue)
+            {
+                order.FinalPaymentAmount = dto.FinalPaymentAmount;
+                order.FinalPaymentMethod = dto.FinalPaymentMethod;
+                order.FinalPaymentPaidAt = DateTime.UtcNow;
+                order.FinalPaymentCollectedByUserId = userId;
+
+                try
+                {
+                    var walletType = dto.FinalPaymentMethod == PaymentMethod.Cash ? WalletType.Cash : WalletType.Bank;
+                    await _walletService.ApplyCakeOrderFinalPaymentAsync(order.BranchId, walletType, dto.FinalPaymentAmount.Value, order.OrderNumber, userId);
+                }
+                catch (Exception) { /* Log error or handle as needed */ }
+            }
             
             await _context.SaveChangesAsync();
 

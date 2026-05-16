@@ -1,3 +1,5 @@
+import { PaymentMethod } from './purchase';
+
 // ============ CAKE OPTION ============
 export interface CakeOptionDto {
   id: string;
@@ -42,6 +44,14 @@ export interface CustomCakeOrderDto {
   description: string;
   referencePhotoUrl: string | null;
   price: number;
+  depositAmount?: number;
+  depositPaymentMethod?: PaymentMethod;
+  depositPaidAt?: string;
+  depositCollectedByUserName?: string;
+  finalPaymentAmount?: number;
+  finalPaymentMethod?: PaymentMethod;
+  finalPaymentPaidAt?: string;
+  remainingAmount?: number;
   status: CustomCakeOrderStatus;
   statusText: string;
   statusNote: string | null;
@@ -68,9 +78,13 @@ export interface CreateCustomCakeOrderDto {
   outerCreamId: string;
   description: string;
   price: number;
+  depositAmount?: number;
+  depositPaymentMethod?: PaymentMethod;
 }
 
 export interface UpdateCakeOrderStatusDto {
   newStatus: CustomCakeOrderStatus;
   statusNote?: string;
+  finalPaymentAmount?: number;
+  finalPaymentMethod?: PaymentMethod;
 }

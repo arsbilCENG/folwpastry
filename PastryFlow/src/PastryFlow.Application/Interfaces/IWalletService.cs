@@ -43,4 +43,13 @@ public interface IWalletService
     // Hareket geçmişi
     Task<List<WalletTransactionDto>> GetTransactionsAsync(
         Guid? branchId, DateTime? startDate, DateTime? endDate);
+
+    // Özel Pasta Ödemeleri
+    Task ApplyCakeOrderDepositAsync(
+        Guid branchId, WalletType walletType, decimal amount,
+        string orderNumber, Guid userId);
+
+    Task ApplyCakeOrderFinalPaymentAsync(
+        Guid branchId, WalletType walletType, decimal amount,
+        string orderNumber, Guid userId);
 }

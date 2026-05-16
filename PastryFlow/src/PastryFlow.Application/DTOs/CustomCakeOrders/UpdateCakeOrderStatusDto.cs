@@ -10,4 +10,7 @@ public class UpdateCakeOrderStatusDto
     
     [MaxLength(500)]
     public string? StatusNote { get; set; }
+
+    public decimal? FinalPaymentAmount { get; set; }
+    public PaymentMethod? FinalPaymentMethod { get; set; }
 }
