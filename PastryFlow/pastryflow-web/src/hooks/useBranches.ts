@@ -7,7 +7,7 @@ interface BranchDto {
 }
 
 const getBranches = async (): Promise<BranchDto[]> => {
-  const response = await axiosClient.get('/admin/branches');
+  const response = await axiosClient.get('/branches');
   return response.data;
 };
 
