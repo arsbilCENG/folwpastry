@@ -488,8 +488,142 @@ public class DemandService : IDemandService
         {
             deliveryReturn.PhotoUrl = photoUrl;
         }
-
         await _context.SaveChangesAsync();
         return ApiResponse<string>.Ok(photoUrl, "Fotoğraf güncellendi.");
+    }
+
+    public async Task<ApiResponse<DemandDto>> CorrectDeliveryAsync(Guid demandId, AcceptDeliveryDto dto, Guid userId)
+    {
+        var demand = await _context.Demands
+            .Include(d => d.Items)
+                .ThenInclude(i => i.Product)
+            .Include(d => d.SalesBranch)
+            .Include(d => d.ProductionBranch)
+            .FirstOrDefaultAsync(d => d.Id == demandId);
+
+        if (demand == null)
+            return ApiResponse<DemandDto>.Fail("Talep bulunamadı.");
+
+        if (demand.Status != DemandStatus.Received)
+            return ApiResponse<DemandDto>.Fail("Sadece teslim alınmış talepler düzeltilebilir.");
+
+        if (!demand.ReceivedAt.HasValue)
+            return ApiResponse<DemandDto>.Fail("Teslimat tarihi bulunamadı.");
+
+        // Düzeltme sadece aynı gün yapılabilir.
+        if (demand.ReceivedAt.Value.Date != DateTime.UtcNow.Date)
+            return ApiResponse<DemandDto>.Fail("Düzeltme sadece aynı gün yapılabilir.");
+
+        // Gün kapalıysa (IsClosed=true) hata
+        var receivedDate = DateOnly.FromDateTime(demand.ReceivedAt.Value);
+        var dayClosing = await _context.DayClosings
+            .FirstOrDefaultAsync(dc => dc.BranchId == demand.SalesBranchId && dc.Date == receivedDate);
+
+        if (dayClosing != null && dayClosing.IsClosed)
+            return ApiResponse<DemandDto>.Fail("Gün kapatılmış, düzeltme yapılamaz.");
+
+        foreach (var itemDto in dto.Items)
+        {
+            var item = demand.Items.FirstOrDefault(i => i.Id == itemDto.DemandItemId);
+            if (item == null) continue;
+
+            var eskiAcceptedQty = item.AcceptedQuantity ?? 0;
+            var yeniAcceptedQty = itemDto.AcceptedQuantity;
+            var fark = yeniAcceptedQty - eskiAcceptedQty;
+
+            // Stok güncelle (Counter değilse)
+            if (item.Product.TrackingType != TrackingType.Counter)
+            {
+                var stock = await _context.Stocks
+                    .FirstOrDefaultAsync(s => s.BranchId == demand.SalesBranchId && s.ProductId == item.ProductId);
+
+                if (stock != null)
+                {
+                    stock.CurrentQuantity = Math.Max(0, stock.CurrentQuantity + fark);
+                    stock.UpdatedAt = DateTime.UtcNow;
+                }
+            }
+
+            // DayClosingDetail güncelle
+            if (dayClosing != null)
+            {
+                var detail = await _context.DayClosingDetails
+                    .FirstOrDefaultAsync(d => d.DayClosingId == dayClosing.Id && d.ProductId == item.ProductId);
+
+                if (detail != null)
+                {
+                    detail.ReceivedFromDemands += fark;
+                }
+            }
+
+            // DemandItem güncelle
+            var sentQty = item.SentQuantity ?? item.ApprovedQuantity ?? item.RequestedQuantity;
+            item.AcceptedQuantity = yeniAcceptedQty;
+            item.RejectedQuantity = Math.Max(0, sentQty - yeniAcceptedQty);
+            item.DeliveryRejectionReason = itemDto.RejectionReason;
+            item.AcceptedAt = DateTime.UtcNow;
+
+            // DeliveryReturn güncelle
+            var oldReturns = await _context.DeliveryReturns
+                .Where(r => r.DemandItemId == item.Id && !r.IsDeleted)
+                .ToListAsync();
+
+            foreach (var r in oldReturns)
+            {
+                r.IsDeleted = true;
+                r.DeletedAt = DateTime.UtcNow;
+            }
+
+            if (item.RejectedQuantity > 0)
+            {
+                var deliveryReturn = new DeliveryReturn
+                {
+                    DemandId = demand.Id,
+                    DemandItemId = item.Id,
+                    ProductId = item.ProductId,
+                    FromBranchId = demand.SalesBranchId,
+                    ToBranchId = demand.ProductionBranchId,
+                    Quantity = item.RejectedQuantity.Value,
+                    Reason = itemDto.RejectionReason ?? "Düzeltme iadesi",
+                    Status = DeliveryReturnStatus.Created
+                };
+                _context.DeliveryReturns.Add(deliveryReturn);
+            }
+        }
+
+        await _context.SaveChangesAsync();
+
+        // Bildirimler
+        try
+        {
+            // 1. Üretim şubesine
+            await _notificationService.CreateAndSendAsync(new CreateNotificationDto
+            {
+                BranchId = demand.ProductionBranchId,
+                Type = NotificationType.DeliveryCorrection,
+                Title = "Teslimat Düzeltildi",
+                Message = $"{demand.SalesBranch.Name} şubesi teslimat miktarlarını düzeltti. ({demand.DemandNumber})",
+                SourceEntity = "Demand",
+                SourceEntityId = demand.Id,
+                SourceBranchId = demand.SalesBranchId,
+                SourceBranchName = demand.SalesBranch.Name
+            });
+
+            // 2. Admin'e
+            await _notificationService.CreateAndSendAsync(new CreateNotificationDto
+            {
+                TargetRole = "Admin",
+                Type = NotificationType.DeliveryCorrection,
+                Title = "Teslimat Düzeltme Bildirimi",
+                Message = $"{demand.SalesBranch.Name} -> {demand.ProductionBranch.Name} teslimatında düzeltme yapıldı. ({demand.DemandNumber})",
+                SourceEntity = "Demand",
+                SourceEntityId = demand.Id,
+                SourceBranchId = demand.SalesBranchId,
+                SourceBranchName = demand.SalesBranch.Name
+            });
+        }
+        catch (Exception) { /* Log and continue */ }
+
+        return await GetDemandByIdAsync(demand.Id);
     }
 }

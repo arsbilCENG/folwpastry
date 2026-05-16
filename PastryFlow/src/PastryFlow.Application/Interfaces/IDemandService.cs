@@ -15,6 +15,7 @@ public interface IDemandService
     Task<ApiResponse<DemandDto>> ReviewDemandAsync(Guid id, ReviewDemandDto dto);
     Task<ApiResponse<DemandDto>> ShipDemandAsync(Guid id, ShipDemandDto dto, Guid userId);
     Task<ApiResponse<DemandDto>> AcceptDeliveryAsync(Guid id, AcceptDeliveryDto dto, Guid userId);
+    Task<ApiResponse<DemandDto>> CorrectDeliveryAsync(Guid demandId, AcceptDeliveryDto dto, Guid userId);
     Task<ApiResponse<string>> UpdateRejectionPhotoAsync(Guid itemId, string photoUrl);
     Task<ApiResponse<DemandDto?>> GetLastDemandAsync(Guid salesBranchId, Guid productionBranchId);
     

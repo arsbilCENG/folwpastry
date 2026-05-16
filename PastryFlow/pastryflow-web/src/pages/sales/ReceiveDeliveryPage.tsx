@@ -24,10 +24,11 @@ import {
   ArrowLeftOutlined,
   WarningOutlined,
   ThunderboltOutlined,
+  EditOutlined,
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { demandApi } from '../../api/demandApi';
-import { useAcceptDelivery, useUploadRejectionPhoto } from '../../hooks/useDemands';
+import { useAcceptDelivery, useCorrectDelivery, useUploadRejectionPhoto } from '../../hooks/useDemands';
 import { Demand, AcceptDeliveryDto } from '../../types/demand';
 import useAuth from '../../hooks/useAuth';
 import PhotoUpload from '../../components/common/PhotoUpload';
@@ -51,10 +52,20 @@ const ReceiveDeliveryPage: React.FC = () => {
   const [demands, setDemands] = useState<Demand[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedDemand, setSelectedDemand] = useState<Demand | null>(null);
+  const [isCorrection, setIsCorrection] = useState(false);
   const [items, setItems] = useState<ItemState[]>([]);
   
   const acceptMutation = useAcceptDelivery();
+  const correctMutation = useCorrectDelivery();
   const uploadPhotoMutation = useUploadRejectionPhoto();
+
+  const getBusinessDate = () => {
+    const now = new Date();
+    if (now.getHours() < 3) {
+      now.setDate(now.getDate() - 1);
+    }
+    return now.toLocaleDateString('en-CA');
+  };
 
   const fetchDemands = async () => {
     if (!user?.branchId) return;
@@ -62,10 +73,19 @@ const ReceiveDeliveryPage: React.FC = () => {
     try {
       const res = await demandApi.getDemands({ branchId: user.branchId });
       if (res.success && res.data) {
-        const readyToReceive = res.data.filter(d => 
-          d.status === 4 || d.status === 'Shipped' || 
-          d.status === 5 || d.status === 'Delivered'
-        );
+        const today = getBusinessDate();
+        const readyToReceive = res.data.filter(d => {
+          const isShipped = 
+            d.status === 4 || d.status === 'Shipped' || 
+            d.status === 5 || d.status === 'Delivered';
+          
+          const isReceivedToday = 
+            (d.status === 6 || d.status === 'Received') && 
+            d.receivedAt && 
+            dayjs(d.receivedAt).format('YYYY-MM-DD') === today;
+          
+          return isShipped || isReceivedToday;
+        });
         setDemands(readyToReceive);
       }
     } catch (err) {
@@ -79,8 +99,10 @@ const ReceiveDeliveryPage: React.FC = () => {
     fetchDemands();
   }, [user?.branchId]);
 
-  const handleSelectDemand = (demand: Demand) => {
+  const handleSelectDemand = (demand: Demand, isCorrectionMode: boolean = false) => {
     setSelectedDemand(demand);
+    setIsCorrection(isCorrectionMode);
+    
     const initialItems = demand.items.map(item => ({
       demandItemId: item.id,
       productName: item.productName,
@@ -88,8 +110,8 @@ const ReceiveDeliveryPage: React.FC = () => {
       requestedQuantity: item.requestedQuantity,
       approvedQuantity: item.approvedQuantity || 0,
       sentQuantity: item.sentQuantity || 0,
-      acceptedQuantity: item.sentQuantity || 0,
-      rejectionReason: '',
+      acceptedQuantity: isCorrectionMode ? (item.acceptedQuantity || 0) : (item.sentQuantity || 0),
+      rejectionReason: isCorrectionMode ? (item.deliveryRejectionReason || '') : '',
       rejectionPhoto: null,
     }));
     setItems(initialItems);
@@ -102,7 +124,7 @@ const ReceiveDeliveryPage: React.FC = () => {
   };
 
   const handleQuickAccept = async () => {
-    if (!selectedDemand) return;
+    if (!selectedDemand || isCorrection) return;
     
     const dto: AcceptDeliveryDto = {
       items: items.map(item => ({
@@ -125,7 +147,8 @@ const ReceiveDeliveryPage: React.FC = () => {
     if (!selectedDemand) return;
 
     for (const item of items) {
-      const rejected = item.sentQuantity - item.acceptedQuantity;
+      const sentQty = item.sentQuantity;
+      const rejected = sentQty - item.acceptedQuantity;
       if (rejected > 0 && !item.rejectionReason.trim()) {
         message.error(`${item.productName} için red sebebi yazılmalıdır.`);
         return;
@@ -141,7 +164,13 @@ const ReceiveDeliveryPage: React.FC = () => {
     };
 
     try {
-      await acceptMutation.mutateAsync({ demandId: selectedDemand.id, data: dto });
+      if (isCorrection) {
+        await correctMutation.mutateAsync({ demandId: selectedDemand.id, data: dto });
+        message.success('Teslimat düzeltmesi kaydedildi.');
+      } else {
+        await acceptMutation.mutateAsync({ demandId: selectedDemand.id, data: dto });
+        message.success('Sevkiyat başarıyla teslim alındı');
+      }
       
       const photoUploads = items
         .filter(item => item.rejectionPhoto && item.sentQuantity > item.acceptedQuantity)
@@ -172,26 +201,30 @@ const ReceiveDeliveryPage: React.FC = () => {
           <Space>
             <Button icon={<ArrowLeftOutlined />} onClick={() => setSelectedDemand(null)} />
             <div>
-              <Title level={3} style={{ margin: 0 }}>Sevkiyat Kabul — {selectedDemand.demandNumber}</Title>
+              <Title level={3} style={{ margin: 0 }}>
+                {isCorrection ? `Teslimat Düzeltme — ${selectedDemand.demandNumber}` : `Sevkiyat Kabul — ${selectedDemand.demandNumber}`}
+              </Title>
               <Text type="secondary">Gönderen: {selectedDemand.productionBranchName} • {dayjs(selectedDemand.createdAt).format('DD.MM.YYYY')}</Text>
             </div>
           </Space>
           
-          <Popconfirm
-            title="Tümünü Kabul Et"
-            description="Tüm ürünleri gönderilen miktarlar üzerinden kabul etmek istiyor musunuz?"
-            onConfirm={handleQuickAccept}
-            okText="Evet"
-            cancelText="Hayır"
-          >
-            <Button 
-              type="dashed" 
-              icon={<ThunderboltOutlined />} 
-              style={{ color: '#faad14', borderColor: '#faad14' }}
+          {!isCorrection && (
+            <Popconfirm
+              title="Tümünü Kabul Et"
+              description="Tüm ürünleri gönderilen miktarlar üzerinden kabul etmek istiyor musunuz?"
+              onConfirm={handleQuickAccept}
+              okText="Evet"
+              cancelText="Hayır"
             >
-              Hızlı Kabul (Tümünü Onayla)
-            </Button>
-          </Popconfirm>
+              <Button 
+                type="dashed" 
+                icon={<ThunderboltOutlined />} 
+                style={{ color: '#faad14', borderColor: '#faad14' }}
+              >
+                Hızlı Kabul (Tümünü Onayla)
+              </Button>
+            </Popconfirm>
+          )}
         </div>
 
         {items.map(item => {
@@ -282,10 +315,10 @@ const ReceiveDeliveryPage: React.FC = () => {
                   size="large" 
                   icon={<CheckCircleOutlined />} 
                   onClick={handleSubmit}
-                  loading={acceptMutation.isPending || uploadPhotoMutation.isPending}
+                  loading={acceptMutation.isPending || correctMutation.isPending || uploadPhotoMutation.isPending}
                   style={{ background: '#52c41a', borderColor: '#52c41a', height: 48, padding: '0 40px', fontWeight: 'bold' }}
                 >
-                  Teslim Al ve Onayla
+                  {isCorrection ? 'Düzeltmeyi Kaydet' : 'Teslim Al ve Onayla'}
                 </Button>
               </Space>
             </Col>
@@ -311,36 +344,49 @@ const ReceiveDeliveryPage: React.FC = () => {
         ) : demands.length === 0 ? (
           <Empty description="Şu an bekleyen sevkiyat bulunmuyor." style={{ padding: 40, background: '#fff', borderRadius: 12 }} />
         ) : (
-          demands.map(demand => (
-            <Card 
-              key={demand.id} 
-              hoverable 
-              style={{ marginBottom: 16, borderRadius: 12 }}
-              onClick={() => handleSelectDemand(demand)}
-            >
-              <Row justify="space-between" align="middle">
-                <Col>
-                  <Space size="middle">
-                    <div style={{ background: '#e6f7ff', padding: 12, borderRadius: 10 }}>
-                      <SendOutlined style={{ fontSize: 24, color: '#1890ff' }} />
-                    </div>
-                    <div>
-                      <Title level={4} style={{ margin: 0 }}>Talep #{demand.demandNumber}</Title>
-                      <Text type="secondary">{demand.productionBranchName} • {demand.items.length} Kalem Ürün</Text>
-                      <br />
-                      <Text type="secondary" style={{ fontSize: 12 }}>{dayjs(demand.createdAt).format('DD.MM.YYYY HH:mm')}</Text>
-                    </div>
-                  </Space>
-                </Col>
-                <Col>
-                  <Space direction="vertical" align="end">
-                    <Tag color="cyan">Yolda / Gönderildi</Tag>
-                    <Button type="primary" shape="round">Teslim Al →</Button>
-                  </Space>
-                </Col>
-              </Row>
-            </Card>
-          ))
+          demands.map(demand => {
+            const isReceived = demand.status === 6 || demand.status === 'Received';
+
+            return (
+              <Card 
+                key={demand.id} 
+                hoverable 
+                style={{ marginBottom: 16, borderRadius: 12 }}
+                onClick={() => handleSelectDemand(demand, isReceived)}
+              >
+                <Row justify="space-between" align="middle">
+                  <Col>
+                    <Space size="middle">
+                      <div style={{ background: isReceived ? '#f6ffed' : '#e6f7ff', padding: 12, borderRadius: 10 }}>
+                        <SendOutlined style={{ fontSize: 24, color: isReceived ? '#52c41a' : '#1890ff' }} />
+                      </div>
+                      <div>
+                        <Title level={4} style={{ margin: 0 }}>Talep #{demand.demandNumber}</Title>
+                        <Text type="secondary">{demand.productionBranchName} • {demand.items.length} Kalem Ürün</Text>
+                        <br />
+                        <Text type="secondary" style={{ fontSize: 12 }}>{dayjs(demand.createdAt).format('DD.MM.YYYY HH:mm')}</Text>
+                      </div>
+                    </Space>
+                  </Col>
+                  <Col>
+                    <Space direction="vertical" align="end">
+                      {isReceived ? (
+                        <>
+                          <Tag color="green">Teslim Alındı</Tag>
+                          <Button type="default" icon={<EditOutlined />} shape="round">Düzelt</Button>
+                        </>
+                      ) : (
+                        <>
+                          <Tag color="cyan">Yolda / Gönderildi</Tag>
+                          <Button type="primary" shape="round">Teslim Al →</Button>
+                        </>
+                      )}
+                    </Space>
+                  </Col>
+                </Row>
+              </Card>
+            );
+          })
         )}
       </div>
     </div>

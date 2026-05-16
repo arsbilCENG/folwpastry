@@ -11,5 +11,9 @@ namespace PastryFlow.Application.Interfaces;
 public interface IProductService
 {
     Task<ApiResponse<List<ProductDto>>> GetProductsAsync(Guid? branchId = null, Guid? categoryId = null, ProductType? productType = null, TrackingType? trackingType = null);
-    Task<ApiResponse<List<CategoryWithProductsDto>>> GetCategoriesWithProductsAsync(Guid? branchId = null, ProductType? productType = null);
+    Task<ApiResponse<List<CategoryWithProductsDto>>> GetCategoriesWithProductsAsync(
+        Guid? branchId = null, 
+        ProductType? productType = null,
+        bool excludeRawMaterial = false,
+        bool excludeCounter = false);
 }

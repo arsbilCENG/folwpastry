@@ -6,7 +6,12 @@ export const productApi = {
   getProducts: async (params?: any): Promise<ApiResponse<Product[]>> => {
     return axiosClient.get('/products', { params });
   },
-  getCategoriesWithProducts: async (params?: any): Promise<ApiResponse<CategoryWithProducts[]>> => {
+  getCategoriesWithProducts: async (params?: {
+    branchId?: string;
+    productType?: string;
+    excludeRawMaterial?: boolean;
+    excludeCounter?: boolean;
+  }): Promise<ApiResponse<CategoryWithProducts[]>> => {
     return axiosClient.get('/products/by-category', { params });
   }
 };

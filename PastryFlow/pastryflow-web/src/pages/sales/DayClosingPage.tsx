@@ -104,7 +104,7 @@ const DayClosingPage: React.FC = () => {
       if (!user?.branchId) return;
       try {
         const [prodRes, summaryRes, stockRes] = await Promise.all([
-          productApi.getCategoriesWithProducts(),
+          productApi.getCategoriesWithProducts({ excludeRawMaterial: true, excludeCounter: true }),
           dayClosingApi.getSummary(user.branchId, today).catch(() => ({ success: false, data: null })), // Handle 404 if not started
           stockApi.getCurrentStock(user.branchId, today)
         ]);

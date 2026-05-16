@@ -36,6 +36,23 @@ export const useAcceptDelivery = () => {
   });
 };
 
+// Teslimat düzeltme
+export const useCorrectDelivery = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ demandId, data }: { demandId: string; data: AcceptDeliveryDto }) =>
+      demandApi.correctDelivery(demandId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['demands'] });
+      queryClient.invalidateQueries({ queryKey: ['stock'] });
+      message.success('Teslimat düzeltmesi başarıyla kaydedildi');
+    },
+    onError: (error: any) => {
+      message.error(error.response?.data?.message || 'Teslimat düzeltilirken hata oluştu');
+    },
+  });
+};
+
 // Red fotoğrafı upload
 export const useUploadRejectionPhoto = () => {
   return useMutation({
