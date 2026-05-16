@@ -16,10 +16,12 @@ const ROLE_MAP: Record<string | number, string> = {
   1: 'Production',
   2: 'Sales',
   3: 'Driver',
+  4: 'Employee',
   'Admin': 'Admin',
   'Production': 'Production',
   'Sales': 'Sales',
-  'Driver': 'Driver'
+  'Driver': 'Driver',
+  'Employee': 'Employee'
 };
 
 const normalizeUser = (user: any): CurrentUser => {

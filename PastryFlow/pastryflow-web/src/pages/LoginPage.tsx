@@ -18,6 +18,8 @@ const getRoleRoute = (role: string): string => {
       return '/sales/dashboard';
     case 'Driver':
       return '/sales/dashboard'; // Placeholder until driver pages are ready
+    case 'Employee':
+      return '/sales/day-closing';
     default:
       return '/';
   }

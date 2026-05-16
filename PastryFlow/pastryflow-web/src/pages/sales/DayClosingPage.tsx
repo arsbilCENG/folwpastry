@@ -9,6 +9,7 @@ import {
   DollarOutlined, CameraOutlined, ExceptionOutlined, CalculatorOutlined, ShopOutlined,
   UnorderedListOutlined, AppstoreOutlined, LeftOutlined, RightOutlined
 } from '@ant-design/icons';
+import { useNavigate } from 'react-router-dom';
 import { DayClosingCounterItem } from '../../types/dayClosing';
 import { dayClosingApi } from '../../api/dayClosingApi';
 import { productApi } from '../../api/productApi';
@@ -30,6 +31,8 @@ const { TextArea } = Input;
 
 const DayClosingPage: React.FC = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const isEmployee = user?.role === 'Employee';
   
   // Data States
   const [categories, setCategories] = useState<CategoryWithProducts[]>([]);
@@ -184,6 +187,15 @@ const DayClosingPage: React.FC = () => {
         setDayClosingId(summaryRes.data.id || summaryRes.data.dayClosingId || null);
       }
       
+      if (isEmployee) {
+        message.success({
+          content: 'Sayımınız kaydedildi. Kasa kapama işlemi müdür tarafından yapılacaktır.',
+          duration: 5
+        });
+        setTimeout(() => navigate('/sales/stock'), 1500);
+        return;
+      }
+
       setCurrentStep(1);
     } catch {
       message.error('Sayım kaydedilemedi.');
@@ -204,7 +216,6 @@ const DayClosingPage: React.FC = () => {
       return;
     }
 
-    // YENİ: dynamicExpectedCash mantığını kullan
     const expectedInfo = expectedCashQuery.data?.data;
     const dynamicExpectedCash = Math.max(0, 
       (expectedInfo?.openingCashBalance || 0) + 
@@ -508,7 +519,9 @@ const DayClosingPage: React.FC = () => {
         <Steps 
           current={currentStep}
           responsive
-          items={[
+          items={isEmployee ? [
+            { title: 'Sayım', icon: <ExceptionOutlined /> }
+          ] : [
             { title: 'Sayım', icon: <ExceptionOutlined /> },
             { title: 'Kasa', icon: <DollarOutlined /> },
             { title: 'Fotoğraflar', icon: <CameraOutlined /> },
@@ -626,370 +639,357 @@ const DayClosingPage: React.FC = () => {
         
         <div style={{ textAlign: 'right', marginTop: 24 }}>
           <Button type="primary" size="large" onClick={handleSaveCountsAndNext} loading={saving}>
-            İleri ►
+            {isEmployee ? 'Sayımı Kaydet ve Çıkış' : 'İleri ►'}
           </Button>
         </div>
       </div>
 
-      {/* STEP 2: KASA SAYIMI */}
-      <div style={{ display: currentStep === 1 ? 'block' : 'none' }}>
-        {expectedCashQuery.isLoading ? (
-          <div style={{ textAlign: 'center', padding: 40 }}><Spin tip="Beklenen kasa hesaplanıyor..." /></div>
-        ) : (
-          <Row gutter={[24, 24]}>
-            <Col xs={24} md={10}>
-              <Card 
-                title={<Space><CalculatorOutlined /> Kasa Denklemi</Space>}
-                style={{ background: '#f9f9f9', borderRadius: 12, height: '100%' }}
-              >
-                <Space direction="vertical" style={{ width: '100%' }} size={12}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Text type="secondary">Açılış Bakiyesi:</Text>
-                    <Text>{formatCurrency(expectedInfo?.openingCashBalance || 0)}</Text>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Text type="secondary">Ürün Satışları:</Text>
-                    <Text style={{ color: '#52c41a' }}>+{formatCurrency((expectedInfo?.totalSalesRevenue || 0) - (expectedInfo?.counterSalesTotal || 0))}</Text>
-                  </div>
-                  {(expectedInfo?.counterSalesTotal || 0) > 0 && (
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <Text type="secondary">🎫 Sayaç Satışları:</Text>
-                      <Text style={{ color: '#52c41a' }}>+{formatCurrency(expectedInfo?.counterSalesTotal || 0)}</Text>
-                    </div>
-                  )}
-                  {expectedInfo?.cashDeposits! > 0 && (
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <Text type="secondary">Admin Yatırım:</Text>
-                      <Text style={{ color: '#52c41a' }}>+{formatCurrency(expectedInfo?.cashDeposits || 0)}</Text>
-                    </div>
-                  )}
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Text type="secondary">Nakit Satın Alımlar:</Text>
-                    <Text style={{ color: '#ff4d4f' }}>-{formatCurrency(expectedInfo?.cashPurchases || 0)}</Text>
-                  </div>
-                  {expectedInfo?.cashWithdrawals! > 0 && (
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <Text type="secondary">Admin Çekim:</Text>
-                      <Text style={{ color: '#ff4d4f' }}>-{formatCurrency(expectedInfo?.cashWithdrawals || 0)}</Text>
-                    </div>
-                  )}
-                  {(posAmount || 0) > 0 && (
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <Text type="secondary">Günlük POS (Z Raporu):</Text>
-                      <Text style={{ color: '#ff4d4f' }}>-{formatCurrency(posAmount || 0)}</Text>
-                    </div>
-                  )}
-                  
-                  <Divider style={{ margin: '8px 0' }} />
-                  
-                  <Statistic 
-                    title={<Text strong style={{ fontSize: 16 }}>Beklenen Nakit Kasa</Text>}
-                    value={dynamicExpectedCash}
-                    precision={2}
-                    prefix="₺"
-                    valueStyle={{ color: '#1d39c4', fontSize: 32, fontWeight: 'bold' }}
-                  />
-                  
-                  {(expectedInfo?.productsWithoutPrice || 0) > 0 && (
-                    <Alert 
-                      type="warning" 
-                      showIcon 
-                      style={{ marginTop: 16 }}
-                      message={
-                        <div style={{ fontSize: 12 }}>
-                          <Text strong>{expectedInfo?.productsWithoutPrice} ürünün fiyatı tanımlı değil.</Text>
-                          <div style={{ marginTop: 4 }}>
-                            <Button size="small" type="link" onClick={() => setIsMissingPricesModalVisible(true)}>Ürünleri Gör</Button>
-                          </div>
-                        </div>
-                      }
-                    />
-                  )}
-                </Space>
-              </Card>
-            </Col>
-            
-            <Col xs={24} md={14}>
-              <Card title="Kasa Girişi" style={{ borderRadius: 12, height: '100%' }}>
-                <Form layout="vertical">
-                  <Row gutter={16}>
-                    <Col xs={24} sm={12}>
-                      <Form.Item 
-                        label={<Text strong>Sayılan Nakit (Elde Kalan)</Text>} 
-                        required
-                      >
-                        <InputNumber 
-                          style={{ width: '100%', borderColor: '#1890ff' }} 
-                          size="large" 
-                          addonBefore="₺" 
-                          precision={2} 
-                          min={0}
-                          value={cashAmount}
-                          onChange={val => setCashAmount(val)}
-                          placeholder="Kasada ne kadar nakit var?"
-                          onFocus={(e) => e.target.select()}
-                          inputMode="numeric"
-                          keyboard={false}
-                        />
-                      </Form.Item>
-                    </Col>
-                    <Col xs={24} sm={12}>
-                      <Form.Item label="Günlük POS (Z Raporu)" required>
-                        <InputNumber 
-                          style={{ width: '100%' }} 
-                          size="large" 
-                          addonBefore="₺" 
-                          precision={2} 
-                          min={0}
-                          value={posAmount}
-                          onChange={val => setPosAmount(val)}
-                          onFocus={(e) => e.target.select()}
-                          inputMode="numeric"
-                          keyboard={false}
-                        />
-                      </Form.Item>
-                    </Col>
-                  </Row>
-                  
-                  <div style={{ padding: '16px', background: '#f0f5ff', borderRadius: 8, marginTop: 8, marginBottom: 16 }}>
-                    <Row justify="space-between" align="middle">
-                      <Col>
-                        <Text strong style={{ fontSize: 16 }}>Kasa Farkı:</Text>
-                      </Col>
-                      <Col>
-                        {cashAmount !== null ? (
-                          <Text strong style={{ 
-                            color: diffColor(cashDifference), 
-                            fontSize: 24 
-                          }}>
-                            {cashDifference > 0 ? '+' : ''}₺ {cashDifference.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}
-                            {' '}{diffIcon(cashDifference)}
-                          </Text>
-                        ) : (
-                          <Text type="secondary">Tutar bekleniyor...</Text>
-                        )}
-                      </Col>
-                    </Row>
-                  </div>
-
-                  {hasCashDiff && (
-                    <Form.Item 
-                      label={
-                        <span>Fark Açıklaması <Text type="danger">* Zorunlu</Text></span>
-                      }
-                    >
-                      <TextArea 
-                        rows={3} 
-                        showCount 
-                        maxLength={500} 
-                        value={differenceNote}
-                        onChange={e => setDifferenceNote(e.target.value)}
-                        placeholder="Kasa farkının nedenini açıklayınız..."
-                      />
-                    </Form.Item>
-                  )}
-                  {!hasCashDiff && (
-                    <Form.Item label="Açıklama (Opsiyonel)">
-                      <TextArea 
-                        rows={2} 
-                        showCount 
-                        maxLength={500} 
-                        value={differenceNote}
-                        onChange={e => setDifferenceNote(e.target.value)}
-                      />
-                    </Form.Item>
-                  )}
-                  
-                  <Collapse ghost style={{ marginTop: 16 }}>
-                    <Panel header={<Text style={{ color: '#1890ff' }}>Ürün Bazlı Satış Detaylarını Gör</Text>} key="1">
-                      <style>{`
-                        .counter-row {
-                           background-color: #f0f5ff;
-                        }
-                      `}</style>
-                      <Table 
-                        dataSource={expectedInfo?.items || []} 
-                        size="small"
-                        rowKey={(record) => `${record.productName}-${record.isCounter}`}
-                        pagination={{ pageSize: 10 }}
-                        scroll={{ x: 'max-content' }}
-                        rowClassName={(record) => record.isCounter ? 'counter-row' : ''}
-                        columns={[
-                          { title: 'Kategori', dataIndex: 'categoryName' },
-                          { title: 'Ürün', dataIndex: 'productName' },
-                          { title: 'Satış Miktarı', dataIndex: 'calculatedSales', align: 'right' },
-                          { title: 'Birim Fiyat', dataIndex: 'unitPrice', align: 'right', render: v => v ? `₺${v.toFixed(2)}` : '-' },
-                          { title: 'Gelir', dataIndex: 'salesValue', align: 'right', render: v => v ? `₺${v.toFixed(2)}` : '-' },
-                          { 
-                            title: 'Tür', 
-                            key: 'type', 
-                            render: (_, record) => 
-                              record.isCounter 
-                                ? <Tag color="blue">Sayaç</Tag> 
-                                : <Tag color="green">Stok</Tag> 
-                          }
-                        ]}
-                      />
-                      <div style={{ marginTop: 16, padding: '16px', background: '#fafafa', border: '1px solid #f0f0f0', borderRadius: 8 }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                          <Text>Ürün Satışları :</Text>
-                          <Text>₺ {((expectedInfo?.totalSalesRevenue || 0) - (expectedInfo?.counterSalesTotal || 0)).toLocaleString('tr-TR', { minimumFractionDigits: 2 })}</Text>
-                        </div>
-                        {(expectedInfo?.counterSalesTotal || 0) > 0 && (
-                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                            <Text>Sayaç Satışları :</Text>
-                            <Text>₺ {(expectedInfo?.counterSalesTotal || 0).toLocaleString('tr-TR', { minimumFractionDigits: 2 })}</Text>
-                          </div>
-                        )}
-                        <Divider style={{ margin: '8px 0' }} />
-                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                          <Text strong>Toplam Satış :</Text>
-                          <Text strong>₺ {(expectedInfo?.totalSalesRevenue || 0).toLocaleString('tr-TR', { minimumFractionDigits: 2 })}</Text>
-                        </div>
+      {!isEmployee && (
+        <>
+          {/* STEP 2: KASA SAYIMI */}
+          <div style={{ display: currentStep === 1 ? 'block' : 'none' }}>
+            {expectedCashQuery.isLoading ? (
+              <div style={{ textAlign: 'center', padding: 40 }}><Spin tip="Beklenen kasa hesaplanıyor..." /></div>
+            ) : (
+              <Row gutter={[24, 24]}>
+                <Col xs={24} md={10}>
+                  <Card 
+                    title={<Space><CalculatorOutlined /> Kasa Denklemi</Space>}
+                    style={{ background: '#f9f9f9', borderRadius: 12, height: '100%' }}
+                  >
+                    <Space direction="vertical" style={{ width: '100%' }} size={12}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <Text type="secondary">Açılış Bakiyesi:</Text>
+                        <Text>{formatCurrency(expectedInfo?.openingCashBalance || 0)}</Text>
                       </div>
-                    </Panel>
-                  </Collapse>
-                </Form>
-              </Card>
-            </Col>
-          </Row>
-        )}
-        
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 24, flexWrap: 'wrap', gap: 12 }}>
-          <Button onClick={() => setCurrentStep(0)}>◄ Geri</Button>
-          <Button type="primary" size="large" onClick={handleSaveCashAndNext} loading={saving}>
-            İleri ►
-          </Button>
-        </div>
-        
-        <Modal 
-          title="Fiyatı Tanımlı Olmayan Ürünler" 
-          open={isMissingPricesModalVisible} 
-          onCancel={() => setIsMissingPricesModalVisible(false)}
-          footer={[<Button key="ok" type="primary" onClick={() => setIsMissingPricesModalVisible(false)}>Tamam</Button>]}
-        >
-          <Alert message="Aşağıdaki ürünlerin satış fiyatı sistemde tanımlı olmadığı için beklenen kasa tutarına dahil edilmemiştir." type="info" showIcon style={{ marginBottom: 16 }} />
-          <ul>
-            {missingPriceProducts.map(p => (
-              <li key={p.productName}>{p.productName} (Satış: {p.calculatedSales})</li>
-            ))}
-          </ul>
-        </Modal>
-      </div>
-
-      {/* STEP 3: FOTOĞRAFLAR */}
-      <div style={{ display: currentStep === 2 ? 'block' : 'none' }}>
-        <Alert message="Her iki fotoğrafı da sisteme yüklemek zorunludur." type="info" showIcon style={{ marginBottom: 24 }} />
-        
-        <Row gutter={[24, 24]}>
-          <Col xs={24} md={12}>
-            <Card title="Gün Sonu Fişi" style={{ borderRadius: 12 }}>
-              <PhotoUpload 
-                value={receiptPhoto}
-                onChange={setReceiptPhoto}
-                required={true}
-                placeholder="Gün sonu POS/Z raporu fiş fotoğrafı"
-              />
-            </Card>
-          </Col>
-          <Col xs={24} md={12}>
-            <Card title="Tezgah Fotoğrafı" style={{ borderRadius: 12 }}>
-              <PhotoUpload 
-                value={counterPhoto}
-                onChange={setCounterPhoto}
-                required={true}
-                placeholder="Günün sonunda tezgahın genel durumu"
-              />
-            </Card>
-          </Col>
-        </Row>
-        
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 24, flexWrap: 'wrap', gap: 12 }}>
-          <Button onClick={() => setCurrentStep(1)}>◄ Geri</Button>
-          <Button type="primary" size="large" onClick={handleUploadPhotosAndNext} loading={saving}>
-            İleri ►
-          </Button>
-        </div>
-      </div>
-
-      {/* STEP 4: DEVİR VE KAPAT */}
-      <div style={{ display: currentStep === 3 ? 'block' : 'none' }}>
-        <div style={{ marginBottom: 16 }}>
-          <Text type="secondary">Son Adım: Yarına devredecek ürün sayısını girin. (Aradaki fark otomatik çöpe atılan zayiat olarak hesaplanacaktır).</Text>
-        </div>
-
-        {renderModeSelector()}
-        
-        {viewMode === 'card' ? (
-          renderProductCard('carryover')
-        ) : (
-          <Collapse defaultActiveKey={categories.length > 0 ? [categories[0].id] : undefined} ghost expandIconPosition="end">
-            {categories.map(cat => {
-              return (
-              <Panel 
-                header={<Text strong style={{ fontSize: 16 }}>{cat.name}</Text>} 
-                key={cat.id}
-                style={{ marginBottom: 16, background: '#fff', borderRadius: 8, border: '1px solid #f0f0f0' }}
-              >
-                <div style={{ overflowX: 'auto' }}>
-                  <div style={{ minWidth: 600 }}>
-                    <Row style={{ fontWeight: 'bold', marginBottom: 12, paddingBottom: 12, borderBottom: '1px solid #f0f0f0', textAlign: 'center' }}>
-                      <Col span={10} style={{ textAlign: 'left' }}>Ürün Adı</Col>
-                      <Col span={6}>Sayım (Kalan)</Col>
-                      <Col span={8}>Yarına Devir</Col>
-                    </Row>
-
-                    {cat.products.map(p => (
-                      <Row key={p.id} style={{ marginBottom: 12, padding: '8px 0', borderBottom: '1px solid #fafafa', alignItems: 'center', textAlign: 'center' }}>
-                        <Col span={10} style={{ textAlign: 'left' }}>
-                          <Text>{p.name}</Text><br />
-                          <Text type="secondary" style={{ fontSize: 11 }}>{p.unitName}</Text>
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <Text type="secondary">Ürün Satışları:</Text>
+                        <Text style={{ color: '#52c41a' }}>+{formatCurrency((expectedInfo?.totalSalesRevenue || 0) - (expectedInfo?.counterSalesTotal || 0))}</Text>
+                      </div>
+                      {(expectedInfo?.counterSalesTotal || 0) > 0 && (
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <Text type="secondary">🎫 Sayaç Satışları:</Text>
+                          <Text style={{ color: '#52c41a' }}>+{formatCurrency(expectedInfo?.counterSalesTotal || 0)}</Text>
+                        </div>
+                      )}
+                      {expectedInfo?.cashDeposits! > 0 && (
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <Text type="secondary">Admin Yatırım:</Text>
+                          <Text style={{ color: '#52c41a' }}>+{formatCurrency(expectedInfo?.cashDeposits || 0)}</Text>
+                        </div>
+                      )}
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <Text type="secondary">Nakit Satın Alımlar:</Text>
+                        <Text style={{ color: '#ff4d4f' }}>-{formatCurrency(expectedInfo?.cashPurchases || 0)}</Text>
+                      </div>
+                      {expectedInfo?.cashWithdrawals! > 0 && (
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <Text type="secondary">Admin Çekim:</Text>
+                          <Text style={{ color: '#ff4d4f' }}>-{formatCurrency(expectedInfo?.cashWithdrawals || 0)}</Text>
+                        </div>
+                      )}
+                      {(posAmount || 0) > 0 && (
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <Text type="secondary">Günlük POS (Z Raporu):</Text>
+                          <Text style={{ color: '#ff4d4f' }}>-{formatCurrency(posAmount || 0)}</Text>
+                        </div>
+                      )}
+                      
+                      <Divider style={{ margin: '8px 0' }} />
+                      
+                      <Statistic 
+                        title={<Text strong style={{ fontSize: 16 }}>Beklenen Nakit Kasa</Text>}
+                        value={dynamicExpectedCash}
+                        precision={2}
+                        prefix="₺"
+                        valueStyle={{ color: '#1d39c4', fontSize: 32, fontWeight: 'bold' }}
+                      />
+                      
+                      {(expectedInfo?.productsWithoutPrice || 0) > 0 && (
+                        <Alert 
+                          type="warning" 
+                          showIcon 
+                          style={{ marginTop: 16 }}
+                          message={
+                            <div style={{ fontSize: 12 }}>
+                              <Text strong>{expectedInfo?.productsWithoutPrice} ürünün fiyatı tanımlı değil.</Text>
+                              <div style={{ marginTop: 4 }}>
+                                <Button size="small" type="link" onClick={() => setIsMissingPricesModalVisible(true)}>Ürünleri Gör</Button>
+                              </div>
+                            </div>
+                          }
+                        />
+                      )}
+                    </Space>
+                  </Card>
+                </Col>
+                
+                <Col xs={24} md={14}>
+                  <Card title="Kasa Girişi" style={{ borderRadius: 12, height: '100%' }}>
+                    <Form layout="vertical">
+                      <Row gutter={16}>
+                        <Col xs={24} sm={12}>
+                          <Form.Item 
+                            label={<Text strong>Sayılan Nakit (Elde Kalan)</Text>} 
+                            required
+                          >
+                            <InputNumber 
+                              style={{ width: '100%', borderColor: '#1890ff' }} 
+                              size="large" 
+                              addonBefore="₺" 
+                              precision={2} 
+                              min={0}
+                              value={cashAmount}
+                              onChange={val => setCashAmount(val)}
+                              placeholder="Kasada ne kadar nakit var?"
+                              onFocus={(e) => e.target.select()}
+                              inputMode="numeric"
+                              keyboard={false}
+                            />
+                          </Form.Item>
                         </Col>
-                        <Col span={6}>
-                          <Text strong>{counts[p.id] || 0}</Text>
-                        </Col>
-                        <Col span={8}>
-                          <InputNumber 
-                            min={0} 
-                            max={counts[p.id] || 0}
-                            precision={2}
-                            value={carryOvers[p.id] ?? counts[p.id] ?? 0} 
-                            onChange={val => setCarryOvers(prev => ({ ...prev, [p.id]: val || 0 }))}
-                            style={{ width: '80%' }}
-                            onFocus={(e) => e.target.select()}
-                            inputMode="numeric"
-                            keyboard={false}
-                          />
+                        <Col xs={24} sm={12}>
+                          <Form.Item label="Günlük POS (Z Raporu)" required>
+                            <InputNumber 
+                              style={{ width: '100%' }} 
+                              size="large" 
+                              addonBefore="₺" 
+                              precision={2} 
+                              min={0}
+                              value={posAmount}
+                              onChange={val => setPosAmount(val)}
+                              onFocus={(e) => e.target.select()}
+                              inputMode="numeric"
+                              keyboard={false}
+                            />
+                          </Form.Item>
                         </Col>
                       </Row>
-                    ))}
-                  </div>
-                </div>
-              </Panel>
-              );
-            })}
-          </Collapse>
-        )}
-        
-        <div style={{ marginTop: 24, padding: 24, background: '#fff', border: '1px solid #f0f0f0', borderRadius: 12, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
-          <Row justify="space-between" align="middle" gutter={[16, 16]}>
-            <Col xs={24} md={8}>
-              <Button onClick={() => setCurrentStep(2)}>◄ Geri</Button>
-            </Col>
-            <Col xs={24} md={16} style={{ textAlign: 'right' }}>
-              <Button 
-                type="primary" 
-                size="large" 
-                onClick={handleCloseDay} 
-                loading={saving} 
-                style={{ background: '#52c41a', borderColor: '#52c41a', height: 50, padding: '0 40px', fontWeight: 'bold', whiteSpace: 'normal', lineHeight: '1.2' }}
-              >
-                GÜNÜ KAPAT VE Z RAPORU OLUŞTUR
+                      
+                      <div style={{ padding: '16px', background: '#f0f5ff', borderRadius: 8, marginTop: 8, marginBottom: 16 }}>
+                        <Row justify="space-between" align="middle">
+                          <Col>
+                            <Text strong style={{ fontSize: 16 }}>Kasa Farkı:</Text>
+                          </Col>
+                          <Col>
+                            {cashAmount !== null ? (
+                              <Text strong style={{ 
+                                color: diffColor(cashDifference), 
+                                fontSize: 24 
+                              }}>
+                                {cashDifference > 0 ? '+' : ''}₺ {cashDifference.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}
+                                {' '}{diffIcon(cashDifference)}
+                              </Text>
+                            ) : (
+                              <Text type="secondary">Tutar bekleniyor...</Text>
+                            )}
+                          </Col>
+                        </Row>
+                      </div>
+
+                      {hasCashDiff && (
+                        <Form.Item 
+                          label={
+                            <span>Fark Açıklaması <Text type="danger">* Zorunlu</Text></span>
+                          }
+                        >
+                          <TextArea 
+                            rows={3} 
+                            showCount 
+                            maxLength={500} 
+                            value={differenceNote}
+                            onChange={e => setDifferenceNote(e.target.value)}
+                            placeholder="Kasa farkının nedenini açıklayınız..."
+                          />
+                        </Form.Item>
+                      )}
+                      {!hasCashDiff && (
+                        <Form.Item label="Açıklama (Opsiyonel)">
+                          <TextArea 
+                            rows={2} 
+                            showCount 
+                            maxLength={500} 
+                            value={differenceNote}
+                            onChange={e => setDifferenceNote(e.target.value)}
+                          />
+                        </Form.Item>
+                      )}
+                      
+                      <Collapse ghost style={{ marginTop: 16 }}>
+                        <Panel header={<Text style={{ color: '#1890ff' }}>Ürün Bazlı Satış Detaylarını Gör</Text>} key="1">
+                          <style>{`
+                            .counter-row {
+                               background-color: #f0f5ff;
+                            }
+                          `}</style>
+                          <Table 
+                            dataSource={expectedInfo?.items || []} 
+                            size="small"
+                            rowKey={(record) => `${record.productName}-${record.isCounter}`}
+                            pagination={{ pageSize: 10 }}
+                            scroll={{ x: 'max-content' }}
+                            rowClassName={(record) => record.isCounter ? 'counter-row' : ''}
+                            columns={[
+                              { title: 'Kategori', dataIndex: 'categoryName' },
+                              { title: 'Ürün', dataIndex: 'productName' },
+                              { title: 'Satış Miktarı', dataIndex: 'calculatedSales', align: 'right' },
+                              { title: 'Birim Fiyat', dataIndex: 'unitPrice', align: 'right', render: v => v ? `₺${v.toFixed(2)}` : '-' },
+                              { title: 'Gelir', dataIndex: 'salesValue', align: 'right', render: v => v ? `₺${v.toFixed(2)}` : '-' },
+                              { 
+                                title: 'Tür', 
+                                key: 'type', 
+                                render: (_, record) => 
+                                  record.isCounter 
+                                    ? <Tag color="blue">Sayaç</Tag> 
+                                    : <Tag color="green">Stok</Tag> 
+                              }
+                            ]}
+                          />
+                        </Panel>
+                      </Collapse>
+                    </Form>
+                  </Card>
+                </Col>
+              </Row>
+            )}
+            
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 24, flexWrap: 'wrap', gap: 12 }}>
+              <Button onClick={() => setCurrentStep(0)}>◄ Geri</Button>
+              <Button type="primary" size="large" onClick={handleSaveCashAndNext} loading={saving}>
+                İleri ►
               </Button>
-            </Col>
-          </Row>
-        </div>
-      </div>
+            </div>
+            
+            <Modal 
+              title="Fiyatı Tanımlı Olmayan Ürünler" 
+              open={isMissingPricesModalVisible} 
+              onCancel={() => setIsMissingPricesModalVisible(false)}
+              footer={[<Button key="ok" type="primary" onClick={() => setIsMissingPricesModalVisible(false)}>Tamam</Button>]}
+            >
+              <Alert message="Aşağıdaki ürünlerin satış fiyatı sistemde tanımlı olmadığı için beklenen kasa tutarına dahil edilmemiştir." type="info" showIcon style={{ marginBottom: 16 }} />
+              <ul>
+                {missingPriceProducts.map(p => (
+                  <li key={p.productName}>{p.productName} (Satış: {p.calculatedSales})</li>
+                ))}
+              </ul>
+            </Modal>
+          </div>
+
+          {/* STEP 3: FOTOĞRAFLAR */}
+          <div style={{ display: currentStep === 2 ? 'block' : 'none' }}>
+            <Alert message="Her iki fotoğrafı da sisteme yüklemek zorunludur." type="info" showIcon style={{ marginBottom: 24 }} />
+            
+            <Row gutter={[24, 24]}>
+              <Col xs={24} md={12}>
+                <Card title="Gün Sonu Fişi" style={{ borderRadius: 12 }}>
+                  <PhotoUpload 
+                    value={receiptPhoto}
+                    onChange={setReceiptPhoto}
+                    required={true}
+                    placeholder="Gün sonu POS/Z raporu fiş fotoğrafı"
+                  />
+                </Card>
+              </Col>
+              <Col xs={24} md={12}>
+                <Card title="Tezgah Fotoğrafı" style={{ borderRadius: 12 }}>
+                  <PhotoUpload 
+                    value={counterPhoto}
+                    onChange={setCounterPhoto}
+                    required={true}
+                    placeholder="Günün sonunda tezgahın genel durumu"
+                  />
+                </Card>
+              </Col>
+            </Row>
+            
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 24, flexWrap: 'wrap', gap: 12 }}>
+              <Button onClick={() => setCurrentStep(1)}>◄ Geri</Button>
+              <Button type="primary" size="large" onClick={handleUploadPhotosAndNext} loading={saving}>
+                İleri ►
+              </Button>
+            </div>
+          </div>
+
+          {/* STEP 4: DEVİR VE KAPAT */}
+          <div style={{ display: currentStep === 3 ? 'block' : 'none' }}>
+            <div style={{ marginBottom: 16 }}>
+              <Text type="secondary">Son Adım: Yarına devredecek ürün sayısını girin. (Aradaki fark otomatik çöpe atılan zayiat olarak hesaplanacaktır).</Text>
+            </div>
+
+            {renderModeSelector()}
+            
+            {viewMode === 'card' ? (
+              renderProductCard('carryover')
+            ) : (
+              <Collapse defaultActiveKey={categories.length > 0 ? [categories[0].id] : undefined} ghost expandIconPosition="end">
+                {categories.map(cat => {
+                  return (
+                  <Panel 
+                    header={<Text strong style={{ fontSize: 16 }}>{cat.name}</Text>} 
+                    key={cat.id}
+                    style={{ marginBottom: 16, background: '#fff', borderRadius: 8, border: '1px solid #f0f0f0' }}
+                  >
+                    <div style={{ overflowX: 'auto' }}>
+                      <div style={{ minWidth: 600 }}>
+                        <Row style={{ fontWeight: 'bold', marginBottom: 12, paddingBottom: 12, borderBottom: '1px solid #f0f0f0', textAlign: 'center' }}>
+                          <Col span={10} style={{ textAlign: 'left' }}>Ürün Adı</Col>
+                          <Col span={6}>Sayım (Kalan)</Col>
+                          <Col span={8}>Yarına Devir</Col>
+                        </Row>
+
+                        {cat.products.map(p => (
+                          <Row key={p.id} style={{ marginBottom: 12, padding: '8px 0', borderBottom: '1px solid #fafafa', alignItems: 'center', textAlign: 'center' }}>
+                            <Col span={10} style={{ textAlign: 'left' }}>
+                              <Text>{p.name}</Text><br />
+                              <Text type="secondary" style={{ fontSize: 11 }}>{p.unitName}</Text>
+                            </Col>
+                            <Col span={6}>
+                              <Text strong>{counts[p.id] || 0}</Text>
+                            </Col>
+                            <Col span={8}>
+                              <InputNumber 
+                                min={0} 
+                                max={counts[p.id] || 0}
+                                precision={2}
+                                value={carryOvers[p.id] ?? counts[p.id] ?? 0} 
+                                onChange={val => setCarryOvers(prev => ({ ...prev, [p.id]: val || 0 }))}
+                                style={{ width: '80%' }}
+                                onFocus={(e) => e.target.select()}
+                                inputMode="numeric"
+                                keyboard={false}
+                              />
+                            </Col>
+                          </Row>
+                        ))}
+                      </div>
+                    </div>
+                  </Panel>
+                  );
+                })}
+              </Collapse>
+            )}
+            
+            <div style={{ marginTop: 24, padding: 24, background: '#fff', border: '1px solid #f0f0f0', borderRadius: 12, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+              <Row justify="space-between" align="middle" gutter={[16, 16]}>
+                <Col xs={24} md={8}>
+                  <Button onClick={() => setCurrentStep(2)}>◄ Geri</Button>
+                </Col>
+                <Col xs={24} md={16} style={{ textAlign: 'right' }}>
+                  <Button 
+                    type="primary" 
+                    size="large" 
+                    onClick={handleCloseDay} 
+                    loading={saving} 
+                    style={{ background: '#52c41a', borderColor: '#52c41a', height: 50, padding: '0 40px', fontWeight: 'bold', whiteSpace: 'normal', lineHeight: '1.2' }}
+                  >
+                    GÜNÜ KAPAT VE Z RAPORU OLUŞTUR
+                  </Button>
+                </Col>
+              </Row>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };

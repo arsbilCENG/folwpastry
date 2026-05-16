@@ -4,9 +4,11 @@ import { ConfigProvider, App as AntdApp } from 'antd';
 import trTR from 'antd/locale/tr_TR';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './context/AuthContext';
+import useAuth from './hooks/useAuth';
 import { NotificationProvider } from './context/NotificationContext';
 import ProtectedRoute from './components/layout/ProtectedRoute';
 import SalesLayout from './components/layout/SalesLayout';
+import EmployeeLayout from './components/layout/EmployeeLayout';
 import ProductionLayout from './components/layout/ProductionLayout';
 import AdminLayout from './components/layout/AdminLayout';
 
@@ -68,6 +70,17 @@ const queryClient = new QueryClient({
   },
 });
 
+const SalesOrEmployeeLayout: React.FC = () => {
+  const { user } = useAuth();
+  return user?.role === 'Employee' ? <EmployeeLayout /> : <SalesLayout />;
+};
+
+const SalesIndexRedirect: React.FC = () => {
+  const { user } = useAuth();
+  const target = user?.role === 'Employee' ? 'day-closing' : 'dashboard';
+  return <Navigate to={target} replace />;
+};
+
 const App: React.FC = () => {
   return (
     <QueryClientProvider client={queryClient}>
@@ -105,10 +118,10 @@ const App: React.FC = () => {
                     </Route>
                   </Route>
 
-                  {/* Sales Routes */}
-                  <Route element={<ProtectedRoute requireRole={['Sales', 'Admin']} />}>
-                    <Route path="/sales" element={<SalesLayout />}>
-                      <Route index element={<Navigate to="dashboard" replace />} />
+                  {/* Sales & Employee Routes */}
+                  <Route element={<ProtectedRoute requireRole={['Sales', 'Admin', 'Employee']} />}>
+                    <Route path="/sales" element={<SalesOrEmployeeLayout />}>
+                      <Route index element={<SalesIndexRedirect />} />
                       <Route path="dashboard" element={<SalesDashboard />} />
                       <Route path="stock" element={<CurrentStockPage />} />
                       <Route path="demands/create" element={<CreateDemandPage />} />
@@ -121,9 +134,7 @@ const App: React.FC = () => {
                       <Route path="reports" element={<SalesReports />} />
                       <Route path="purchases" element={<SalesPurchases />} />
                       <Route path="transfers" element={<SalesTransfers />} />
-
                       <Route path="notifications" element={<NotificationList />} />
-                      {/* Backward compatibility route if needed */}
                       <Route path="demands/receive" element={<ReceiveDeliveryPage />} />
                     </Route>
                   </Route>

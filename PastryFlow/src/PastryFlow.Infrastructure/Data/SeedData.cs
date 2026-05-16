@@ -191,6 +191,42 @@ public static class SeedData
                 IsActive = true,
                 CreatedAt = SeedDate,
                 UpdatedAt = SeedDate
+            },
+            new User
+            {
+                Id = Guid.Parse("33333333-3333-3333-3333-333333333309"),
+                Email = "kirklareli.calisan@pastryflow.com",
+                FullName = "Kırklareli Çalışan",
+                Role = UserRole.Employee,
+                BranchId = Guid.Parse("11111111-1111-1111-1111-111111111104"),
+                PasswordHash = passwordHash,
+                IsActive = true,
+                CreatedAt = SeedDate,
+                UpdatedAt = SeedDate
+            },
+            new User
+            {
+                Id = Guid.Parse("33333333-3333-3333-3333-333333333310"),
+                Email = "edirne.calisan@pastryflow.com",
+                FullName = "Edirne Çalışan",
+                Role = UserRole.Employee,
+                BranchId = Guid.Parse("11111111-1111-1111-1111-111111111105"),
+                PasswordHash = passwordHash,
+                IsActive = true,
+                CreatedAt = SeedDate,
+                UpdatedAt = SeedDate
+            },
+            new User
+            {
+                Id = Guid.Parse("33333333-3333-3333-3333-333333333311"),
+                Email = "luleburgaz.calisan@pastryflow.com",
+                FullName = "Lüleburgaz Çalışan",
+                Role = UserRole.Employee,
+                BranchId = Guid.Parse("11111111-1111-1111-1111-111111111106"),
+                PasswordHash = passwordHash,
+                IsActive = true,
+                CreatedAt = SeedDate,
+                UpdatedAt = SeedDate
             }
         );
     }
