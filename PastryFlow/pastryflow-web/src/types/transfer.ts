@@ -1,7 +1,7 @@
 export enum TransferStatus {
-  Shipped = 0,
-  Received = 1,
-  Cancelled = 2,
+  Shipped = 'Shipped',
+  Received = 'Received',
+  Cancelled = 'Cancelled',
 }
 
 export const TransferStatusLabel: Record<TransferStatus, string> = {
