@@ -73,6 +73,19 @@ public class CustomCakeOrderService : ICustomCakeOrderService
             Description = order.Description,
             ReferencePhotoUrl = order.ReferencePhotoUrl,
             Price = order.Price,
+            
+            DepositAmount = order.DepositAmount,
+            DepositPaymentMethod = order.DepositPaymentMethod?.ToString(),
+            DepositPaidAt = order.DepositPaidAt,
+            DepositCollectedByUserName = order.DepositCollectedByUser?.FullName ?? order.DepositCollectedByUser?.Email,
+            
+            FinalPaymentAmount = order.FinalPaymentAmount,
+            FinalPaymentMethod = order.FinalPaymentMethod?.ToString(),
+            FinalPaymentPaidAt = order.FinalPaymentPaidAt,
+            FinalPaymentCollectedByUserName = order.FinalPaymentCollectedByUser?.FullName ?? order.FinalPaymentCollectedByUser?.Email,
+            
+            RemainingAmount = order.Price - (order.DepositAmount ?? 0) - (order.FinalPaymentAmount ?? 0),
+
             Status = order.Status.ToString(),
             StatusText = order.Status switch
             {
@@ -99,7 +112,9 @@ public class CustomCakeOrderService : ICustomCakeOrderService
             .Include(o => o.CreatedByUser)
             .Include(o => o.CakeType)
             .Include(o => o.InnerCream)
-            .Include(o => o.OuterCream);
+            .Include(o => o.OuterCream)
+            .Include(o => o.DepositCollectedByUser)
+            .Include(o => o.FinalPaymentCollectedByUser);
     }
 
     public async Task<ApiResponse<CustomCakeOrderDto>> CreateAsync(CreateCustomCakeOrderDto dto, Guid userId, Guid branchId)

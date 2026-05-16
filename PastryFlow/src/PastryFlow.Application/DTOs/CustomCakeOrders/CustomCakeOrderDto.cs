@@ -23,6 +23,19 @@ public class CustomCakeOrderDto
     public string Description { get; set; } = string.Empty;
     public string? ReferencePhotoUrl { get; set; }
     public decimal Price { get; set; }
+    
+    public decimal? DepositAmount { get; set; }
+    public string? DepositPaymentMethod { get; set; }
+    public DateTime? DepositPaidAt { get; set; }
+    public string? DepositCollectedByUserName { get; set; }
+    
+    public decimal? FinalPaymentAmount { get; set; }
+    public string? FinalPaymentMethod { get; set; }
+    public DateTime? FinalPaymentPaidAt { get; set; }
+    public string? FinalPaymentCollectedByUserName { get; set; }
+    
+    public decimal RemainingAmount { get; set; }
+
     public string Status { get; set; } = string.Empty;
     public string StatusText { get; set; } = string.Empty;
     public string? StatusNote { get; set; }
